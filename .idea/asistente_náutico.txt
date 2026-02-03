@@ -1,0 +1,3 @@
+repositorio de cartas náuticas, recomendaciones en tiempo real en función de la ubicación de la embarcación, consejos de navegación, alertas de seguridad
+
+Api pública? https://map.openseamap.org/?lang=es

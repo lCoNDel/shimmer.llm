@@ -1,5 +1,10 @@
 Como recopila el motor la información?
+
 Como se extrae?
+
 Comunicación vía API con Mercury?
-Como hacer llegar el histórico y los reports al Agente Web, una vez recibida, cruzarla con manuales internos (asociados al cliente?), recurrir a su historico interno de ventas y reparaciones para sugerencias?
+
+Como hacer llegar el histórico y los reports al Agente Web, una vez recibida, cruzarla con manuales internos (asociados al cliente?), recurrir a su histórico interno de ventas y reparaciones para sugerencias?
+
+Modelo llm personalizado para el cliente (Conoce el contexto del negocio, área de venta, info de los empleados, expertise, etc) RAG personalizado con manuales asociados a sus productos concretamente
 
