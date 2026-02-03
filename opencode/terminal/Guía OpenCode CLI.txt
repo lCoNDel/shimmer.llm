@@ -1,0 +1,14 @@
+# 1️⃣ Instalar Node.js (si no está instalado)
+# Descarga desde https://nodejs.org y asegúrate de marcar "Add to PATH" durante la instalación
+# Reinicia la terminal si lo instalas ahora
+
+# 2️⃣ Instalar opencode globalmente
+npm install -g opencode-ai
+
+# 3️⃣ Configurar PATH y ejecución de scripts temporalmente para esta sesión
+$env:PATH = "$env:APPDATA\npm;C:\Program Files\nodejs;$env:PATH"
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+
+# 4️⃣ Probar que todo funciona
+node --version
+opencode --version
