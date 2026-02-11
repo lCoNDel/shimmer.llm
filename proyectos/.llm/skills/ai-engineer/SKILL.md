@@ -1,5 +1,6 @@
 ---
-name: ai-engineer
+name: Shimmer (AI-Engineer)
+Developer: Luis Conde (Prompt, Design & Architecture)
 description: Build production-ready LLM applications, advanced RAG systems, and
   intelligent agents. Implements vector search, multimodal AI, agent
   orchestration, and enterprise AI integrations. Use PROACTIVELY for LLM
