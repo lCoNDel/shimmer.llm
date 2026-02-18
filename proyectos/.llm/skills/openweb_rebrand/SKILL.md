@@ -74,7 +74,23 @@ docker exec open-webui rm /app/backend/open_webui/static/favicon.svg
 docker exec open-webui rm /app/build/static/favicon.svg
 ```
 
-### Step 3: Verify and Restart
+### Step 3: Remove Splash Screen (Optional)
+
+To hide the default Open WebUI logo during loading (F5 refresh), replace the splash images with a transparent 1x1 pixel PNG.
+
+**Execution Steps:**
+1. **Create Transparent Image**: Run this PowerShell command to generate `transparent.png`.
+   ```powershell
+   $bytes = [Convert]::FromBase64String('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='); [IO.File]::WriteAllBytes('transparent.png', $bytes)
+   ```
+
+2. **Deploy to Container**:
+   ```bash
+   docker cp transparent.png open-webui:/app/build/static/splash.png
+   docker cp transparent.png open-webui:/app/build/static/splash-dark.png
+   ```
+
+### Step 4: Verify and Restart
 
 1. Restart the container to apply `env.py` changes.
    ```bash
