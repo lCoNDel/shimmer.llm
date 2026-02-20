@@ -4,48 +4,48 @@ import os
 # API
 openai.api_key = os.environ.get('API_NAUTICO')
 
+# Presentación del asistente
+ASSISTANT_DESCRIPTION = (
+    "Eres Shimmer, un asistente náutico en fase de pruebas diseñado por Luis Conde y representante de Touron S.A. "
+    "Estás especializado en navegación marítima, meteorología, rutas, consejos de seguridad en el mar y orientación técnica. "
+    "Proporciona respuestas claras y detalladas, utilizando un enfoque paso a paso cuando sea necesario."
+)
+
+# Información de contacto
+CONTACT_INFO = (
+    "📞 Teléfono: 916 57 27 73\n"
+    "📧 Correo Electrónico: touron@touronsa.es\n"
+    "🌐 Página Web: www.touron.es"
+)
+
+# Productos distribuidos
+PRODUCTS = {
+    "Motores": [
+        "Mercury", "Mercury Avator", "Mercury Mercruiser",
+        "Mercury Diesel", "MotorGuide", "Cummins", "Cummins Onan",
+        "Quicksilver"
+    ],
+    "Embarcaciones": ["Navan", "Hayday", "Bayliner"],
+    "Accesorios": [
+        "Touron", "Attwood", "Land N Sea", "Talamex", "Seachoice", "Besto",
+        "OneUP"
+    ]
+}
+
+# Funciones especiales del asistente
+SPECIAL_FUNCTIONS = [
+    "Consumo de Combustible", "Conversión de Velocidades",
+    "Tiempo de Viaje", "Conversión de Distancias",
+    "Distancia entre Puertos", "Velocidad Promedio",
+    "Consumo por Distancia", "Efecto de Corriente",
+    "Nueva Posición del Barco", "Capacidad de Carga"
+]
+
 def chat_with_gpt(prompt, user):
     """
     Función para interactuar con GPT y generar respuestas.
     Describe el propósito del asistente, la información de contacto, productos y funciones especiales relacionadas con Touron.
     """
-    # Presentación del asistente
-    assistant_description = (
-        "Eres Shimmer, un asistente náutico en fase de pruebas diseñado por Luis Conde y representante de Touron S.A. "
-        "Estás especializado en navegación marítima, meteorología, rutas, consejos de seguridad en el mar y orientación técnica. "
-        "Proporciona respuestas claras y detalladas, utilizando un enfoque paso a paso cuando sea necesario."
-    )
-
-    # Información de contacto
-    contact_info = (
-        "📞 Teléfono: 916 57 27 73\n"
-        "📧 Correo Electrónico: touron@touronsa.es\n"
-        "🌐 Página Web: www.touron.es"
-    )
-
-    # Productos distribuidos
-    products = {
-        "Motores": [
-            "Mercury", "Mercury Avator", "Mercury Mercruiser",
-            "Mercury Diesel", "MotorGuide", "Cummins", "Cummins Onan",
-            "Quicksilver"
-        ],
-        "Embarcaciones": ["Navan", "Hayday", "Bayliner"],
-        "Accesorios": [
-            "Touron", "Attwood", "Land N Sea", "Talamex", "Seachoice", "Besto",
-            "OneUP"
-        ]
-    }
-
-    # Funciones especiales del asistente
-    special_functions = [
-        "Consumo de Combustible", "Conversión de Velocidades",
-        "Tiempo de Viaje", "Conversión de Distancias",
-        "Distancia entre Puertos", "Velocidad Promedio",
-        "Consumo por Distancia", "Efecto de Corriente",
-        "Nueva Posición del Barco", "Capacidad de Carga"
-    ]
-
     try:
         # Construir el mensaje sistemático
         response = openai.chat.completions.create(
@@ -53,15 +53,15 @@ def chat_with_gpt(prompt, user):
             messages=[{
                 "role": "system",
                 "content": (
-                    f"{assistant_description}\n\n"
+                    f"{ASSISTANT_DESCRIPTION}\n\n"
                     "Información de contacto de Touron S.A.:\n"
-                    f"{contact_info}\n\n"
+                    f"{CONTACT_INFO}\n\n"
                     "Marcas de productos distribuidos por Touron:\n"
-                    f"Motores: {', '.join(products['Motores'])}\n"
-                    f"Embarcaciones: {', '.join(products['Embarcaciones'])}\n"
-                    f"Accesorios: {', '.join(products['Accesorios'])}\n\n"
+                    f"Motores: {', '.join(PRODUCTS['Motores'])}\n"
+                    f"Embarcaciones: {', '.join(PRODUCTS['Embarcaciones'])}\n"
+                    f"Accesorios: {', '.join(PRODUCTS['Accesorios'])}\n\n"
                     "Funciones especiales disponibles:\n"
-                    f"{', '.join(special_functions)}."
+                    f"{', '.join(SPECIAL_FUNCTIONS)}."
                 )
             }, {
                 "role": "user",
