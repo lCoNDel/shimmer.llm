@@ -1,6 +1,6 @@
 ---
 name: Open WebUI Rebrand
-description: Completely rebrands an Open WebUI container (Title, Favicon, Splash, Logo) with user-provided assets.
+description: Completely rebrands an Open WebUI container (Title, Favicon, Logo) with standard Touron assets.
 ---
 
 # Open WebUI Rebranding Skill
@@ -11,7 +11,9 @@ This skill guides the agent through the process of customizing the Open WebUI in
 
 **CRITICAL:** Before proceeding, ask the user for the following information if not already provided:
 1. **New Title**: What text should appear in the browser tab? (e.g. "Shimmer")
-2. **Logo Image Path**: What is the absolute path to the local image file you want to use as the icon/logo?
+
+The **Logo Image Path** to use is ALWAYS:
+`C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png`
 
 > [!IMPORTANT]
 > Ensure the image file exists at the provided path before continuing.
@@ -41,7 +43,6 @@ We must replace multiple files in both `-backend` and `-build` directories to en
 **Files to Replace:**
 - `favicon.png`
 - `favicon.ico`
-- `splash.png`
 - `logo.png`
 - `apple-touch-icon.png`
 - `web-app-manifest-512x512.png`
@@ -50,47 +51,29 @@ We must replace multiple files in both `-backend` and `-build` directories to en
 - `favicon.svg` (To force browser to use the png/ico)
 
 **Execution Steps:**
-1. **Copy user image** to the container. Run the following commands, replacing `{{IMAGE_PATH}}` with the user's provided path.
+1. **Copy user image** to the container. Run the following commands.
 
 ```powershell
 # Backend Static Files
-docker cp "{{IMAGE_PATH}}" open-webui:/app/backend/open_webui/static/favicon.png
-docker cp "{{IMAGE_PATH}}" open-webui:/app/backend/open_webui/static/favicon.ico
-docker cp "{{IMAGE_PATH}}" open-webui:/app/backend/open_webui/static/splash.png
-docker cp "{{IMAGE_PATH}}" open-webui:/app/backend/open_webui/static/logo.png
-docker cp "{{IMAGE_PATH}}" open-webui:/app/backend/open_webui/static/apple-touch-icon.png
-docker cp "{{IMAGE_PATH}}" open-webui:/app/backend/open_webui/static/web-app-manifest-512x512.png
+docker cp "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png" open-webui:/app/backend/open_webui/static/favicon.png
+docker cp "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png" open-webui:/app/backend/open_webui/static/favicon.ico
+docker cp "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png" open-webui:/app/backend/open_webui/static/logo.png
+docker cp "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png" open-webui:/app/backend/open_webui/static/apple-touch-icon.png
+docker cp "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png" open-webui:/app/backend/open_webui/static/web-app-manifest-512x512.png
 
 # Build Static Files (Frontend)
-docker cp "{{IMAGE_PATH}}" open-webui:/app/build/static/favicon.png
-docker cp "{{IMAGE_PATH}}" open-webui:/app/build/static/favicon.ico
-docker cp "{{IMAGE_PATH}}" open-webui:/app/build/static/splash.png
-docker cp "{{IMAGE_PATH}}" open-webui:/app/build/static/logo.png
-docker cp "{{IMAGE_PATH}}" open-webui:/app/build/static/apple-touch-icon.png
-docker cp "{{IMAGE_PATH}}" open-webui:/app/build/static/web-app-manifest-512x512.png
+docker cp "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png" open-webui:/app/build/static/favicon.png
+docker cp "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png" open-webui:/app/build/static/favicon.ico
+docker cp "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png" open-webui:/app/build/static/logo.png
+docker cp "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png" open-webui:/app/build/static/apple-touch-icon.png
+docker cp "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills\openweb_rebrand\Touron logo.png" open-webui:/app/build/static/web-app-manifest-512x512.png
 
 # Remove SVGs
 docker exec open-webui rm /app/backend/open_webui/static/favicon.svg
 docker exec open-webui rm /app/build/static/favicon.svg
 ```
 
-### Step 3: Remove Splash Screen (Optional)
-
-To hide the default Open WebUI logo during loading (F5 refresh), replace the splash images with a transparent 1x1 pixel PNG.
-
-**Execution Steps:**
-1. **Create Transparent Image**: Run this PowerShell command to generate `transparent.png`.
-   ```powershell
-   $bytes = [Convert]::FromBase64String('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='); [IO.File]::WriteAllBytes('transparent.png', $bytes)
-   ```
-
-2. **Deploy to Container**:
-   ```bash
-   docker cp transparent.png open-webui:/app/build/static/splash.png
-   docker cp transparent.png open-webui:/app/build/static/splash-dark.png
-   ```
-
-### Step 4: Verify and Restart
+### Step 3: Verify and Restart
 
 1. Restart the container to apply `env.py` changes.
    ```bash
