@@ -23,8 +23,12 @@ def chat_with_gpt(prompt):
                 "content": prompt
             }])
         return response.choices[0].message.content.strip()
-    except Exception as e:
-        return f"Error al procesar tu solicitud: {str(e)}"
+    except openai.RateLimitError as e:
+        return f"Error: Has excedido tu límite de cuota. {e}"
+    except openai.APIConnectionError as e:
+        return f"Error: No se pudo conectar con los servidores de OpenAI. {e}"
+    except openai.APIError as e:
+        return f"Error de la API de OpenAI: {e}"
 
 
 if __name__ == "__main__":

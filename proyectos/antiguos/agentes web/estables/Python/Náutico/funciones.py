@@ -81,8 +81,6 @@ def convertir_distancia(distancia_millas_nauticas: float) -> float:
 # 5. Cálculo de Distancia entre dos Puntos Geográficos
 # -----------------------------------------
 
-from geopy.distance import geodesic
-
 def calcular_distancia_puertos(coord1: tuple, coord2: tuple) -> float:
     """
     Calcula la distancia entre dos coordenadas geográficas (latitud, longitud).
@@ -91,17 +89,8 @@ def calcular_distancia_puertos(coord1: tuple, coord2: tuple) -> float:
     :param coord2: coordenadas (latitud, longitud) del segundo puerto
     :return: distancia entre los dos puertos en kilómetros
     """
+    from geopy.distance import geodesic
     return geodesic(coord1, coord2).kilometers
-
-# Coordenadas de los puertos
-puerto_nueva_york = (40.7128, -74.0060)  # Coordenadas de Nueva York
-puerto_los_angeles = (34.0522, -118.2437)  # Coordenadas de Los Ángeles
-puerto_alicante = (38.3452, -0.4907)      # Coordenadas del Puerto de Alicante
-puerto_malaga = (36.7202, -4.4200)        # Coordenadas del Puerto de Málaga
-
-# Calcular distancias
-distancia_nueva_york_los_angeles = calcular_distancia_puertos(puerto_nueva_york, puerto_los_angeles)
-distancia_alicante_malaga = calcular_distancia_puertos(puerto_alicante, puerto_malaga)
 
 # -----------------------------------------
 # 6. Cálculo de la Velocidad Promedio en el Viaje
@@ -214,9 +203,21 @@ def calcular_capacidad_carga(peso_carga_actual: float, peso_maximo: float) -> st
 # Ejemplo de uso
 if __name__ == "__main__":
     try:
+        # Coordenadas de los puertos
+        puerto_nueva_york = (40.7128, -74.0060)  # Coordenadas de Nueva York
+        puerto_los_angeles = (34.0522, -118.2437)  # Coordenadas de Los Ángeles
+        puerto_alicante = (38.3452, -0.4907)      # Coordenadas del Puerto de Alicante
+        puerto_malaga = (36.7202, -4.4200)        # Coordenadas del Puerto de Málaga
+
+        # Calcular distancias
+        distancia_nueva_york_los_angeles = calcular_distancia_puertos(puerto_nueva_york, puerto_los_angeles)
+        distancia_alicante_malaga = calcular_distancia_puertos(puerto_alicante, puerto_malaga)
+
         print(calcular_consumo_combustible(10, 5))  # Ejemplo de uso
         print(convertir_velocidad(20, 'nudos', 'km/h'))
     except ValueError as e:
         print(e)
+    except ImportError as e:
+        print(f"Error importing dependency: {e}")
 
 # Fin del archivo
