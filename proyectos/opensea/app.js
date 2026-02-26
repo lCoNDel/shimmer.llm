@@ -57,15 +57,18 @@ document.addEventListener('DOMContentLoaded', () => {
         position: 'bottomright'
     }).addTo(map);
 
-    // 2. Add Base Map (Dark Mode to match branding)
-    // CartoDB Dark Matter is an excellent dark base map
-    const baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // 2. Add Base Map (Light Mode default to improve legibility)
+    // CartoDB Positron is an excellent light base map
+    const baseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
-        maxZoom: 18
+        maxZoom: 18,
+        className: 'cartodb-base-layer'
     }).addTo(map);
 
     // 3. Add OpenSeaMap layer for Nautical Charts (Buoys, lights, marks)
+    // Reverted the scaling trick as it breaks the overlay grid against the 256px base layer.
+    // OpenSeaMap renders icons statically at specific zoom levels (usually 10/11+).
     L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
         attribution: 'Map data: &copy; <a href="http://www.openseamap.org">OpenSeaMap</a> contributors',
         maxZoom: 18
@@ -73,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. UI Elements
     const weatherPanel = document.getElementById('weatherPanel');
-    const closePanelBtn = document.getElementById('closePanelBtn');
     const weatherContent = document.getElementById('weatherContent');
     const loader = document.getElementById('loader');
     const latlonDisplay = document.getElementById('latlonDisplay');
@@ -83,6 +85,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchPanel = document.getElementById('searchPanel');
     const openSearchBtn = document.getElementById('openSearchBtn');
     const closeSearchBtn = document.getElementById('closeSearchBtn');
+
+    // Information Modal Elements
+    const infoBtn = document.getElementById('infoBtn');
+    const infoModal = document.getElementById('infoModal');
+    const closeInfoBtn = document.getElementById('closeInfoBtn');
+
     const searchInput = document.getElementById('searchInput');
     const dealerList = document.getElementById('dealerList');
 
@@ -91,28 +99,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const openLegendBtn = document.getElementById('openLegendBtn');
     const closeLegendBtn = document.getElementById('closeLegendBtn');
 
-    // Theme Elements
-    const themeToggleBtn = document.getElementById('themeToggleBtn');
-    const themeIcon = document.getElementById('themeIcon');
+    // Global Search Elements
+    const globalSearchInput = document.getElementById('globalSearchInput');
+    const globalSearchBtn = document.getElementById('globalSearchBtn');
 
     let currentMarker = null;
     let dealerMarkers = [];
 
-    // Handle Theme Toggle
-    themeToggleBtn.addEventListener('click', () => {
-        document.body.classList.toggle('light-mode');
-        const isLightMode = document.body.classList.contains('light-mode');
+    // Handle Global Map Search (Nominatim)
+    async function performGlobalSearch() {
+        const query = globalSearchInput.value.trim();
+        if (!query) return;
 
-        if (isLightMode) {
-            // Switch map to CartoDB Positron (Light)
-            baseLayer.setUrl('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');
-            // Change icon to Moon
-            themeIcon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
-        } else {
-            // Switch map back to Carto Dark Matter
-            baseLayer.setUrl('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
-            // Change icon to Sun
-            themeIcon.innerHTML = `<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`;
+        // Show loading state on button
+        const originalIcon = globalSearchBtn.innerHTML;
+        globalSearchBtn.innerHTML = '<span style="font-size: 12px;">...</span>';
+
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data && data.length > 0) {
+                const bestResult = data[0];
+                const lat = parseFloat(bestResult.lat);
+                const lon = parseFloat(bestResult.lon);
+
+                // Fly to the searched location (zoom level 13 is good for cities/ports)
+                map.flyTo([lat, lon], 13, { duration: 1.5 });
+                globalSearchInput.value = ''; // clear input
+                globalSearchInput.blur(); // remove focus
+
+                // Optional: You could add a temporary marker here if desired
+            } else {
+                alert('No se encontró el lugar. Prueba con otro nombre de ciudad, puerto o ría.');
+            }
+        } catch (error) {
+            console.error('Error in global search:', error);
+            alert('Error de conexión al buscar.');
+        } finally {
+            globalSearchBtn.innerHTML = originalIcon;
+        }
+    }
+
+    globalSearchBtn.addEventListener('click', performGlobalSearch);
+    globalSearchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            performGlobalSearch();
         }
     });
 
@@ -126,6 +159,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeSearchBtn.addEventListener('click', () => {
         searchPanel.classList.add('closed');
+    });
+
+    // Handle Information Modal
+    infoBtn.addEventListener('click', () => {
+        infoModal.classList.remove('hidden');
+    });
+
+    closeInfoBtn.addEventListener('click', () => {
+        infoModal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside content
+    infoModal.addEventListener('click', (e) => {
+        if (e.target === infoModal) {
+            infoModal.classList.add('hidden');
+        }
     });
 
     // Handle Legend Panel events
@@ -185,10 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => match.marker.openPopup(), 1500);
                 }
 
-                // On mobile, maybe close search panel
-                if (window.innerWidth < 768) {
-                    searchPanel.classList.add('closed');
-                }
+                // Close search panel immediately upon selection
+                searchPanel.classList.add('closed');
             });
 
             dealerList.appendChild(card);
@@ -205,12 +252,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     initDealers();
-
-    // Handle closing the weather panel
-    closePanelBtn.addEventListener('click', () => {
-        weatherPanel.classList.add('closed');
-        if (currentMarker) map.removeLayer(currentMarker);
-    });
 
     // 5. Handle Map Clicks to fetch Marine Data
     map.on('click', async (e) => {
@@ -341,23 +382,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const html = `
             <div class="weather-grid">
                 <div class="weather-card">
-                    <span class="card-label">Mar de Fondo (Swell)</span>
+                    <span class="card-label">Altura del Oleaje (Swell)</span>
                     <div class="card-value">${data.swellHeight} <span class="card-unit">metros</span></div>
                 </div>
                 <div class="weather-card">
-                    <span class="card-label">Dirección (Swell)</span>
+                    <span class="card-label">Dirección del Oleaje</span>
                     <div class="card-value">${data.swellDirection}° ${dirArrow}</div>
                 </div>
                 <div class="weather-card">
-                    <span class="card-label">Periodo (Swell)</span>
-                    <div class="card-value">${data.swellPeriod} <span class="card-unit">seg</span></div>
+                    <span class="card-label">Periodo entre Olas</span>
+                    <div class="card-value">${data.swellPeriod} <span class="card-unit">segundos</span></div>
                 </div>
                 <div class="weather-card">
-                    <span class="card-label">Mar de Viento</span>
+                    <span class="card-label">Oleaje de Viento (Chop)</span>
                     <div class="card-value">${data.windWaveHeight} <span class="card-unit">metros</span></div>
                 </div>
                 <div class="weather-card" style="grid-column: span 2;">
-                    <span class="card-label">Temperatura del Agua Superficial</span>
+                    <span class="card-label">Temperatura en Superficie</span>
                     <div class="card-value">${data.waterTemp} <span class="card-unit">°C</span></div>
                 </div>
             </div>

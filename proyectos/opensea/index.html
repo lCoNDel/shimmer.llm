@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Touron | Meteorología y Cartografía Náutica</title>
+    <title>Shimmer - Cartógrafo</title>
 
     <!-- Google Fonts: Outfit (to match Satoshi's clean geometric look) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,32 +28,20 @@
             <span class="app-title">CARTÓGRAFO Marino</span>
         </div>
         <nav class="auth-nav">
-            <button class="btn btn-secondary" id="themeToggleBtn" aria-label="Cambiar Tema Oscuro/Claro"
-                style="padding: 0.6rem; margin-right: 0.5rem; display: inline-flex; align-items: center; justify-content: center;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" id="themeIcon">
-                    <!-- Default to Light icon since initial state is Dark mode -->
-                    <circle cx="12" cy="12" r="5"></circle>
-                    <line x1="12" y1="1" x2="12" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                    <line x1="1" y1="12" x2="3" y2="12"></line>
-                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-            </button>
-            <button class="btn btn-secondary" id="openSearchBtn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round"
-                    style="vertical-align: text-bottom; margin-right: 4px;">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                Buscar Náuticas
-            </button>
-            <button class="btn btn-primary">Contactar</button>
+
+            <div class="global-search-container">
+                <input type="text" id="globalSearchInput" class="global-search-input"
+                    placeholder="Buscar puerto, ciudad o ría...">
+                <button id="globalSearchBtn" class="global-search-btn" aria-label="Buscar en mapa">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </div>
+            <button class="btn btn-secondary" id="openSearchBtn">Distribuidores</button>
+            <button class="btn btn-primary" id="infoBtn">Información</button>
         </nav>
     </header>
 
@@ -78,7 +66,6 @@
         <aside class="weather-panel" id="weatherPanel">
             <div class="panel-header">
                 <h2>Condiciones Marítimas</h2>
-                <button class="close-btn" id="closePanelBtn" aria-label="Cerrar panel">&times;</button>
             </div>
 
             <!-- Explicit Geolocation Action -->
@@ -324,6 +311,42 @@
 
     <!-- Custom JS -->
     <script src="app.js"></script>
+
+    <!-- Information Modal -->
+    <div class="info-modal-overlay hidden" id="infoModal">
+        <div class="info-modal-content">
+            <button class="close-btn" id="closeInfoBtn" aria-label="Cerrar">&times;</button>
+            <h2>Sobre el Proyecto</h2>
+            <p style="font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;"><strong>CARTÓGRAFO Marino</strong>
+                es una plataforma cartográfica profesional desarrollada como herramienta estratégica para Touron S.A.,
+                diseñada para fusionar datos marítimos en tiempo real con una base de datos geoespacial corporativa.</p>
+
+            <h3>Resumen de Funcionalidades Técnicas</h3>
+            <ul class="feature-list">
+                <li><strong>Integración Vía APIs Externas:</strong> Consumo asíncrono de datos meteorológicos marítimos
+                    en tiempo real (altura de ola, periodo, swell, temperatura del agua) a través de la API abierta de
+                    Open-Meteo, y rendering de batimetría y balizamiento mediante la capa de OpenSeaMap.</li>
+                <li><strong>Base de Datos Local y Renderizado Geoespacial:</strong> Motor de gestión de red de
+                    distribución en memoria con ~30 concesionarios y astilleros asociados a la marca, trazados sobre
+                    Leaflet.js con marcadores SVG dinámicos.</li>
+                <li><strong>Motor de Búsqueda Dinámica:</strong> Implementación de *Geocoding* global apoyado en
+                    Nominatim (OSM) y filtrado reactivo en tiempo real para el directorio local de clientes
+                    corporativos.</li>
+                <li><strong>Módulo de Geolocalización:</strong> Rastreo preciso de la posición del usuario en alta mar
+                    utilizando la API `navigator.geolocation` nativa del navegador, centrando la carta a nivel de zoom
+                    portuario.</li>
+                <li><strong>Diseño IU/UX de Alto Rendimiento:</strong> Arquitectura *Glassmorphism* fluida, esquemas de
+                    color corporativo de alto contraste (Light Theme) para visibilidad en viseras de puente y exteriores
+                    navales.</li>
+            </ul>
+
+            <div class="creator-info">
+                <p><strong>Desarrollador / Asesor Estratégico:</strong> Luis Conde</p>
+                <p><strong>Contacto corporativo:</strong> <a
+                        href="mailto:luis.conde@touronsa.es">luis.conde@touronsa.es</a></p>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
