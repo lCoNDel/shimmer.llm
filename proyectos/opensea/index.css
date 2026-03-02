@@ -493,11 +493,19 @@ body {
 }
 
 /* Map Legend */
-.legend-control {
+/* Map Controls Bottom Left Group */
+.map-controls-bottom-left {
     position: absolute;
     bottom: 20px;
     left: 20px;
     z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.legend-control {
+    position: relative;
 }
 
 .legend-btn {
@@ -644,14 +652,14 @@ body {
 .info-modal-content {
     background: var(--brand-navy-light);
     border: 1px solid var(--brand-accent);
-    border-radius: 16px;
-    padding: 2.5rem 3rem;
-    width: 90%;
-    max-width: 650px;
-    max-height: 85vh;
+    border-radius: 20px;
+    padding: 2rem 3rem;
+    width: 95%;
+    max-width: 750px;
+    max-height: 92vh;
     overflow-y: auto;
     position: relative;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
     color: var(--brand-text);
     transform: translateY(0);
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -752,4 +760,133 @@ body {
 .legend-text span {
     font-size: 0.75rem;
     color: var(--brand-text-muted);
+}
+
+/* Custom Waypoints */
+.waypoint-popup .leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.waypoint-form {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    font-family: 'Outfit', sans-serif;
+}
+
+.waypoint-form input {
+    padding: 0.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.waypoint-form input:focus {
+    border-color: var(--brand-primary);
+}
+
+.waypoint-form button {
+    padding: 0.6rem;
+    background: var(--brand-primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.waypoint-form button:hover {
+    opacity: 0.9;
+}
+
+.waypoint-info {
+    padding: 0.5rem;
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+}
+
+.waypoint-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: var(--brand-primary);
+}
+
+/* Floating Anchor Alarm (Map Overlay) */
+.floating-alarm-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.floating-alarm-toggle {
+    background: white;
+    color: var(--brand-primary);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.floating-alarm-toggle:hover {
+    background: var(--brand-navy-light);
+}
+
+.floating-alarm-panel {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    /* Open upwards with gap */
+    left: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    padding: 1.2rem;
+    width: 300px;
+    transition: opacity 0.3s, transform 0.3s;
+    transform-origin: bottom left;
+}
+
+.floating-alarm-panel.closed {
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+    position: absolute;
+}
+
+/* Responsive Scaling for smaller laptops */
+@media screen and (max-width: 1400px) {
+    html {
+        font-size: 14px;
+        /* Reduce base font size to naturally scale down rem units */
+    }
+
+    .sidebar {
+        width: 320px;
+        /* Slightly narrower sidebar */
+        padding: 1.2rem;
+    }
+
+    .app-header {
+        padding: 0.8rem 1.5rem;
+    }
+
+    .global-search-input {
+        width: 180px;
+    }
+
+    .global-search-input:focus {
+        width: 220px;
+    }
 }

@@ -382,23 +382,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const html = `
             <div class="weather-grid">
                 <div class="weather-card">
-                    <span class="card-label">Altura del Oleaje (Swell)</span>
+                    <span class="card-label">Oleaje (Swell)</span>
                     <div class="card-value">${data.swellHeight} <span class="card-unit">metros</span></div>
                 </div>
                 <div class="weather-card">
-                    <span class="card-label">Dirección del Oleaje</span>
+                    <span class="card-label">Dirección</span>
                     <div class="card-value">${data.swellDirection}° ${dirArrow}</div>
                 </div>
                 <div class="weather-card">
-                    <span class="card-label">Periodo entre Olas</span>
+                    <span class="card-label">Tiempo Ola</span>
                     <div class="card-value">${data.swellPeriod} <span class="card-unit">segundos</span></div>
                 </div>
                 <div class="weather-card">
-                    <span class="card-label">Oleaje de Viento (Chop)</span>
+                    <span class="card-label">Oleaje (Chop)</span>
                     <div class="card-value">${data.windWaveHeight} <span class="card-unit">metros</span></div>
                 </div>
                 <div class="weather-card" style="grid-column: span 2;">
-                    <span class="card-label">Temperatura en Superficie</span>
+                    <span class="card-label">Temperatura Superficie</span>
                     <div class="card-value">${data.waterTemp} <span class="card-unit">°C</span></div>
                 </div>
             </div>
@@ -406,4 +406,597 @@ document.addEventListener('DOMContentLoaded', () => {
 
         weatherContent.innerHTML = html;
     }
+
+    // 8. Radio System Integration (Free Radio Browser API)
+    const radioSearchInput = document.getElementById('radioSearchInput');
+    const radioResults = document.getElementById('radioResults');
+    const radioPlayer = document.getElementById('radioPlayer');
+    const activeRadio = document.getElementById('activeRadio');
+    const radioNameDisplay = document.getElementById('radioNameDisplay');
+
+    async function searchRadioStations(query) {
+        if (!query.trim()) return;
+
+        radioResults.innerHTML = '<p style="padding: 0.5rem; text-align: center; font-size: 0.9rem; color: var(--brand-text-muted);">Buscando emisoras...</p>';
+
+        try {
+            // Using the free, no-key-required Radio Browser API
+            const url = `https://de1.api.radio-browser.info/json/stations/search?name=${encodeURIComponent(query)}&limit=10&order=clickcount&reverse=true`;
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            radioResults.innerHTML = ''; // clear loading state
+
+            if (data && data.length > 0) {
+                data.forEach(station => {
+                    const card = document.createElement('div');
+                    card.style.cssText = `
+                        background: rgba(0, 118, 214, 0.05); 
+                        padding: 0.6rem; 
+                        border-radius: 6px; 
+                        cursor: pointer; 
+                        border: 1px solid transparent;
+                        transition: all 0.2s;
+                    `;
+
+                    const name = station.name || 'Estación Desconocida';
+                    const format = station.tags ? station.tags.split(',')[0] : 'Radio';
+
+                    card.innerHTML = `
+                        <div style="font-weight: 600; font-size: 0.9rem; color: var(--brand-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${name}</div>
+                        <div style="font-size: 0.75rem; color: var(--brand-text-muted);">${format}</div>
+                    `;
+
+                    card.addEventListener('mouseover', () => {
+                        card.style.borderColor = 'var(--brand-primary)';
+                        card.style.background = 'rgba(0, 118, 214, 0.1)';
+                    });
+
+                    card.addEventListener('mouseout', () => {
+                        card.style.borderColor = 'transparent';
+                        card.style.background = 'rgba(0, 118, 214, 0.05)';
+                    });
+
+                    card.addEventListener('click', () => {
+                        playRadio(station.url_resolved || station.url, name);
+                    });
+
+                    radioResults.appendChild(card);
+                });
+            } else {
+                radioResults.innerHTML = '<p class="empty-state" style="padding: 0.5rem; font-size: 0.9rem;">No se encontraron emisoras.</p>';
+            }
+        } catch (error) {
+            console.error("Error fetching radio stations:", error);
+            radioResults.innerHTML = '<p style="color: #ff6b6b; padding: 0.5rem; font-size: 0.9rem;">Error al buscar emisoras.</p>';
+        }
+    }
+
+    function playRadio(streamUrl, name) {
+        activeRadio.classList.remove('hidden');
+        radioNameDisplay.textContent = name;
+
+        radioPlayer.src = streamUrl;
+        radioPlayer.play().catch(e => {
+            console.error("Playback failed:", e);
+            radioNameDisplay.textContent = "Error de reproducción. Prueba otra.";
+            radioNameDisplay.style.color = "#ff6b6b";
+        });
+
+        // Reset color on success
+        radioPlayer.onplaying = () => {
+            radioNameDisplay.style.color = "var(--brand-primary)";
+        };
+
+        // Reset search field and results list back to "empty state"
+        radioSearchInput.value = '';
+        radioResults.innerHTML = '<p class="empty-state" style="padding: 0.5rem; font-size: 0.9rem;">Más de 90,000 estaciones disponibles</p>';
+    }
+
+    // Radio Search Debounce Logic
+    let radioSearchTimeout = null;
+
+    function handleRadioInput(e) {
+        const query = e.target.value;
+
+        // Clear previous timeout
+        if (radioSearchTimeout) clearTimeout(radioSearchTimeout);
+
+        if (query.trim().length === 0) {
+            radioResults.innerHTML = '<p class="empty-state" style="padding: 0.5rem; font-size: 0.9rem;">Busca una estación para escuchar.</p>';
+            return;
+        }
+
+        // Show loading state immediately if typing
+        if (query.trim().length >= 2) {
+            radioResults.innerHTML = '<p style="padding: 0.5rem; text-align: center; font-size: 0.9rem; color: var(--brand-text-muted);">Escribiendo...</p>';
+        }
+
+        // Wait 600ms after user stops typing to trigger search
+        radioSearchTimeout = setTimeout(() => {
+            if (query.trim().length >= 2) {
+                searchRadioStations(query);
+            }
+        }, 600);
+    }
+
+    radioSearchInput.addEventListener('input', handleRadioInput);
+    radioSearchInput.addEventListener('keyup', (e) => {
+        // Force search on enter just in case
+        if (e.key === 'Enter') {
+            if (radioSearchTimeout) clearTimeout(radioSearchTimeout);
+            searchRadioStations(radioSearchInput.value);
+        }
+    });
+
+    // 9. VesselFinder Integration
+    const toggleTrafficBtn = document.getElementById('toggleTrafficBtn');
+    const vesselFinderOverlay = document.getElementById('vesselFinderOverlay');
+    let isTrafficActive = false;
+    let vesselIframe = null;
+
+    toggleTrafficBtn.addEventListener('click', () => {
+        isTrafficActive = !isTrafficActive;
+
+        if (isTrafficActive) {
+            toggleTrafficBtn.classList.remove('btn-secondary');
+            toggleTrafficBtn.classList.add('btn-primary');
+            toggleTrafficBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Ocultar Tráfico
+            `;
+
+            // Get current map view
+            const center = map.getCenter();
+            const zoom = map.getZoom();
+
+            if (!vesselIframe) {
+                // Creates and injects iframe dynamically
+                vesselIframe = document.createElement('iframe');
+                vesselIframe.setAttribute('name', 'vesselfinder');
+                vesselIframe.setAttribute('id', 'vesselfinder');
+                vesselIframe.setAttribute('width', '100%');
+                vesselIframe.setAttribute('height', '100%');
+                vesselIframe.setAttribute('frameborder', '0');
+
+                // We use tracking=0 and fleet=false for free api usage
+                vesselIframe.src = `https://www.vesselfinder.com/aismap?zoom=${zoom}&lat=${center.lat}&lon=${center.lng}&names=false`;
+
+                vesselFinderOverlay.appendChild(vesselIframe);
+            } else {
+                // Update src to sync location if it was hidden
+                vesselIframe.src = `https://www.vesselfinder.com/aismap?zoom=${zoom}&lat=${center.lat}&lon=${center.lng}&names=false`;
+            }
+
+            vesselFinderOverlay.classList.remove('hidden');
+            weatherPanel.classList.add('hidden'); // Hide maritime conditions and radio
+            searchPanel.classList.add('closed'); // Close dealer search if open
+            legendPanel.classList.add('closed'); // Close nautical legend if open
+
+        } else {
+            toggleTrafficBtn.classList.add('btn-secondary');
+            toggleTrafficBtn.classList.remove('btn-primary');
+            toggleTrafficBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+                Tráfico Marítimo
+            `;
+
+            vesselFinderOverlay.classList.add('hidden');
+            weatherPanel.classList.remove('hidden'); // Show maritime conditions and radio again
+        }
+    });
+
+    // 10. Nautical Ruler
+    const rulerBtn = document.getElementById('rulerBtn');
+    let isRulerActive = false;
+    let rulerPoints = [];
+    let rulerPolyline = null;
+    let rulerMarkers = [];
+    let rulerTooltip = null;
+    let rulerHoverLine = null;
+
+    function getBearing(startLat, startLng, destLat, destLng) {
+        const startLatRad = startLat * Math.PI / 180;
+        const startLngRad = startLng * Math.PI / 180;
+        const destLatRad = destLat * Math.PI / 180;
+        const destLngRad = destLng * Math.PI / 180;
+
+        const y = Math.sin(destLngRad - startLngRad) * Math.cos(destLatRad);
+        const x = Math.cos(startLatRad) * Math.sin(destLatRad) -
+            Math.sin(startLatRad) * Math.cos(destLatRad) * Math.cos(destLngRad - startLngRad);
+
+        const brng = Math.atan2(y, x);
+        const brngDeg = brng * 180 / Math.PI;
+        return (brngDeg + 360) % 360;
+    }
+
+    function clearRuler() {
+        if (rulerPolyline) map.removeLayer(rulerPolyline);
+        if (rulerHoverLine) map.removeLayer(rulerHoverLine);
+        rulerMarkers.forEach(m => map.removeLayer(m));
+        if (rulerTooltip) map.closePopup(rulerTooltip);
+        rulerPolyline = null;
+        rulerHoverLine = null;
+        rulerMarkers = [];
+        rulerPoints = [];
+        rulerTooltip = null;
+    }
+
+    rulerBtn.addEventListener('click', () => {
+        isRulerActive = !isRulerActive;
+        if (isRulerActive) {
+            rulerBtn.classList.add('btn-primary');
+            rulerBtn.classList.remove('btn-secondary');
+            rulerBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Cerrar Regla
+            `;
+            document.getElementById('map').style.cursor = 'crosshair';
+
+            // Si el tráfico marítimo está activo, lo cerramos para poder hacer clic en el mapa
+            if (isTrafficActive) {
+                toggleTrafficBtn.click();
+            }
+        } else {
+            rulerBtn.classList.remove('btn-primary');
+            rulerBtn.classList.add('btn-secondary');
+            rulerBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"></path>
+                    <path d="M15 15l-6-6"></path>
+                </svg>
+                Regla
+            `;
+            document.getElementById('map').style.cursor = '';
+            clearRuler();
+        }
+    });
+
+    map.on('click', (e) => {
+        if (!isRulerActive) return;
+
+        if (rulerPoints.length === 2) {
+            // Reset if already 2 points
+            clearRuler();
+        }
+
+        rulerPoints.push(e.latlng);
+
+        const marker = L.circleMarker(e.latlng, {
+            radius: 5,
+            fillColor: "#ff7800",
+            color: "#000",
+            weight: 1,
+            opacity: 1,
+            fillOpacity: 1
+        }).addTo(map);
+        rulerMarkers.push(marker);
+
+        if (rulerPoints.length === 1) {
+            // First click, initialize hover line
+            rulerHoverLine = L.polyline([rulerPoints[0], rulerPoints[0]], {
+                color: '#ff7800',
+                dashArray: '5, 5',
+                weight: 2
+            }).addTo(map);
+
+            rulerTooltip = L.popup({
+                closeButton: false,
+                autoClose: false,
+                closeOnClick: false,
+                className: 'ruler-popup'
+            }).setLatLng(e.latlng).setContent('<div style="font-family: \'Outfit\', sans-serif;">Haz clic en el destino</div>').openOn(map);
+
+        } else if (rulerPoints.length === 2) {
+            // Second click, finalize
+            if (rulerHoverLine) map.removeLayer(rulerHoverLine);
+
+            rulerPolyline = L.polyline(rulerPoints, {
+                color: '#ff7800',
+                weight: 3
+            }).addTo(map);
+
+            const distanceMeters = map.distance(rulerPoints[0], rulerPoints[1]);
+            const distanceNM = (distanceMeters / 1852).toFixed(2);
+            const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, rulerPoints[1].lat, rulerPoints[1].lng).toFixed(0);
+
+            rulerTooltip.setLatLng(rulerPoints[1]).setContent(`
+                <div style="text-align: center; font-family: 'Outfit', sans-serif;">
+                    <div style="font-weight: 600; font-size: 1.1rem; color: #ff7800;">${distanceNM} NM</div>
+                    <div style="font-size: 0.85rem; color: #555;">Rumbo: ${bearing}°</div>
+                </div>
+             `);
+        }
+    });
+
+    map.on('mousemove', (e) => {
+        if (!isRulerActive || rulerPoints.length !== 1) return;
+
+        // Update hover line
+        rulerHoverLine.setLatLngs([rulerPoints[0], e.latlng]);
+
+        // Update popup
+        const distanceMeters = map.distance(rulerPoints[0], e.latlng);
+        const distanceNM = (distanceMeters / 1852).toFixed(2);
+        const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, e.latlng.lat, e.latlng.lng).toFixed(0);
+
+        rulerTooltip.setLatLng(e.latlng).setContent(`
+            <div style="text-align: center; font-family: 'Outfit', sans-serif;">
+                <div style="font-weight: 600; font-size: 1.1rem; color: #ff7800;">${distanceNM} NM</div>
+                <div style="font-size: 0.85rem; color: #555;">Rumbo: ${bearing}°</div>
+            </div>
+        `);
+    });
+
+    // 11. Custom Waypoints
+    let customWaypoints = JSON.parse(localStorage.getItem('shimmer_waypoints')) || [];
+    let customMarkers = {};
+
+    const redIcon = L.icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    function saveWaypoints() {
+        localStorage.setItem('shimmer_waypoints', JSON.stringify(customWaypoints));
+    }
+
+    function renderWaypointMarker(wp) {
+        const marker = L.marker([wp.lat, wp.lng], { icon: redIcon }).addTo(map);
+
+        const popupContent = document.createElement('div');
+        popupContent.className = 'waypoint-info';
+        popupContent.innerHTML = `
+            <h3>${wp.name}</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 1rem;">
+                ${wp.lat.toFixed(4)}, ${wp.lng.toFixed(4)}
+            </p>
+            <button class="btn btn-danger" id="delete-wp-${wp.id}" style="width: 100%; padding: 0.5rem; font-size: 0.85rem; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Eliminar Punto
+            </button>
+        `;
+
+        marker.bindPopup(popupContent, { className: 'waypoint-popup' });
+
+        marker.on('popupopen', () => {
+            const deleteBtn = document.getElementById(`delete-wp-${wp.id}`);
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => {
+                    map.removeLayer(marker);
+                    customWaypoints = customWaypoints.filter(w => w.id !== wp.id);
+                    delete customMarkers[wp.id];
+                    saveWaypoints();
+                });
+            }
+        });
+
+        customMarkers[wp.id] = marker;
+    }
+
+    // Render loaded waypoints
+    customWaypoints.forEach(renderWaypointMarker);
+
+    // Right Clic implementation
+    map.on('contextmenu', (e) => {
+        if (isTrafficActive || isRulerActive) return;
+
+        // Create container
+        const formContainer = document.createElement('div');
+        formContainer.className = 'waypoint-form';
+
+        // Add HTML
+        formContainer.innerHTML = `
+            <div style="font-weight: 600; font-size: 1rem; color: var(--brand-primary); text-align: center;">Nuevo Punto</div>
+            <input type="text" id="wp-name-input" placeholder="Nombre (ej. Fondeadero Cala)" autocomplete="off">
+            <button id="wp-save-btn">Guardar Punto</button>
+        `;
+
+        // Bind event to button directly via the container to avoid timing issues
+        const saveBtn = formContainer.querySelector('#wp-save-btn');
+        const nameInput = formContainer.querySelector('#wp-name-input');
+
+        const popup = L.popup({ className: 'waypoint-popup' })
+            .setLatLng(e.latlng)
+            .setContent(formContainer)
+            .openOn(map);
+
+        saveBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim() || 'Punto sin nombre';
+            const wp = {
+                id: Date.now().toString(),
+                name: name,
+                lat: e.latlng.lat,
+                lng: e.latlng.lng
+            };
+
+            customWaypoints.push(wp);
+            saveWaypoints();
+            map.closePopup(popup);
+            renderWaypointMarker(wp);
+        });
+
+        // Focus input when popup opens
+        setTimeout(() => {
+            if (nameInput) nameInput.focus();
+        }, 100);
+    });
+
+    // 12. Anchor Alarm
+    const floatingAlarmToggle = document.getElementById('floatingAlarmToggle');
+    const floatingAlarmPanel = document.getElementById('floatingAlarmPanel');
+
+    floatingAlarmToggle.addEventListener('click', () => {
+        floatingAlarmPanel.classList.toggle('closed');
+    });
+
+    const toggleAnchorBtn = document.getElementById('toggleAnchorBtn');
+    const anchorRadiusInput = document.getElementById('anchorRadius');
+    const anchorStatusPanel = document.getElementById('anchorStatusPanel');
+    const anchorDistanceDisplay = document.getElementById('anchorDistanceDisplay');
+
+    let isAnchorActive = false;
+    let anchorCenter = null;
+    let anchorRadius = 50;
+    let anchorCircle = null;
+    let watchId = null;
+    let alarmAudio = new Audio('https://actions.google.com/sounds/v1/alarms/spaceship_alarm.ogg');
+    alarmAudio.loop = true;
+
+    function stopAnchorAlarm() {
+        isAnchorActive = false;
+        if (watchId !== null) {
+            clearInterval(watchId);
+            watchId = null;
+        }
+        if (anchorCircle) {
+            map.removeLayer(anchorCircle);
+            anchorCircle = null;
+        }
+        alarmAudio.pause();
+        alarmAudio.currentTime = 0;
+        anchorCenter = null;
+
+        toggleAnchorBtn.textContent = 'ACTIVAR ALARMA';
+        toggleAnchorBtn.classList.add('btn-primary');
+        toggleAnchorBtn.classList.remove('btn-danger');
+        anchorStatusPanel.classList.add('hidden');
+    }
+
+    let hasSentNotification = false;
+
+    function triggerAlarm() {
+        anchorStatusPanel.style.borderColor = '#ff4757';
+        anchorStatusPanel.style.background = 'rgba(255, 71, 87, 0.1)';
+        anchorStatusPanel.innerHTML = `
+            <div style="color: #ff4757; font-weight: 700; font-size: 1.1rem; margin-bottom: 0.3rem; animation: pulse 1s infinite;">⚠️ GARREANDO ⚠️</div>
+            <div id="anchorDistanceDisplay" style="font-size: 0.85rem; color: #ff4757; font-weight: 600;">
+                ¡Has salido del radio de seguridad!
+            </div>
+        `;
+        if (anchorCircle) anchorCircle.setStyle({ color: '#ff4757', fillColor: '#ff4757' });
+
+        // Play sound if not already playing
+        if (alarmAudio.paused) {
+            alarmAudio.play().catch(e => console.error("Audio play blocked by browser:", e));
+        }
+
+        // Send browser notification if permitted and not already sent for this drag event
+        if (Notification.permission === 'granted' && !hasSentNotification) {
+            hasSentNotification = true;
+            new Notification('¡Atención! Alarma de Fondeo', {
+                body: 'Tu embarcación ha salido del radio de seguridad establecido. ¡Comprueba tu posición!',
+                icon: 'https://cdn-icons-png.flaticon.com/512/3233/3233816.png' // Generic anchor icon
+            });
+        }
+    }
+
+    function startAnchorWatch(position) {
+        hasSentNotification = false; // Reset notification flag on start
+        anchorCenter = L.latLng(position.coords.latitude, position.coords.longitude);
+        anchorRadius = parseInt(anchorRadiusInput.value, 10) || 50;
+
+        // Draw initial circle
+        anchorCircle = L.circle(anchorCenter, {
+            color: '#2ecc71',
+            fillColor: '#2ecc71',
+            fillOpacity: 0.15,
+            radius: anchorRadius
+        }).addTo(map);
+
+        map.setView(anchorCenter, 18); // Zoom in close to see the circle
+
+        // Start tracking via manual polling to avoid browser aggressive caching
+        watchId = setInterval(() => {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const currentPos = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                    const distance = map.distance(anchorCenter, currentPos);
+
+                    const display = document.getElementById('anchorDistanceDisplay');
+                    if (display) {
+                        display.innerHTML = `Distancia actual: <strong>${distance.toFixed(1)}m</strong> / ${anchorRadius}m`;
+                    }
+
+                    if (distance > anchorRadius) {
+                        triggerAlarm();
+                    } else {
+                        // Reset to green if we drift back in
+                        if (anchorCircle) anchorCircle.setStyle({ color: '#2ecc71', fillColor: '#2ecc71' });
+                        anchorStatusPanel.style.borderColor = '#2ecc71';
+                        anchorStatusPanel.style.background = 'rgba(46, 204, 113, 0.1)';
+                        anchorStatusPanel.innerHTML = `
+                            <div style="color: #2ecc71; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.3rem;">🛡️ Alarma Armada</div>
+                            <div id="anchorDistanceDisplay" style="font-size: 0.85rem; color: var(--brand-text-muted);">
+                                Distancia actual: <strong>${distance.toFixed(1)}m</strong> / ${anchorRadius}m
+                            </div>
+                        `;
+                        alarmAudio.pause();
+                        hasSentNotification = false;
+                    }
+                },
+                (err) => {
+                    console.warn(`Polling ERROR(${err.code}): ${err.message}`);
+                    // Fallos esporádicos en polling se ignoran temporalmente en vez de matar la app
+                },
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 4500
+                }
+            );
+        }, 5000); // Check every 5 seconds
+    }
+
+    toggleAnchorBtn.addEventListener('click', () => {
+        if (isAnchorActive) {
+            stopAnchorAlarm();
+        } else {
+            if (!navigator.geolocation) {
+                alert("Tu navegador no soporta geolocalización.");
+                return;
+            }
+
+            // Ask for Notification Permissions before starting
+            if ('Notification' in window && Notification.permission !== 'granted') {
+                Notification.requestPermission();
+            }
+
+            // Set UI to loading state
+            toggleAnchorBtn.textContent = 'OBTENIENDO GPS...';
+            toggleAnchorBtn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    isAnchorActive = true;
+                    toggleAnchorBtn.disabled = false;
+                    toggleAnchorBtn.textContent = 'DESACTIVAR ALARMA';
+                    toggleAnchorBtn.classList.remove('btn-primary');
+                    toggleAnchorBtn.classList.add('btn-danger'); // Add a danger class if you have one, or configure CSS
+                    anchorStatusPanel.classList.remove('hidden');
+
+                    startAnchorWatch(position);
+                },
+                (err) => {
+                    toggleAnchorBtn.disabled = false;
+                    toggleAnchorBtn.textContent = 'ACTIVAR ALARMA';
+                    alert(`No se pudo obtener la ubicación: ${err.message}`);
+                },
+                { enableHighAccuracy: true }
+            );
+        }
+    });
+
 });
