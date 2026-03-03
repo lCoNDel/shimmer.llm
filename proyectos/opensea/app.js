@@ -338,6 +338,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 7. Fetch Open-Meteo Marine Data
     async function fetchMarineWeatherAnalysis(lat, lng) {
+        window.lastRequestedLat = lat;
+        window.lastRequestedLng = lng;
+
         // We request current swell data (fondo), wind wave data, and hourly sea surface temperature
         const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&current=swell_wave_height,swell_wave_direction,swell_wave_period,wind_wave_height&hourly=sea_surface_temperature`;
 
@@ -997,6 +1000,264 @@ document.addEventListener('DOMContentLoaded', () => {
                 { enableHighAccuracy: true }
             );
         }
+    });
+
+    // 13. Wind Particle Animation Layer (Leaflet-Velocity)
+    const windLayerBtn = document.getElementById('windLayerBtn');
+    let velocityLayer = null;
+    let isWindLayerActive = false;
+
+    windLayerBtn.addEventListener('click', async () => {
+        if (isWindLayerActive) {
+            // Turn off the wind layer
+            if (velocityLayer) {
+                map.removeLayer(velocityLayer);
+            }
+            windLayerBtn.classList.add('btn-secondary');
+            windLayerBtn.classList.remove('btn-primary');
+            isWindLayerActive = false;
+        } else {
+            // Turn on the wind layer
+            windLayerBtn.classList.remove('btn-secondary');
+            windLayerBtn.classList.add('btn-primary');
+            windLayerBtn.innerHTML = '<span style="font-size: 14px;">Cargando...</span>';
+
+            try {
+                // Fetch the downloaded GFS wind data (wind-global.json)
+                const response = await fetch('wind-global.json');
+                const data = await response.json();
+
+                velocityLayer = L.velocityLayer({
+                    displayValues: true,
+                    displayOptions: {
+                        velocityType: 'Global Wind',
+                        position: 'bottomleft',
+                        emptyString: 'Sin datos de viento',
+                        angleConvention: 'bearingCW',
+                        displayPosition: 'bottomleft',
+                        displayEmptyString: 'Sin datos de viento',
+                        speedUnit: 'k/h'
+                    },
+                    data: data,
+                    maxVelocity: 25, // increase max velocity to spread colors better
+                    velocityScale: 0.01, // double the particle speed
+                    particleAge: 90, // how long particles live before dying
+                    particleMultiplier: 1 / 200, // higher density of particles
+                    lineWidth: 3, // thicker, more visible lines
+                    colorScale: [
+                        "rgba(255, 255, 255, 0.9)", // White (Low wind)
+                        "rgba(0, 255, 255, 0.9)",   // Cyan
+                        "rgba(0, 200, 255, 0.9)",   // Light Blue
+                        "rgba(0, 150, 255, 0.9)",   // Blue
+                        "rgba(100, 255, 100, 0.9)", // Light Green
+                        "rgba(0, 255, 0, 0.9)",     // Green
+                        "rgba(200, 255, 0, 0.9)",   // Yellow-Green
+                        "rgba(255, 255, 0, 0.9)",   // Yellow
+                        "rgba(255, 200, 0, 0.9)",   // Orange-Yellow
+                        "rgba(255, 150, 0, 0.9)",   // Orange
+                        "rgba(255, 100, 0, 0.9)",   // Dark Orange
+                        "rgba(255, 50, 0, 0.9)",    // Red-Orange
+                        "rgba(255, 0, 0, 0.9)",     // Red
+                        "rgba(200, 0, 50, 0.9)",    // Dark Red
+                        "rgba(150, 0, 100, 0.9)"    // Purple (Extreme wind)
+                    ]
+                });
+
+                velocityLayer.addTo(map);
+                isWindLayerActive = true;
+
+                // Restore button appearance
+                windLayerBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2">
+                    </path>
+                </svg>
+                Viento
+                `;
+
+            } catch (error) {
+                console.error('Error loading wind data:', error);
+                alert('No se pudo cargar la capa de viento. Verifique si el archivo wind-global.json existe y es accesible.');
+                windLayerBtn.classList.add('btn-secondary');
+                windLayerBtn.classList.remove('btn-primary');
+                isWindLayerActive = false;
+
+                windLayerBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2">
+                    </path>
+                </svg>
+                Viento
+                `;
+            }
+        }
+    });
+
+    // 14. SOS / Hombre al Agua (MOB) Logic
+    const floatingSosBtn = document.getElementById('floatingSosBtn');
+    let sosMarker = null;
+    let sosWatchId = null;
+    let isSosActive = false;
+
+    // Custom Icon for SOS Marker
+    const sosIconHtml = `
+        <div style="
+            background-color: #ff4757; 
+            width: 24px; 
+            height: 24px; 
+            border-radius: 50%; 
+            border: 4px solid white; 
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.9);
+            animation: pulse-red 1s infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        ">SOS</div>
+    `;
+    const sosIcon = L.divIcon({
+        html: sosIconHtml,
+        className: '',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+    });
+
+    // Add pulse animation style to document if not exists
+    if (!document.getElementById('sos-pulse-style')) {
+        const style = document.createElement('style');
+        style.id = 'sos-pulse-style';
+        style.innerHTML = `
+            @keyframes pulse-red {
+                0% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+                70% { box-shadow: 0 0 0 15px rgba(255, 71, 87, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function stopSosAlarm() {
+        if (sosMarker) {
+            map.removeLayer(sosMarker);
+            sosMarker = null;
+        }
+        if (sosWatchId !== null) {
+            navigator.geolocation.clearWatch(sosWatchId);
+            sosWatchId = null;
+        }
+        isSosActive = false;
+
+        // Reset button UI
+        floatingSosBtn.style.animation = 'none';
+        floatingSosBtn.style.background = '#ff4757';
+        floatingSosBtn.title = '¡HOMBRE AL AGUA (MOB)!';
+
+        // Remove tracking panel if it exists
+        const oldPanel = document.getElementById('sos-tracking-panel');
+        if (oldPanel) oldPanel.remove();
+    }
+
+    floatingSosBtn.addEventListener('click', () => {
+        if (isSosActive) {
+            // DOUBLE CONFIRMATION to cancel SOS
+            const firstConfirm = confirm("⚠️ ¿ESTÁS SEGURO DE DETENER LA ALARMA S.O.S?\n\nSi detienes la alarma, se borrará la marca de HOMBRE AL AGUA del mapa.");
+            if (firstConfirm) {
+                const secondConfirm = confirm("🛑 CONFIRMACIÓN DE SEGURIDAD 🛑\n\n¿Cancelamos definitivamente el rescate y borramos el marcador S.O.S?");
+                if (secondConfirm) {
+                    stopSosAlarm();
+                    alert("Alarma S.O.S desactivada.");
+                }
+            }
+            return;
+        }
+
+        // ACTIVATE SOS
+        if (!navigator.geolocation) {
+            alert("Error crítico: Tu navegador no soporta geolocalización. Imposible marcar S.O.S.");
+            return;
+        }
+
+        floatingSosBtn.style.background = '#e84118';
+        floatingSosBtn.title = 'Obteniendo GPS Crítico...';
+
+        // High priority GPS request
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                isSosActive = true;
+                const sosLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+
+                // 1. Place Permanent Marker
+                sosMarker = L.marker(sosLatLng, { icon: sosIcon, zIndexOffset: 1000 }).addTo(map);
+
+                // 2. Focus Map tightly on the emergency
+                map.setView(sosLatLng, 17);
+
+                // 3. Update Button UI to show it's active
+                floatingSosBtn.style.animation = 'pulse-red 1s infinite';
+                floatingSosBtn.title = 'S.O.S ACTIVO (Clic para gestionar)';
+
+                // 4. Create Tracking Panel
+                const trackingPanel = document.createElement('div');
+                trackingPanel.id = 'sos-tracking-panel';
+                trackingPanel.style.cssText = `
+                    position: absolute;
+                    top: 80px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(255, 71, 87, 0.95);
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    z-index: 2000;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+                    text-align: center;
+                    border: 2px solid white;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                `;
+                trackingPanel.innerHTML = `
+                    <div style="font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.5rem;">⚠️</span> EMERGENCIA MOB ACTIVA
+                    </div>
+                    <div id="sos-distance-text" style="font-size: 1rem; font-weight: 600;">
+                        Distancia a víctima: Calculando...
+                    </div>
+                    <div style="font-size: 0.8rem; opacity: 0.9;">
+                        Coord: ${sosLatLng.lat.toFixed(5)}, ${sosLatLng.lng.toFixed(5)}
+                    </div>
+                `;
+                document.querySelector('.app-container').appendChild(trackingPanel);
+
+                // 5. Start real-time tracking of current position relative to MOB point
+                sosWatchId = navigator.geolocation.watchPosition(
+                    (livePos) => {
+                        if (!isSosActive) return;
+                        const currentLatLng = L.latLng(livePos.coords.latitude, livePos.coords.longitude);
+                        const dist = map.distance(sosLatLng, currentLatLng);
+
+                        const distText = document.getElementById('sos-distance-text');
+                        if (distText) {
+                            distText.innerHTML = `Distancia a víctima: <strong>${dist.toFixed(1)} metros</strong>`;
+                        }
+                    },
+                    (err) => console.warn(`SOS Tracking Error: ${err.message}`),
+                    { enableHighAccuracy: true, maximumAge: 0 }
+                );
+
+            },
+            (err) => {
+                floatingSosBtn.style.background = '#ff4757';
+                alert(`Error al obtener GPS Crítico: ${err.message}`);
+            },
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 } // high priority
+        );
     });
 
 });
