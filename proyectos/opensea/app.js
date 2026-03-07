@@ -102,50 +102,140 @@ document.addEventListener('DOMContentLoaded', () => {
     // Global Search Elements
     const globalSearchInput = document.getElementById('globalSearchInput');
     const globalSearchBtn = document.getElementById('globalSearchBtn');
+    const globalSearchResults = document.getElementById('globalSearchResults');
 
     let currentMarker = null;
     let dealerMarkers = [];
+    let globalSearchTimeout = null;
 
-    // Handle Global Map Search (Nominatim)
+    // Handle Global Map Search Suggestions (Nominatim)
+    async function fetchSuggestions(query) {
+        if (!query || query.length < 3) {
+            globalSearchResults.innerHTML = '';
+            globalSearchResults.classList.add('hidden');
+            return;
+        }
+
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=6&addressdetails=1`;
+            const response = await fetch(url);
+            const data = await response.json();
+            renderSuggestions(data);
+        } catch (error) {
+            console.error('Error fetching suggestions:', error);
+        }
+    }
+
+    function renderSuggestions(results) {
+        globalSearchResults.innerHTML = '';
+
+        if (!results || results.length === 0) {
+            globalSearchResults.classList.add('hidden');
+            return;
+        }
+
+        results.forEach(result => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+
+            // Extract main name and secondary details
+            const displayName = result.display_name;
+            const parts = displayName.split(',');
+            const mainName = parts[0].trim();
+            const secondaryText = parts.slice(1).join(',').trim();
+
+            item.innerHTML = `
+                <strong>${mainName}</strong>
+                <span>${secondaryText}</span>
+            `;
+
+            item.addEventListener('click', () => {
+                const lat = parseFloat(result.lat);
+                const lon = parseFloat(result.lon);
+
+                map.flyTo([lat, lon], 13, { duration: 1.5 });
+
+                globalSearchInput.value = displayName;
+                globalSearchResults.classList.add('hidden');
+
+                // Add/Update marker
+                if (currentMarker) map.removeLayer(currentMarker);
+                const iconHtml = `<div style="background-color: var(--brand-primary); width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(107, 181, 255, 0.8);"></div>`;
+                const customIcon = L.divIcon({
+                    html: iconHtml,
+                    className: '',
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+                currentMarker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
+            });
+
+            globalSearchResults.appendChild(item);
+        });
+
+        globalSearchResults.classList.remove('hidden');
+    }
+
+    // Handle Global Map Search (Manual Trigger/Fallback)
     async function performGlobalSearch() {
         const query = globalSearchInput.value.trim();
         if (!query) return;
 
-        // Show loading state on button
+        // Show loading state
         const originalIcon = globalSearchBtn.innerHTML;
-        globalSearchBtn.innerHTML = '<span style="font-size: 12px;">...</span>';
+        globalSearchBtn.innerHTML = '..';
 
         try {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
             const response = await fetch(url);
             const data = await response.json();
 
             if (data && data.length > 0) {
-                const bestResult = data[0];
-                const lat = parseFloat(bestResult.lat);
-                const lon = parseFloat(bestResult.lon);
-
-                // Fly to the searched location (zoom level 13 is good for cities/ports)
+                const result = data[0];
+                const lat = parseFloat(result.lat);
+                const lon = parseFloat(result.lon);
                 map.flyTo([lat, lon], 13, { duration: 1.5 });
-                globalSearchInput.value = ''; // clear input
-                globalSearchInput.blur(); // remove focus
+                globalSearchResults.classList.add('hidden');
 
-                // Optional: You could add a temporary marker here if desired
+                // Add/Update marker
+                if (currentMarker) map.removeLayer(currentMarker);
+                const iconHtml = `<div style="background-color: var(--brand-primary); width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(107, 181, 255, 0.8);"></div>`;
+                const customIcon = L.divIcon({
+                    html: iconHtml,
+                    className: '',
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
+                });
+                currentMarker = L.marker([lat, lon], { icon: customIcon }).addTo(map);
             } else {
-                alert('No se encontró el lugar. Prueba con otro nombre de ciudad, puerto o ría.');
+                alert('No se encontró el lugar. Prueba con otro nombre.');
             }
         } catch (error) {
-            console.error('Error in global search:', error);
-            alert('Error de conexión al buscar.');
+            console.error('Error in manual search:', error);
         } finally {
             globalSearchBtn.innerHTML = originalIcon;
         }
     }
 
     globalSearchBtn.addEventListener('click', performGlobalSearch);
+
+    globalSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value;
+        if (globalSearchTimeout) clearTimeout(globalSearchTimeout);
+        globalSearchTimeout = setTimeout(() => fetchSuggestions(query), 400);
+    });
+
     globalSearchInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
+            if (globalSearchTimeout) clearTimeout(globalSearchTimeout);
             performGlobalSearch();
+        }
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!globalSearchInput.contains(e.target) && !globalSearchResults.contains(e.target)) {
+            globalSearchResults.classList.add('hidden');
         }
     });
 
@@ -533,6 +623,80 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Custom Radio UI Extension
+    const customRadioPlayBtn = document.getElementById('customRadioPlayBtn');
+    const customRadioMuteBtn = document.getElementById('customRadioMuteBtn');
+    const radioVisualizer = document.getElementById('radioVisualizer');
+
+    // Play/Pause toggling
+    if (customRadioPlayBtn) {
+        customRadioPlayBtn.addEventListener('click', () => {
+            if (!radioPlayer.src) return;
+            if (radioPlayer.paused) {
+                radioPlayer.play().catch(e => console.log("Play failed", e));
+            } else {
+                radioPlayer.pause();
+            }
+        });
+    }
+
+    // Mute toggling
+    if (customRadioMuteBtn) {
+        customRadioMuteBtn.addEventListener('click', () => {
+            radioPlayer.muted = !radioPlayer.muted;
+            if (radioPlayer.muted) {
+                document.getElementById('iconVolWaves').classList.add('hidden');
+                document.getElementById('iconVolMute').classList.remove('hidden');
+                document.getElementById('iconVolMute2').classList.remove('hidden');
+                customRadioMuteBtn.style.color = '#ff6b6b';
+            } else {
+                document.getElementById('iconVolWaves').classList.remove('hidden');
+                document.getElementById('iconVolMute').classList.add('hidden');
+                document.getElementById('iconVolMute2').classList.add('hidden');
+                customRadioMuteBtn.style.color = 'var(--brand-text-muted)';
+            }
+        });
+    }
+
+    // Volume Slider Logic
+    const radioVolumeSlider = document.getElementById('radioVolumeSlider');
+    const radioVolumeValue = document.getElementById('radioVolumeValue');
+    if (radioVolumeSlider) {
+        radioVolumeSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            radioPlayer.volume = val;
+
+            // Update percentage text
+            if (radioVolumeValue) {
+                radioVolumeValue.innerText = `${Math.round(val * 100)}%`;
+            }
+
+            // Unmute if volume is adjusted
+            if (radioPlayer.muted && radioPlayer.volume > 0) {
+                customRadioMuteBtn.click();
+            }
+        });
+    }
+
+    // Audio native events synced with SVG and visualizer
+    radioPlayer.addEventListener('play', () => {
+        document.getElementById('iconPlay').classList.add('hidden');
+        document.getElementById('iconPause').classList.remove('hidden');
+        if (radioVisualizer) radioVisualizer.classList.add('playing');
+    });
+
+    radioPlayer.addEventListener('pause', () => {
+        document.getElementById('iconPause').classList.add('hidden');
+        document.getElementById('iconPlay').classList.remove('hidden');
+        if (radioVisualizer) radioVisualizer.classList.remove('playing');
+    });
+
+    radioPlayer.addEventListener('ended', () => {
+        document.getElementById('iconPause').classList.add('hidden');
+        document.getElementById('iconPlay').classList.remove('hidden');
+        if (radioVisualizer) radioVisualizer.classList.remove('playing');
+    });
+
     // 9. VesselFinder Integration
     const toggleTrafficBtn = document.getElementById('toggleTrafficBtn');
     const vesselFinderOverlay = document.getElementById('vesselFinderOverlay');
@@ -543,8 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isTrafficActive = !isTrafficActive;
 
         if (isTrafficActive) {
-            toggleTrafficBtn.classList.remove('btn-secondary');
-            toggleTrafficBtn.classList.add('btn-primary');
+            toggleTrafficBtn.classList.add('active');
             toggleTrafficBtn.innerHTML = `
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -581,8 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
             legendPanel.classList.add('closed'); // Close nautical legend if open
 
         } else {
-            toggleTrafficBtn.classList.add('btn-secondary');
-            toggleTrafficBtn.classList.remove('btn-primary');
+            toggleTrafficBtn.classList.remove('active');
             toggleTrafficBtn.innerHTML = `
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -634,15 +796,8 @@ document.addEventListener('DOMContentLoaded', () => {
     rulerBtn.addEventListener('click', () => {
         isRulerActive = !isRulerActive;
         if (isRulerActive) {
-            rulerBtn.classList.add('btn-primary');
-            rulerBtn.classList.remove('btn-secondary');
-            rulerBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-                Cerrar Regla
-            `;
+            rulerBtn.style.background = 'var(--brand-primary)';
+            rulerBtn.style.color = 'white';
             document.getElementById('map').style.cursor = 'crosshair';
 
             // Si el tráfico marítimo está activo, lo cerramos para poder hacer clic en el mapa
@@ -650,15 +805,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleTrafficBtn.click();
             }
         } else {
-            rulerBtn.classList.remove('btn-primary');
-            rulerBtn.classList.add('btn-secondary');
-            rulerBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"></path>
-                    <path d="M15 15l-6-6"></path>
-                </svg>
-                Regla
-            `;
+            rulerBtn.style.background = '';
+            rulerBtn.style.color = '';
             document.getElementById('map').style.cursor = '';
             clearRuler();
         }
@@ -768,7 +916,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${wp.lat.toFixed(4)}, ${wp.lng.toFixed(4)}
             </p>
             <button class="btn btn-danger" id="delete-wp-${wp.id}" style="width: 100%; padding: 0.5rem; font-size: 0.85rem; background: #ff4757; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Eliminar Punto
+                Eliminar Favorito
             </button>
         `;
 
@@ -802,9 +950,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Add HTML
         formContainer.innerHTML = `
-            <div style="font-weight: 600; font-size: 1rem; color: var(--brand-primary); text-align: center;">Nuevo Punto</div>
+            <div style="font-weight: 600; font-size: 1rem; color: var(--brand-primary); text-align: center;">Nuevo Favorito</div>
             <input type="text" id="wp-name-input" placeholder="Nombre (ej. Fondeadero Cala)" autocomplete="off">
-            <button id="wp-save-btn">Guardar Punto</button>
+            <button id="wp-save-btn">Guardar</button>
         `;
 
         // Bind event to button directly via the container to avoid timing issues
@@ -841,8 +989,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const floatingAlarmToggle = document.getElementById('floatingAlarmToggle');
     const floatingAlarmPanel = document.getElementById('floatingAlarmPanel');
 
+    let anchorAutoCloseTimeout = null;
+
     floatingAlarmToggle.addEventListener('click', () => {
-        floatingAlarmPanel.classList.toggle('closed');
+        const isClosed = floatingAlarmPanel.classList.toggle('closed');
+
+        if (!isClosed && !isAnchorActive) {
+            // Panel opened & alarm not active -> start auto-close timer
+            if (anchorAutoCloseTimeout) clearTimeout(anchorAutoCloseTimeout);
+            anchorAutoCloseTimeout = setTimeout(() => {
+                // If it's still open and not active, close it
+                if (!floatingAlarmPanel.classList.contains('closed') && !isAnchorActive) {
+                    floatingAlarmPanel.classList.add('closed');
+                }
+            }, 15000);
+        } else {
+            // Panel closed OR alarm is active -> clear timer
+            if (anchorAutoCloseTimeout) clearTimeout(anchorAutoCloseTimeout);
+        }
     });
 
     const toggleAnchorBtn = document.getElementById('toggleAnchorBtn');
@@ -964,6 +1128,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     toggleAnchorBtn.addEventListener('click', () => {
+        // Clear any auto-close timeout when interacting with the button
+        if (anchorAutoCloseTimeout) clearTimeout(anchorAutoCloseTimeout);
+
         if (isAnchorActive) {
             stopAnchorAlarm();
         } else {
@@ -1013,13 +1180,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (velocityLayer) {
                 map.removeLayer(velocityLayer);
             }
-            windLayerBtn.classList.add('btn-secondary');
-            windLayerBtn.classList.remove('btn-primary');
+            windLayerBtn.classList.remove('active');
             isWindLayerActive = false;
         } else {
             // Turn on the wind layer
-            windLayerBtn.classList.remove('btn-secondary');
-            windLayerBtn.classList.add('btn-primary');
+            windLayerBtn.classList.add('active');
             windLayerBtn.innerHTML = '<span style="font-size: 14px;">Cargando...</span>';
 
             try {
@@ -1080,8 +1245,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Error loading wind data:', error);
                 alert('No se pudo cargar la capa de viento. Verifique si el archivo wind-global.json existe y es accesible.');
-                windLayerBtn.classList.add('btn-secondary');
-                windLayerBtn.classList.remove('btn-primary');
+                windLayerBtn.classList.remove('active');
                 isWindLayerActive = false;
 
                 windLayerBtn.innerHTML = `
@@ -1259,5 +1423,51 @@ document.addEventListener('DOMContentLoaded', () => {
             { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 } // high priority
         );
     });
+
+    // 15. Utilities Dropdown Logic
+    const utilidadesToggleBtn = document.getElementById('utilidadesToggleBtn');
+    const utilidadesDropdown = document.getElementById('utilidadesDropdown');
+
+    if (utilidadesToggleBtn && utilidadesDropdown) {
+        utilidadesToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            utilidadesDropdown.classList.toggle('closed');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!utilidadesDropdown.contains(e.target) && e.target !== utilidadesToggleBtn) {
+                utilidadesDropdown.classList.add('closed');
+            }
+        });
+
+        // Cierra el menú cuando se hace clic en cualquier opción interna
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', () => {
+                utilidadesDropdown.classList.add('closed');
+            });
+        });
+    }
+
+    // 16. Guía de Uso Modal Logic
+    const openGuideBtn = document.getElementById('openGuideBtn');
+    const closeGuideBtn = document.getElementById('closeGuideBtn');
+    const guideModal = document.getElementById('guideModal');
+
+    if (openGuideBtn && closeGuideBtn && guideModal) {
+        openGuideBtn.addEventListener('click', () => {
+            guideModal.classList.remove('hidden');
+        });
+
+        closeGuideBtn.addEventListener('click', () => {
+            guideModal.classList.add('hidden');
+        });
+
+        // Close when clicking outside of the modal content
+        guideModal.addEventListener('click', (e) => {
+            if (e.target === guideModal) {
+                guideModal.classList.add('hidden');
+            }
+        });
+    }
 
 });

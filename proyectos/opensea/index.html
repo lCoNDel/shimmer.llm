@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-velocity@1.9.0/dist/leaflet-velocity.min.css" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="index.css?v=8">
 </head>
 
 <body>
@@ -29,45 +29,22 @@
                 alt="Touron" class="brand-logo-img">
             <span class="brand-company-name" style="text-transform: uppercase;">Touron S.A.</span>
             <span class="app-title">CARTÓGRAFO Marino</span>
+            <button id="openGuideBtn"
+                style="background:none; border:none; cursor:pointer; color:var(--brand-primary); margin-left:10px; display:flex; align-items:center;"
+                title="Manual de Uso / Guía">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </button>
         </div>
         <nav class="auth-nav">
 
-            <button class="btn btn-secondary" id="toggleTrafficBtn"
-                style="display: flex; align-items: center; gap: 0.5rem;"
-                title="Ver tráfico marítimo en tiempo real (VesselFinder)">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-                Tráfico Marítimo
-            </button>
-
-            <button class="btn btn-secondary" id="rulerBtn"
-                style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;"
-                title="Regla Náutica (Medir distancias y rumbos)">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"></path>
-                    <path d="M15 15l-6-6"></path>
-                </svg>
-                Regla
-            </button>
-
-            <button class="btn btn-secondary" id="windLayerBtn"
-                style="display: flex; align-items: center; gap: 0.5rem; margin-right: 0.5rem;"
-                title="Capa de Viento Animada (GFS)">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                        d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2">
-                    </path>
-                </svg>
-                Viento
-            </button>
-
             <div class="global-search-container">
                 <input type="text" id="globalSearchInput" class="global-search-input"
-                    placeholder="Buscar puerto, ciudad o ría...">
+                    placeholder="Buscar puerto, ciudad o ría..." autocomplete="off">
                 <button id="globalSearchBtn" class="global-search-btn" aria-label="Buscar en mapa">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
@@ -75,6 +52,40 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </button>
+                <div id="globalSearchResults" class="global-search-results hidden"></div>
+            </div>
+
+            <div class="dropdown-utilities" style="position: relative;">
+                <button class="btn btn-secondary" id="utilidadesToggleBtn"
+                    style="display: flex; align-items: center; gap: 0.5rem;" title="Utilidades Náuticas">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
+                    Utilidades
+                </button>
+                <div id="utilidadesDropdown" class="utilities-dropdown closed">
+                    <button class="dropdown-item" id="toggleTrafficBtn"
+                        title="Ver tráfico marítimo en tiempo real (VesselFinder)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                        Tráfico Marítimo
+                    </button>
+                    <button class="dropdown-item" id="windLayerBtn" title="Capa de Viento Animada (GFS)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2">
+                            </path>
+                        </svg>
+                        Viento
+                    </button>
+                </div>
             </div>
             <button class="btn btn-secondary" id="openSearchBtn">Distribuidores</button>
             <button class="btn btn-primary" id="infoBtn">Información</button>
@@ -108,6 +119,8 @@
                     Leyenda Náutica
                 </button>
             </div>
+
+
 
             <!-- Floating Anchor Alarm (Bottom Left next to Legend) -->
             <div class="floating-alarm-container" id="floatingAlarmContainer">
@@ -152,6 +165,17 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Floating Ruler (After Alarm) -->
+            <div class="floating-ruler-container" id="floatingRulerContainer">
+                <button class="floating-alarm-toggle" id="rulerBtn" title="Regla Náutica (Medir distancias y rumbos)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"></path>
+                        <path d="M15 15l-6-6"></path>
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -209,16 +233,25 @@
                 <p>Consultando boyas meteorológicas...</p>
             </div>
 
-            <!-- Radio Player Section -->
+            <!-- Radio Player Section (Compact & Modern) -->
             <div class="radio-section"
-                style="margin-top: 1.5rem; border-top: 1px solid var(--brand-accent); padding-top: 1.5rem;">
-                <div class="panel-header" style="margin-bottom: 0.5rem; padding-bottom: 0.5rem;">
-                    <h2>Emisoras de Radio</h2>
+                style="margin-top: 1rem; border-top: 1px solid rgba(0, 118, 214, 0.15); padding-top: 1rem;">
+                <div class="panel-header" style="margin-bottom: 0.4rem; padding-bottom: 0;">
+                    <h2
+                        style="font-size: 1.05rem; display: flex; align-items: center; gap: 0.4rem; color: var(--brand-primary); margin: 0;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                        Radio Global
+                    </h2>
                 </div>
-                <div class="radio-controls" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <div class="radio-controls" style="display: flex; flex-direction: column; gap: 0.6rem;">
                     <div style="display: flex; gap: 0.5rem;">
                         <input type="text" id="radioSearchInput" class="search-input"
-                            style="flex: 1; padding: 0.6rem; font-size: 0.9rem;" placeholder="Buscar...">
+                            style="flex: 1; padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 20px; border: 1px solid rgba(0, 118, 214, 0.2);"
+                            placeholder="Buscar emisora o género...">
                     </div>
 
                     <div id="radioResults" class="radio-results"
@@ -227,14 +260,72 @@
                     </div>
 
                     <div id="activeRadio" class="active-radio hidden"
-                        style="background: var(--brand-accent); padding: 1rem; border-radius: 8px; text-align: center;">
-                        <div id="radioNameDisplay"
-                            style="font-weight: 600; color: var(--brand-primary); margin-bottom: 0.5rem; font-size: 0.95rem;">
-                            Estación seleccionada</div>
-                        <audio id="radioPlayer" controls style="width: 100%; height: 35px; outline: none;"></audio>
+                        style="background: linear-gradient(135deg, rgba(0, 118, 214, 0.05), rgba(0, 118, 214, 0.1)); border: 1px solid rgba(0, 118, 214, 0.2); padding: 0.6rem 0.8rem; border-radius: 12px; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), 0 4px 10px rgba(0,0,0,0.03);">
+
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="2" width="20" height="20" rx="4" ry="4"></rect>
+                                <circle cx="12" cy="15" r="3"></circle>
+                                <path d="M2 7h20"></path>
+                                <path d="M6 10v.01"></path>
+                            </svg>
+                            <div id="radioNameDisplay"
+                                style="font-weight: 600; color: var(--brand-primary); font-size: 0.9rem; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;">
+                                Estación seleccionada</div>
+                        </div>
+
+                        <!-- Reproductor de Audio Customizado -->
+                        <div
+                            style="display: flex; align-items: center; background: rgba(255,255,255,0.7); border-radius: 30px; padding: 0.4rem 0.6rem; gap: 0.8rem; border: 1px solid rgba(0, 118, 214, 0.1); box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);">
+                            <!-- Botón Play/Pause -->
+                            <button id="customRadioPlayBtn"
+                                style="background: var(--brand-primary); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;"
+                                onmouseover="this.style.transform='scale(1.05)'"
+                                onmouseout="this.style.transform='scale(1)'">
+                                <svg id="iconPlay" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+                                    stroke="none">
+                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                                </svg>
+                                <svg id="iconPause" class="hidden" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="currentColor" stroke="none">
+                                    <rect x="6" y="4" width="4" height="16"></rect>
+                                    <rect x="14" y="4" width="4" height="16"></rect>
+                                </svg>
+                            </button>
+
+                            <!-- Animación de Ondas -->
+                            <div id="radioVisualizer" class="audio-waves"
+                                style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; height: 24px;">
+                                <div class="wave"></div>
+                                <div class="wave"></div>
+                                <div class="wave"></div>
+                                <div class="wave"></div>
+                                <div class="wave"></div>
+                            </div>
+
+                            <!-- Volume Control Slider -->
+                            <input type="range" id="radioVolumeSlider" min="0" max="1" step="0.01" value="1"
+                                style="width: 50px; height: 4px; border-radius: 2px; appearance: none; background: rgba(0, 118, 214, 0.2); cursor: pointer; outline: none; transition: background 0.2s;">
+                            <span id="radioVolumeValue"
+                                style="font-size: 0.75rem; color: var(--brand-primary); font-weight: 600; min-width: 35px; text-align: right;">100%</span>
+
+                            <!-- Mute Control -->
+                            <button id="customRadioMuteBtn"
+                                style="background: transparent; color: var(--brand-text-muted); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: color 0.2s;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                    <path id="iconVolWaves"
+                                        d="M15.54 8.46a5 5 0 0 1 0 7.07 M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                                    <line id="iconVolMute" class="hidden" x1="23" y1="9" x2="17" y2="15"></line>
+                                    <line id="iconVolMute2" class="hidden" x1="17" y1="9" x2="23" y2="15"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <audio id="radioPlayer" style="display: none;"></audio>
                     </div>
                 </div>
-            </div>
 
         </aside>
 
@@ -453,7 +544,7 @@
     <script src="https://unpkg.com/leaflet-velocity@1.9.0/dist/leaflet-velocity.min.js"></script>
 
     <!-- Custom JS -->
-    <script src="app.js"></script>
+    <script src="app.js?v=16"></script>
 
     <!-- Information Modal -->
     <div class="info-modal-overlay hidden" id="infoModal">
@@ -485,6 +576,128 @@
             <div class="creator-info">
                 <p><strong>Desarrollador / Diseño:</strong> Luis Conde</p>
                 <p><strong>Contacto:</strong> <a href="mailto:luis.conde@touronsa.es">luis.conde@touronsa.es</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guía de Uso Modal -->
+    <div class="info-modal-overlay hidden" id="guideModal">
+        <div class="info-modal-content" style="max-width: 750px; max-height: 85vh; overflow-y: auto;">
+            <button class="close-btn" id="closeGuideBtn" aria-label="Cerrar">&times;</button>
+            <h2 style="display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                Manual de Uso de CARTÓGRAFO Marino
+            </h2>
+            <p style="font-size: 1rem; color: var(--brand-text-muted); margin-bottom: 2rem;">
+                Las funciones y herramientas de CARTÓGRAFO Marino, directo al grano:
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+                <!-- Búsqueda y Mapas -->
+                <div
+                    style="background: rgba(0, 118, 214, 0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid var(--brand-primary);">
+                    <h3
+                        style="margin-top: 0; color: var(--brand-primary); display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        Navegación y Búsqueda
+                    </h3>
+                    <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                        <li><strong>Buscador Global:</strong> Barra de búsqueda <strong>(superior derecha)</strong>.
+                            Escribe un puerto o ciudad y pulsa Intro.</li>
+                        <li><strong>Concesionarios:</strong> Botón <strong>"Distribuidores" (arriba derecha)</strong>.
+                            Abre un panel lateral para buscar la red oficial.</li>
+                    </ul>
+                </div>
+
+                <!-- Favoritos -->
+                <div
+                    style="background: rgba(0, 118, 214, 0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid var(--brand-accent);">
+                    <h3
+                        style="margin-top: 0; color: var(--brand-primary); display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        Tus Puntos Favoritos
+                    </h3>
+                    <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                        <li><strong>Guardar:</strong> <strong>Clic derecho</strong> en cualquier zona del mapa y escribe
+                            un nombre.</li>
+                        <li><strong>Borrar:</strong> Clic izquierdo sobre la chincheta guardada > Eliminar Favorito.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Utilidades Náuticas -->
+                <div
+                    style="background: rgba(0, 118, 214, 0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #f39c12;">
+                    <h3
+                        style="margin-top: 0; color: var(--brand-primary); display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14M12 5l7 7-7 7"></path>
+                        </svg>
+                        Utilidades Avanzadas
+                    </h3>
+                    <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                        <li><strong>Tráfico Marítimo (AIS):</strong> Botón "Utilidades" <strong>(superior
+                                derecha)</strong>. Muestra barcos en el mapa gracias a datos globales en tiempo real de
+                            <strong>Vessel Finder</strong>.
+                        </li>
+                        <li><strong>Capa de Viento:</strong> Botón "Utilidades" <strong>(superior derecha)</strong>.
+                            Activa una capa animada con previsiones de viento.</li>
+                    </ul>
+                </div>
+
+                <!-- Herramientas (Regla) -->
+                <div
+                    style="background: rgba(0, 118, 214, 0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #2ecc71;">
+                    <h3
+                        style="margin-top: 0; color: var(--brand-primary); display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"></path>
+                            <path d="M15 15l-6-6"></path>
+                        </svg>
+                        Medición de Rumbos (Regla)
+                    </h3>
+                    <p style="margin: 0 0 0.5rem 0; font-size: 0.95rem;">Icono flotante <strong>(inferior
+                            izquierda)</strong>, junto a la Leyenda.</p>
+                    <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                        <li><strong>Medir:</strong> Haz un clic de origen y otro de destino en el mapa.</li>
+                        <li><strong>Resultado:</strong> Muestra la distancia (Millas Náuticas) y Rumbo (grados).</li>
+                        <li><strong>Limpiar:</strong> Un tercer clic reinicia la medida.</li>
+                    </ul>
+                </div>
+
+                <!-- Seguridad y SOS -->
+                <div
+                    style="background: rgba(0, 118, 214, 0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #ff4757;">
+                    <h3
+                        style="margin-top: 0; color: var(--brand-primary); display: flex; align-items: center; gap: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                        Seguridad Vital
+                    </h3>
+                    <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
+                        <li><strong>Alarma de Fondeo:</strong> Icono de ancla <strong>(inferior izquierda)</strong>.
+                            Fija un perímetro y el dispositivo alertará (requiere GPS) si se rebasa.</li>
+                        <li><strong>Hombre al Agua (S.O.S):</strong> Botón circular rojo <strong>(centro
+                                inferior)</strong>. Inicia rumbo de rescate automático hacia esa ubicación.</li>
+                    </ul>
+                </div>
+
             </div>
         </div>
     </div>
