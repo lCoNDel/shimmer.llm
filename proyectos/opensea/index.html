@@ -41,7 +41,6 @@
             </button>
         </div>
         <nav class="auth-nav">
-
             <div class="global-search-container">
                 <input type="text" id="globalSearchInput" class="global-search-input"
                     placeholder="Buscar puerto, ciudad o ría..." autocomplete="off">
@@ -55,38 +54,6 @@
                 <div id="globalSearchResults" class="global-search-results hidden"></div>
             </div>
 
-            <div class="dropdown-utilities" style="position: relative;">
-                <button class="btn btn-secondary" id="utilidadesToggleBtn"
-                    style="display: flex; align-items: center; gap: 0.5rem;" title="Utilidades Náuticas">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path
-                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                        </path>
-                    </svg>
-                    Utilidades
-                </button>
-                <div id="utilidadesDropdown" class="utilities-dropdown closed">
-                    <button class="dropdown-item" id="toggleTrafficBtn"
-                        title="Ver tráfico marítimo en tiempo real (VesselFinder)">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                        Tráfico Marítimo
-                    </button>
-                    <button class="dropdown-item" id="windLayerBtn" title="Capa de Viento Animada (GFS)">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2">
-                            </path>
-                        </svg>
-                        Viento
-                    </button>
-                </div>
-            </div>
             <button class="btn btn-secondary" id="openSearchBtn">Distribuidores</button>
             <button class="btn btn-primary" id="infoBtn">Información</button>
         </nav>
@@ -98,15 +65,9 @@
         <!-- Leaflet Map Container -->
         <div id="map"></div>
 
-        <!-- VesselFinder Map Overlay Container -->
-        <div id="vesselFinderOverlay" class="hidden"
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 900;">
-            <!-- Iframe injected via JS to prevent passive loading if not needed -->
-        </div>
-
-        <!-- Bottom Left Map Controls Group -->
-        <div class="map-controls-bottom-left">
-            <!-- Legend Map Control Container -->
+        <!-- Top Left Map Controls Group -->
+        <div class="map-controls-top-left">
+            <!-- Legend Map Control Button -->
             <div class="legend-control">
                 <button class="btn btn-secondary legend-btn" id="openLegendBtn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -119,12 +80,52 @@
                     Leyenda Náutica
                 </button>
             </div>
+        </div>
 
+        <!-- VesselFinder Map Overlay Container -->
+        <div id="vesselFinderOverlay" class="hidden"
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 900;">
+            <!-- Iframe injected via JS to prevent passive loading if not needed -->
+        </div>
 
+        <!-- Bottom Left Map Controls Group -->
+        <div class="map-controls-bottom-left">
+            <!-- Floating Traffic Button -->
+            <div class="floating-traffic-container" id="floatingTrafficContainer">
+                <button class="floating-alarm-toggle" id="toggleTrafficBtn"
+                    data-tooltip="Ver tráfico marítimo en tiempo real (VesselFinder)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
 
-            <!-- Floating Anchor Alarm (Bottom Left next to Legend) -->
+            <!-- Floating Weather Button (OWM) -->
+            <div class="floating-weather-container" id="floatingWeatherContainer">
+                <button class="floating-alarm-toggle" id="owmLayerBtn" data-tooltip="Nubes y Lluvia en tiempo real">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17.5 19c.6 0 1-.4 1-1a3.5 3.5 0 0 0-3-3.5A5.5 5.5 0 0 0 5 13a4.5 4.5 0 0 0 1.5 8.7" />
+                        <path d="M12 18v3m-4-2v3m8-2v3" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Floating Wind Layer Button -->
+            <div class="floating-wind-container" id="floatingWindContainer">
+                <button class="floating-alarm-toggle" id="windLayerBtn" data-tooltip="Capa de Viento Animada (GFS)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Floating Anchor Alarm -->
             <div class="floating-alarm-container" id="floatingAlarmContainer">
-                <button class="floating-alarm-toggle" id="floatingAlarmToggle" title="Alarma de Fondeo">
+                <button class="floating-alarm-toggle" id="floatingAlarmToggle" data-tooltip="Alarma de Fondeo">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="5" r="3"></circle>
@@ -167,9 +168,9 @@
                 </div>
             </div>
 
-            <!-- Floating Ruler (After Alarm) -->
+            <!-- Floating Ruler -->
             <div class="floating-ruler-container" id="floatingRulerContainer">
-                <button class="floating-alarm-toggle" id="rulerBtn" title="Regla Náutica (Medir distancias y rumbos)">
+                <button class="floating-alarm-toggle" id="rulerBtn" data-tooltip="Regla Náutica (Medir distancias y rumbos)">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"></path>
@@ -182,7 +183,7 @@
         <!-- Floating SOS / MOB Alarm (Bottom Center) -->
         <div class="floating-sos-container" id="floatingSosContainer"
             style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: auto;">
-            <button class="floating-sos-toggle" id="floatingSosBtn" title="¡HOMBRE AL AGUA (MOB)!"
+            <button class="floating-sos-toggle" id="floatingSosBtn" data-tooltip="¡HOMBRE AL AGUA (MOB)!"
                 style="width: 50px; height: 50px; border-radius: 50%; background: #ff4757; color: white; border: 3px solid white; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                     stroke-linecap="round" stroke-linejoin="round">

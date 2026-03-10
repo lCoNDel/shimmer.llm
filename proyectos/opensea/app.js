@@ -708,13 +708,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isTrafficActive) {
             toggleTrafficBtn.classList.add('active');
-            toggleTrafficBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-                Ocultar Tráfico
-            `;
+
+            // Set off other map modes
+            if (isWindLayerActive) windLayerBtn.click();
+            if (isOwmLayerActive) owmLayerBtn.click();
+            if (isRulerActive) rulerBtn.click();
 
             // Get current map view
             const center = map.getCenter();
@@ -745,19 +743,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } else {
             toggleTrafficBtn.classList.remove('active');
-            toggleTrafficBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-                Tráfico Marítimo
-            `;
 
             vesselFinderOverlay.classList.add('hidden');
             weatherPanel.classList.remove('hidden'); // Show maritime conditions and radio again
         }
     });
 
+    // 9.5 OpenWeatherMap (OWM) Rain & Clouds Layer Integration
+    const owmLayerBtn = document.getElementById('owmLayerBtn');
+    let owmLayer = null;
+    let isOwmLayerActive = false;
+    const OWM_API_KEY = '0f39bd16c83cafd8b36b9237b9fd577d';
+
+    if (owmLayerBtn) {
+        owmLayerBtn.addEventListener('click', () => {
+            if (isOwmLayerActive) {
+                // Disable layer
+                if (owmLayer) {
+                    map.removeLayer(owmLayer);
+                }
+                owmLayerBtn.classList.remove('active');
+                isOwmLayerActive = false;
+            } else {
+                // Enable layer
+                owmLayerBtn.classList.add('active');
+
+                // Incompatible with vessel finder overriding the map
+                if (isTrafficActive) toggleTrafficBtn.click();
+                if (isWindLayerActive) windLayerBtn.click();
+                if (isRulerActive) rulerBtn.click();
+
+                if (!owmLayer) {
+                    // Weather Maps 2.0 (precipitation_new)
+                    owmLayer = L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${OWM_API_KEY}`, {
+                        maxZoom: 18,
+                        opacity: 0.65, // slightly transparent so nautical marks show through
+                        attribution: '&copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>',
+                        zIndex: 400 // Make sure it sits above base map but below markers
+                    });
+                }
+                owmLayer.addTo(map);
+                isOwmLayerActive = true;
+            }
+        });
+    }
+
     // 10. Nautical Ruler
+
     const rulerBtn = document.getElementById('rulerBtn');
     let isRulerActive = false;
     let rulerPoints = [];
@@ -796,17 +828,16 @@ document.addEventListener('DOMContentLoaded', () => {
     rulerBtn.addEventListener('click', () => {
         isRulerActive = !isRulerActive;
         if (isRulerActive) {
-            rulerBtn.style.background = 'var(--brand-primary)';
-            rulerBtn.style.color = 'white';
+            rulerBtn.classList.add('active');
             document.getElementById('map').style.cursor = 'crosshair';
 
-            // Si el tráfico marítimo está activo, lo cerramos para poder hacer clic en el mapa
-            if (isTrafficActive) {
-                toggleTrafficBtn.click();
-            }
+            // Si el tráfico marítimo u otros modos están activos, los cerramos
+            if (isTrafficActive) toggleTrafficBtn.click();
+            if (isWindLayerActive) windLayerBtn.click();
+            if (isOwmLayerActive) owmLayerBtn.click();
+
         } else {
-            rulerBtn.style.background = '';
-            rulerBtn.style.color = '';
+            rulerBtn.classList.remove('active');
             document.getElementById('map').style.cursor = '';
             clearRuler();
         }
@@ -994,6 +1025,15 @@ document.addEventListener('DOMContentLoaded', () => {
     floatingAlarmToggle.addEventListener('click', () => {
         const isClosed = floatingAlarmPanel.classList.toggle('closed');
 
+        if (!isClosed) {
+            floatingAlarmToggle.classList.add('active'); // Turn on button illumination
+        } else {
+            // Only remove active if the alarm itself isn't actively monitoring
+            if (!isAnchorActive) {
+                floatingAlarmToggle.classList.remove('active');
+            }
+        }
+
         if (!isClosed && !isAnchorActive) {
             // Panel opened & alarm not active -> start auto-close timer
             if (anchorAutoCloseTimeout) clearTimeout(anchorAutoCloseTimeout);
@@ -1001,6 +1041,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // If it's still open and not active, close it
                 if (!floatingAlarmPanel.classList.contains('closed') && !isAnchorActive) {
                     floatingAlarmPanel.classList.add('closed');
+                    floatingAlarmToggle.classList.remove('active');
                 }
             }, 15000);
         } else {
@@ -1040,6 +1081,10 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleAnchorBtn.classList.add('btn-primary');
         toggleAnchorBtn.classList.remove('btn-danger');
         anchorStatusPanel.classList.add('hidden');
+        
+        if (floatingAlarmPanel.classList.contains('closed')) {
+            floatingAlarmToggle.classList.remove('active');
+        }
     }
 
     let hasSentNotification = false;
@@ -1185,7 +1230,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Turn on the wind layer
             windLayerBtn.classList.add('active');
-            windLayerBtn.innerHTML = '<span style="font-size: 14px;">Cargando...</span>';
+
+            // Set off other map modes
+            if (isTrafficActive) toggleTrafficBtn.click();
+            if (isOwmLayerActive) owmLayerBtn.click();
+            if (isRulerActive) rulerBtn.click();
 
             try {
                 // Fetch the downloaded GFS wind data (wind-global.json)
@@ -1231,32 +1280,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 velocityLayer.addTo(map);
                 isWindLayerActive = true;
 
-                // Restore button appearance
-                windLayerBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                        d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2">
-                    </path>
-                </svg>
-                Viento
-                `;
-
             } catch (error) {
                 console.error('Error loading wind data:', error);
                 alert('No se pudo cargar la capa de viento. Verifique si el archivo wind-global.json existe y es accesible.');
                 windLayerBtn.classList.remove('active');
                 isWindLayerActive = false;
-
-                windLayerBtn.innerHTML = `
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                        d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2">
-                    </path>
-                </svg>
-                Viento
-                `;
             }
         }
     });
