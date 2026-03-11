@@ -1,6 +1,6 @@
 # OpenWebUI Update - Technical Documentation
 
-Este directorio contiene los scripts y documentación necesarios para la actualización de OpenWebUI a la versión **v0.8.0**.
+Este directorio contiene los scripts y documentación necesarios para la actualización de OpenWebUI a la versión **v0.8.10**.
 
 ## Archivos Incluidos
 - `update.ps1`: Script de PowerShell que automatiza el proceso de actualización.
@@ -13,7 +13,7 @@ El proceso de actualización realizado consta de los siguientes pasos técnicos:
 Se inspeccionó el contenedor anterior (`docker inspect`) para recuperar la configuración crítica y asegurar que no se pierdan datos durante la recreación del contenedor.
 
 **Configuración Preservada:**
-- **Imagen:** `ghcr.io/open-webui/open-webui:v0.8.0` (Actualizada de `main` a `v0.8.0`)
+- **Imagen:** `ghcr.io/open-webui/open-webui:v0.8.10` (Actualizada de `v0.8.0` a `v0.8.10`)
 - **Puertos:**
   - `3000` -> `8080` (Interfaz Web)
   - `8082` -> `8082` (Uso interno/API)
@@ -28,7 +28,7 @@ Se inspeccionó el contenedor anterior (`docker inspect`) para recuperar la conf
 ### 2. Actualización de Imagen
 Se descargó la imagen específica para evitar inestabilidad con la etiqueta `main`:
 ```powershell
-docker pull ghcr.io/open-webui/open-webui:v0.8.0
+docker pull ghcr.io/open-webui/open-webui:v0.8.10
 ```
 
 ### 3. Recreación del Contenedor
@@ -45,7 +45,7 @@ docker run -d `
   -e PORT=8080 `
   --name open-webui `
   --restart unless-stopped `
-  ghcr.io/open-webui/open-webui:v0.8.0
+  ghcr.io/open-webui/open-webui:v0.8.10
 ```
 
 ## Instrucciones de Uso

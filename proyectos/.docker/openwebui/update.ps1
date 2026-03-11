@@ -1,8 +1,8 @@
-# Script to update OpenWebUI to v0.8.0
+# Script to update OpenWebUI to v0.8.10
 
 # 1. Pull the new image
-Write-Host "Pulling new image version v0.8.0..."
-docker pull ghcr.io/open-webui/open-webui:v0.8.0
+Write-Host "Pulling new image version v0.8.10..."
+docker pull ghcr.io/open-webui/open-webui:v0.8.10
 
 # 2. Stop and remove the old container
 Write-Host "Stopping and removing existing container..."
@@ -20,6 +20,6 @@ docker run -d `
   -e PORT=8080 `
   --name open-webui `
   --restart unless-stopped `
-  ghcr.io/open-webui/open-webui:v0.8.0
+  ghcr.io/open-webui/open-webui:v0.8.10
 
 Write-Host "Update complete! Please verify at http://localhost:3000"
