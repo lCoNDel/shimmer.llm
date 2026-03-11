@@ -108,6 +108,34 @@ document.addEventListener('DOMContentLoaded', () => {
     let dealerMarkers = [];
     let globalSearchTimeout = null;
 
+    // Weather Lock / Tracking State
+    let isTrackingActive = false;
+    let trackingWatchId = null;
+
+    // Unified Boat Marker Update Function
+    function updateBoatMarker(latlng) {
+        const iconHtml = `<div style="background-color: #3498db; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(52, 152, 219, 0.8);"></div>`;
+        const boatIcon = L.divIcon({ html: iconHtml, className: '', iconSize: [20, 20], iconAnchor: [10, 10] });
+
+        if (currentMarker) {
+            currentMarker.setLatLng(latlng);
+            currentMarker.setIcon(boatIcon);
+            currentMarker.setZIndexOffset(1100);
+        } else {
+            currentMarker = L.marker(latlng, { icon: boatIcon, zIndexOffset: 1100 }).addTo(map);
+        }
+
+        // Update SOS Distance if active
+        if (isSosActive && sosMarker) {
+            const sosLatLng = sosMarker.getLatLng();
+            const dist = map.distance(sosLatLng, latlng);
+            const distText = document.getElementById('sos-distance-text');
+            if (distText) {
+                distText.innerHTML = `Distancia a víctima: <strong>${dist.toFixed(1)} metros</strong>`;
+            }
+        }
+    }
+
     // Handle Global Map Search Suggestions (Nominatim)
     async function fetchSuggestions(query) {
         if (!query || query.length < 3) {
@@ -345,6 +373,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. Handle Map Clicks to fetch Marine Data
     map.on('click', async (e) => {
+        if (isTrackingActive) return; // Prevent manual override when GPS lock is active
+
         const { lat, lng } = e.latlng;
 
         // Update Marker
@@ -382,48 +412,91 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 6. Geolocation Logic
+    // 6. Geolocation Logic (With Weather Lock Toggle)
     geoBtn.addEventListener('click', () => {
         if (!navigator.geolocation) {
             alert('Tu navegador no soporta la geolocalización.');
             return;
         }
 
-        const originalText = geoBtn.innerHTML;
-        geoBtn.innerHTML = 'Buscando...';
-        geoBtn.style.opacity = '0.7';
-
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
-                const latlng = L.latLng(latitude, longitude);
-
-                // Fly to user location
-                map.flyTo(latlng, 10, {
-                    duration: 1.5
-                });
-
-                // Simulate a map click to trigger the weather data fetch
-                map.fire('click', { latlng: latlng });
-
-                geoBtn.innerHTML = originalText;
-                geoBtn.style.opacity = '1';
-            },
-            (error) => {
-                geoBtn.innerHTML = originalText;
-                geoBtn.style.opacity = '1';
-                let errorMsg = 'No se pudo obtener la ubicación.';
-                if (error.code === 1) errorMsg = 'Permiso de ubicación denegado por el usuario.';
-                if (error.code === 2) errorMsg = 'Ubicación no disponible.';
-                if (error.code === 3) errorMsg = 'Tiempo de espera agotado al buscar ubicación.';
-                alert(errorMsg);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
+        if (isTrackingActive) {
+            // STOP TRACKING - Guard against SOS
+            if (isSosActive) {
+                alert("⚠️ EL GPS ES OBLIGATORIO DURANTE S.O.S\n\nNo puedes desactivar el seguimiento mientras hay una emergencia MOB activa.");
+                return;
             }
-        );
+            isTrackingActive = false;
+            if (trackingWatchId !== null) {
+                navigator.geolocation.clearWatch(trackingWatchId);
+                trackingWatchId = null;
+            }
+            geoBtn.classList.remove('active');
+            geoBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+                Usar mi ubicación actual
+            `;
+        } else {
+            // START TRACKING
+            const originalHTML = geoBtn.innerHTML;
+            geoBtn.innerHTML = 'Buscando...';
+            
+            isTrackingActive = true;
+            geoBtn.classList.add('active');
+
+            trackingWatchId = navigator.geolocation.watchPosition(
+                async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    const latlng = L.latLng(latitude, longitude);
+
+                    // If first time or significantly moved, center map
+                    if (geoBtn.innerHTML === 'Buscando...') {
+                        const zoomLevel = isSosActive ? 17 : 12;
+                        map.flyTo(latlng, zoomLevel, { duration: 1.5 });
+                        geoBtn.innerHTML = `
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            BLOQUEO GPS ACTIVO
+                        `;
+                    }
+
+                    updateBoatMarker(latlng);
+
+                    // Update weather panel coordinates
+                    latlonDisplay.textContent = `${Math.abs(latitude).toFixed(4)}° ${latitude >= 0 ? 'N' : 'S'}, ${Math.abs(longitude).toFixed(4)}° ${longitude >= 0 ? 'E' : 'W'}`;
+                    
+                    try {
+                        await fetchMarineWeatherAnalysis(latitude, longitude);
+                    } catch (error) {
+                        console.error("GPS Weather Fetch Error:", error);
+                    }
+                },
+                (error) => {
+                    console.error("WatchPosition Error:", error);
+                    // Don't kill the tracking immediately if in SOS, maybe it's just a transient error
+                    if (isSosActive) {
+                        console.warn("GPS glitch during SOS - retrying in background...");
+                        return; 
+                    }
+                    
+                    isTrackingActive = false;
+                    geoBtn.classList.remove('active');
+                    geoBtn.innerHTML = originalHTML;
+                    if (trackingWatchId !== null) {
+                        navigator.geolocation.clearWatch(trackingWatchId);
+                        trackingWatchId = null;
+                    }
+                    
+                    let errorMsg = 'No se pudo obtener tu ubicación precisa.';
+                    if (error.code === 1) errorMsg = 'Permiso de ubicación denegado.';
+                    if (error.code === 3) errorMsg = 'Tiempo de espera agotado al buscar ubicación.';
+                    alert(errorMsg);
+                },
+                { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 }
+            );
+        }
     });
 
     // 7. Fetch Open-Meteo Marine Data
@@ -711,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Set off other map modes
             if (isWindLayerActive) windLayerBtn.click();
-            if (isOwmLayerActive) owmLayerBtn.click();
+            if (isRadarActive) owmLayerBtn.click();
             if (isRulerActive) rulerBtn.click();
 
             // Get current map view
@@ -749,22 +822,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 9.5 OpenWeatherMap (OWM) Rain & Clouds Layer Integration
+    // 9.5 RainViewer Radar Integration (Replacing OpenWeatherMap)
     const owmLayerBtn = document.getElementById('owmLayerBtn');
-    let owmLayer = null;
-    let isOwmLayerActive = false;
-    const OWM_API_KEY = '0f39bd16c83cafd8b36b9237b9fd577d';
+    let radarLayer = null;
+    let isRadarActive = false;
+
+    // Function to get the latest radar timestamp from RainViewer
+    async function getRainViewerTimestamp() {
+        try {
+            const response = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+            const data = await response.json();
+            // data.radar.past contains an array of timestamps, the last one is the most recent
+            if (data && data.radar && data.radar.past && data.radar.past.length > 0) {
+                return data.radar.past[data.radar.past.length - 1].time;
+            }
+        } catch (error) {
+            console.error('Error fetching RainViewer timestamps:', error);
+        }
+        return null;
+    }
 
     if (owmLayerBtn) {
-        owmLayerBtn.addEventListener('click', () => {
-            if (isOwmLayerActive) {
+        owmLayerBtn.addEventListener('click', async () => {
+            if (isRadarActive) {
                 // Disable layer
-                if (owmLayer) {
-                    map.removeLayer(owmLayer);
+                if (radarLayer) {
+                    map.removeLayer(radarLayer);
+                    radarLayer = null;
                 }
                 owmLayerBtn.classList.remove('active');
-                isOwmLayerActive = false;
+                isRadarActive = false;
             } else {
+                // Fetch latest timestamp
+                const timestamp = await getRainViewerTimestamp();
+                if (!timestamp) {
+                    alert('No se pudieron obtener datos del radar en este momento.');
+                    return;
+                }
+
                 // Enable layer
                 owmLayerBtn.classList.add('active');
 
@@ -773,17 +868,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (isWindLayerActive) windLayerBtn.click();
                 if (isRulerActive) rulerBtn.click();
 
-                if (!owmLayer) {
-                    // Weather Maps 2.0 (precipitation_new)
-                    owmLayer = L.tileLayer(`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${OWM_API_KEY}`, {
-                        maxZoom: 18,
-                        opacity: 0.65, // slightly transparent so nautical marks show through
-                        attribution: '&copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>',
-                        zIndex: 400 // Make sure it sits above base map but below markers
-                    });
-                }
-                owmLayer.addTo(map);
-                isOwmLayerActive = true;
+                // Create RainViewer Tile Layer
+                // v2/radar/{ts}/256/{z}/{x}/{y}/{color}/{options}.png
+                // Color 2 is universal, 1_1 is smooth + labels
+                radarLayer = L.tileLayer(`https://tilecache.rainviewer.com/v2/radar/${timestamp}/256/{z}/{x}/{y}/2/1_1.png`, {
+                    maxZoom: 18,
+                    opacity: 0.7,
+                    zIndex: 400,
+                    attribution: '&copy; <a href="https://www.rainviewer.com/api.html">RainViewer</a>'
+                });
+
+                radarLayer.addTo(map);
+                isRadarActive = true;
             }
         });
     }
@@ -834,7 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Si el tráfico marítimo u otros modos están activos, los cerramos
             if (isTrafficActive) toggleTrafficBtn.click();
             if (isWindLayerActive) windLayerBtn.click();
-            if (isOwmLayerActive) owmLayerBtn.click();
+            if (isRadarActive) owmLayerBtn.click();
 
         } else {
             rulerBtn.classList.remove('active');
@@ -1233,7 +1329,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Set off other map modes
             if (isTrafficActive) toggleTrafficBtn.click();
-            if (isOwmLayerActive) owmLayerBtn.click();
+            if (isRadarActive) owmLayerBtn.click();
             if (isRulerActive) rulerBtn.click();
 
             try {
@@ -1340,7 +1436,6 @@ document.addEventListener('DOMContentLoaded', () => {
             sosMarker = null;
         }
         if (sosWatchId !== null) {
-            navigator.geolocation.clearWatch(sosWatchId);
             sosWatchId = null;
         }
         isSosActive = false;
@@ -1353,6 +1448,61 @@ document.addEventListener('DOMContentLoaded', () => {
         // Remove tracking panel if it exists
         const oldPanel = document.getElementById('sos-tracking-panel');
         if (oldPanel) oldPanel.remove();
+    }
+
+    function activateSos(sosLatLng) {
+        isSosActive = true;
+
+        // 1. Place Permanent Marker (MOB Point)
+        sosMarker = L.marker(sosLatLng, { icon: sosIcon, zIndexOffset: 1000 }).addTo(map);
+
+        // 2. Focus Map tightly on the emergency
+        map.setView(sosLatLng, 17);
+
+        // 3. Update Boat Marker IMMEDIATELY with the same coordinates
+        updateBoatMarker(sosLatLng);
+
+        // 4. Update Button UI to show it's active
+        floatingSosBtn.style.animation = 'pulse-red 1s infinite';
+        floatingSosBtn.title = 'S.O.S ACTIVO (Clic para gestionar)';
+
+        // 5. Create Tracking Panel
+        const trackingPanel = document.createElement('div');
+        trackingPanel.id = 'sos-tracking-panel';
+        trackingPanel.style.cssText = `
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 71, 87, 0.95);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 2000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            border: 2px solid white;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        `;
+        trackingPanel.innerHTML = `
+            <div style="font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.5rem;">⚠️</span> EMERGENCIA MOB ACTIVA
+            </div>
+            <div id="sos-distance-text" style="font-size: 1rem; font-weight: 600;">
+                Distancia a víctima: Calculando...
+            </div>
+            <div style="font-size: 0.8rem; opacity: 0.9;">
+                Coord: ${sosLatLng.lat.toFixed(5)}, ${sosLatLng.lng.toFixed(5)}
+            </div>
+        `;
+        document.querySelector('.app-container').appendChild(trackingPanel);
+
+        // 6. Ensure real-time boat tracking is active
+        if (!isTrackingActive) {
+            geoBtn.click();
+        }
     }
 
     floatingSosBtn.addEventListener('click', () => {
@@ -1370,85 +1520,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // ACTIVATE SOS
+        // --- OPTIMIZATION: REUSE EXISTING GPS IF ACTIVE ---
+        if (isTrackingActive && currentMarker) {
+            const sosLatLng = currentMarker.getLatLng();
+            activateSos(sosLatLng);
+            return;
+        }
+
         if (!navigator.geolocation) {
             alert("Error crítico: Tu navegador no soporta geolocalización. Imposible marcar S.O.S.");
             return;
         }
 
+        // --- IMMEDIATE FEEDBACK ---
+        const originalHTML = floatingSosBtn.innerHTML;
+        floatingSosBtn.innerHTML = '<span style="font-size: 0.7rem; font-weight: 800;">GPS...</span>';
         floatingSosBtn.style.background = '#e84118';
         floatingSosBtn.title = 'Obteniendo GPS Crítico...';
 
         // High priority GPS request
         navigator.geolocation.getCurrentPosition(
             (pos) => {
-                isSosActive = true;
+                floatingSosBtn.innerHTML = originalHTML;
                 const sosLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
-
-                // 1. Place Permanent Marker
-                sosMarker = L.marker(sosLatLng, { icon: sosIcon, zIndexOffset: 1000 }).addTo(map);
-
-                // 2. Focus Map tightly on the emergency
-                map.setView(sosLatLng, 17);
-
-                // 3. Update Button UI to show it's active
-                floatingSosBtn.style.animation = 'pulse-red 1s infinite';
-                floatingSosBtn.title = 'S.O.S ACTIVO (Clic para gestionar)';
-
-                // 4. Create Tracking Panel
-                const trackingPanel = document.createElement('div');
-                trackingPanel.id = 'sos-tracking-panel';
-                trackingPanel.style.cssText = `
-                    position: absolute;
-                    top: 80px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: rgba(255, 71, 87, 0.95);
-                    color: white;
-                    padding: 15px 25px;
-                    border-radius: 8px;
-                    z-index: 2000;
-                    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-                    text-align: center;
-                    border: 2px solid white;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 5px;
-                `;
-                trackingPanel.innerHTML = `
-                    <div style="font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 1.5rem;">⚠️</span> EMERGENCIA MOB ACTIVA
-                    </div>
-                    <div id="sos-distance-text" style="font-size: 1rem; font-weight: 600;">
-                        Distancia a víctima: Calculando...
-                    </div>
-                    <div style="font-size: 0.8rem; opacity: 0.9;">
-                        Coord: ${sosLatLng.lat.toFixed(5)}, ${sosLatLng.lng.toFixed(5)}
-                    </div>
-                `;
-                document.querySelector('.app-container').appendChild(trackingPanel);
-
-                // 5. Start real-time tracking of current position relative to MOB point
-                sosWatchId = navigator.geolocation.watchPosition(
-                    (livePos) => {
-                        if (!isSosActive) return;
-                        const currentLatLng = L.latLng(livePos.coords.latitude, livePos.coords.longitude);
-                        const dist = map.distance(sosLatLng, currentLatLng);
-
-                        const distText = document.getElementById('sos-distance-text');
-                        if (distText) {
-                            distText.innerHTML = `Distancia a víctima: <strong>${dist.toFixed(1)} metros</strong>`;
-                        }
-                    },
-                    (err) => console.warn(`SOS Tracking Error: ${err.message}`),
-                    { enableHighAccuracy: true, maximumAge: 0 }
-                );
-
+                activateSos(sosLatLng);
             },
             (err) => {
+                floatingSosBtn.innerHTML = originalHTML;
                 floatingSosBtn.style.background = '#ff4757';
                 alert(`Error al obtener GPS Crítico: ${err.message}`);
             },
-            { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 } // high priority
+            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
         );
     });
 
