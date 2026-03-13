@@ -47,6 +47,7 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
+    flex: 1; /* Added to push search to center */
 }
 
 .auth-nav {
@@ -54,6 +55,8 @@ body {
     align-items: center;
     gap: 1rem;
     flex-wrap: nowrap;
+    flex: 1; /* Added to push search to center */
+    justify-content: flex-end; /* Pushes buttons to the right edge */
 }
 
 /* Global Map Search Bar */
@@ -61,6 +64,7 @@ body {
     position: relative;
     display: flex;
     align-items: center;
+    justify-content: center; /* Center the input within its own container if needed */
 }
 
 .dropdown-utilities {
