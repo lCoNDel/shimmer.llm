@@ -17,7 +17,7 @@ Cuando se te pida crear una nueva habilidad, sigue estos pasos:
     *   Identifica si la habilidad requiere scripts de apoyo o archivos adicionales.
 
 2.  **Estructura de Carpetas**:
-    *   Crea el directorio en: `.antigravity/skills/[nombre-de-la-habilidad]/`.
+    *   Crea el directorio en: `C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.llm\skills[nombre-de-la-habilidad]/`.
 
 3.  **Creación del archivo SKILL.md**:
     *   Define el **Frontmatter**:
