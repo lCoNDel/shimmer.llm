@@ -1,0 +1,25 @@
+# Script para inyectar FileBrowser en los contenedores (Acceso Interno)
+$src = "$PSScriptRoot\filebrowser"
+
+# 1. Verificar contenedores
+$containers = @("open-webui", "anything-llm")
+foreach ($c in $containers) {
+    if (!(docker ps -q -f name=$c)) {
+        Write-Host "Advertencia: El contenedor '$c' no está corriendo." -ForegroundColor Yellow
+        continue
+    }
+
+    Write-Host "Inyectando en $c..." -ForegroundColor Cyan
+    docker cp "$src" "$c`:/usr/local/bin/filebrowser"
+    
+    # Puerto basado en el contenedor
+    $port = if ($c -eq "open-webui") { 3003 } else { 3004 }
+    
+    # Iniciar servicio en segundo plano
+    docker exec -d $c sh -c "filebrowser -p $port -r / -a 0.0.0.0 -d /tmp/fb.db > /tmp/fb.log 2>&1"
+    
+    Write-Host "Listo: http://localhost:$port (Acceso Root Interno)" -ForegroundColor Green
+    Write-Host "Usuario: admin / Pass: adminadmin123" -ForegroundColor Gray
+}
+
+Write-Host "`nRecuerda: El acceso fijo a Volumenes sigue en http://localhost:3002" -ForegroundColor White
