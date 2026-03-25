@@ -1,0 +1,1 @@
+Explorar opciones para conectar los agentes vía api directamente contra Telegram, whatsapp, etc
