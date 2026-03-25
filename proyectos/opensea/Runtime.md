@@ -5,7 +5,7 @@ description: Una skill para iniciar y detener el servicio web local en el puerto
 
 # Web Service Manager
 
-Esta skill proporciona herramientas para gestionar el servidor web local del proyecto OpenSea.
+Esta skill proporciona indicaciones para gestionar el servidor web local del proyecto OpenSea.
 
 ## Funciones
 
