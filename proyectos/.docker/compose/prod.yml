@@ -1,0 +1,29 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:v0.8.10
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "3003:3003"
+    volumes:
+      - open-webui:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+  
+  anything-llm:
+    image: mintplexlabs/anythingllm
+    container_name: anything-llm
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - STORAGE_DIR=/app/server/storage
+    volumes:
+      - anythingllm_storage:/app/server/storage
+
+volumes:
+  open-webui:
+    external: true
+  anythingllm_storage:
+    external: true

@@ -1,0 +1,19 @@
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    restart: unless-stopped
+    ports:
+      - "3002:80"
+    volumes:
+      - ../filebrowser/fb-data/config:/config
+      - ../filebrowser/fb-data/database:/database
+      - ../filebrowser/fb-data/srv:/srv
+      - open-webui:/srv/open-webui
+      - anythingllm_storage:/srv/anything-llm
+
+volumes:
+  open-webui:
+    external: true
+  anythingllm_storage:
+    external: true
