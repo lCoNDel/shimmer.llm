@@ -43,7 +43,7 @@ def handle_message(message):
         if (current_time - last_time) > (TIMEOUT_MINUTES * 60):
             logging.info(f"Limpiando historial por inactividad para {user_id}")
             user_history[user_id] = {"timestamp": current_time, "messages": []}
-            bot.reply_to(message, "⏳ Nueva sesión (el tiempo de inactividad superó los 10 min).")
+            bot.reply_to(message, "⏳ La sesión ha caducado, un nuevo chat comenzará en breves.")
             
     # Actualizar timestamp
     user_history[user_id]["timestamp"] = current_time

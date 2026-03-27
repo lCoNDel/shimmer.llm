@@ -13,7 +13,7 @@ foreach ($c in $containers) {
     docker cp "$src" "$c`:/usr/local/bin/filebrowser"
     
     # Puerto basado en el contenedor
-    $port = if ($c -eq "open-webui") { 3003 } else { 3004 }
+    $port = if ($c -eq "open-webui") { 8001 } else { 8002 }
     
     # Iniciar servicio en segundo plano
     docker exec -d $c sh -c "filebrowser -p $port -r / -a 0.0.0.0 -d /tmp/fb.db > /tmp/fb.log 2>&1"
@@ -22,4 +22,4 @@ foreach ($c in $containers) {
     Write-Host "Usuario: admin / Pass: adminadmin123" -ForegroundColor Gray
 }
 
-Write-Host "`nRecuerda: El acceso fijo a Volumenes sigue en http://localhost:3002" -ForegroundColor White
+Write-Host "`nRecuerda: El acceso fijo a Volumenes sigue en http://localhost:8000" -ForegroundColor White

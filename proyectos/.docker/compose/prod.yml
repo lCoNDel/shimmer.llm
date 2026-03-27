@@ -2,9 +2,10 @@ services:
   open-webui:
     image: ghcr.io/open-webui/open-webui:v0.8.10
     container_name: open-webui
-    restart: unless-stopped
+    restart: "no"
     ports:
       - "3000:3000"
+      - "8001:8001"
     volumes:
       - open-webui:/app/backend/data
     environment:
@@ -14,9 +15,10 @@ services:
   anything-llm:
     image: mintplexlabs/anythingllm
     container_name: anything-llm
-    restart: always
+    restart: "no"
     ports:
       - "3001:3001"
+      - "8002:8002"
     environment:
       - STORAGE_DIR=/app/server/storage
     volumes:

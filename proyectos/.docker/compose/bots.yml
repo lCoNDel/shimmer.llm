@@ -1,9 +1,11 @@
+name: bots
+
 services:
   asistente_nautico:
     image: python:3.11-slim
     container_name: asistente_nautico
-    restart: unless-stopped
+    restart: "no"
     volumes:
-      - ../telegram_bot:/app
+      - ../../.bots/telegram:/app
     working_dir: /app
-    command: sh -c "pip install -r requirements.txt && python telegram_bot.py"
+    command: sh -c "pip install -r requirements.txt && python asistente_nautico.py"
