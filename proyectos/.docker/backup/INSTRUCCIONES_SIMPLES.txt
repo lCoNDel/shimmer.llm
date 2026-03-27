@@ -1,0 +1,316 @@
+================================================================================
+                    SISTEMA DE RESPALDO DE DOCKER
+================================================================================
+Versión: 2.0 (Simplicificado para reemplazo)
+Última actualización: 2026-03-27
+
+PARA: Cualquier persona que reemplace a Luis en la gestión de Docker
+
+================================================================================
+¿QUÉ HACE ESTE SISTEMA?
+================================================================================
+
+Hace respaldos (copias de seguridad) de:
+
+1. DATOS > Los archivos y bases de datos que usan los servicios
+2. CONFIGURACIÓN > Los archivos que definen cómo creo los servicios
+3. INFORMACIÓN > Detalles técnicos de cómo estaba configurado todo
+
+Si algo se daña o se pierde, puedes restaurarlo desde estos respaldos.
+
+================================================================================
+¿DÓNDE ESTÁ TODO?
+================================================================================
+
+Ubicación:   C:\Users\luisc\.docker\backup\
+
+Carpetas dentro:
+  
+  📁 volumes/        → Respaldos de datos (archivos grandes comprimidos)
+  📁 compose/        → Archivos de configuración de servicios
+  📁 configs/        → Información técnica de cómo estaba cada servicio
+  📁 logs/           → Registros de cuándo se hicieron los respaldos
+  📁 scripts/        → Programas que hacen el respaldo automático
+  
+  📄 INSTRUCCIONES_SIMPLES.txt       ← Este archivo (LO QUE LEES)
+  📄 ESTRUCTURA_Y_PROCEDIMIENTOS.txt ← Versión técnica con más detalles
+  📄 manifest.txt                    ← Registro manual de respaldos (llenar si quieres)
+
+================================================================================
+CÓMO HACER UN RESPALDO (PASO A PASO)
+================================================================================
+
+FORMA 1: Hacer clic (la más fácil)
+─────────────────────────────────
+
+1. Abre el Explorador de Archivos (Windows Explorer)
+
+2. Ve a esta carpeta:
+   C:\Users\luisc\.docker\backup\scripts\
+
+3. Busca el archivo: docker-backup.bat
+
+4. Haz DOBLE CLIC en él
+
+5. Se abrirá una ventana negra y hará el respaldo
+
+6. ESPERA hasta que vuelva a preguntar y cierre la ventana
+   (Puede tardar 5-10 minutos)
+
+7. ¡Listo! El respaldo está hecho.
+
+
+FORMA 2: Desde terminal (si la forma 1 no funciona)
+───────────────────────────────────────────────────
+
+1. Presiona: Windows + R (abre el diálogo "Ejecutar")
+
+2. Escribe: cmd
+
+3. Presiona Enter
+
+4. En la ventana que se abre, escribe:
+   C:\Users\luisc\.docker\backup\scripts\docker-backup.bat
+
+5. Presiona Enter
+
+6. ESPERA a que termine
+
+7. Presiona una tecla para cerrar
+
+
+¿CUÁNDO HACER UN RESPALDO?
+──────────────────────────
+
+OBLIGATORIO (muy importante):
+  • ANTES de cambiar cualquier configuración de Docker
+  • UNA VEZ AL MES (aunque no cambies nada, por seguridad)
+  • Si ves errores raros en alguno de los servicios
+  • Antes de que el servidor probablemente va a fallar
+
+RECOMENDADO:
+  • Después de cambios importantes en la infraestructura
+  • Cuando actualizas algún servicio
+
+NO es necesario:
+  • Cada vez que reinicia un servicio
+  • Cuando solo cambias valor de una variable de entorno
+
+================================================================================
+¿QUÉ SE RESPALDA?
+================================================================================
+
+El programa hace esto automáticamente:
+
+1. Busca y guarda DATOS
+   Ubicación: C:\Users\luisc\.docker\backup\volumes\
+   Qué: Archivos y bases de datos de los servicios
+   Formato: Comprimido (.tar.gz)
+   Tamaño: Normalmente 1-5 GB
+   Ejemplo: open-webui_032026_2028.tar.gz
+
+2. Busca y guarda CONFIGURACIÓN
+   Ubicación: C:\Users\luisc\.docker\backup\compose\[FECHA]\
+   Qué: Archivos .yml (bots.yml, dev.yml, prod.yml, tools.yml)
+   Tamaño: Muy pequeño (KB)
+   Para qué: Recrear servicios si todo falla
+
+3. Guarda INFORMACIÓN de cada servicio
+   Ubicación: C:\Users\luisc\.docker\backup\configs\
+   Qué: Detalles técnicos (variables, puertos, etc)
+   Formato: Archivos .json
+   Tamaño: Pequeño (KB)
+   Para qué: Documentación y referencia
+
+4. Registra lo que hizo
+   Ubicación: C:\Users\luisc\.docker\backup\logs\backup_FECHA.log
+   Qué: Un archivo de texto diciendo qué se respaldó
+   Para qué: Verificar que todo funcionó correctamente
+
+================================================================================
+CÓMO VERIFICAR QUE EL RESPALDO FUNCIONÓ
+================================================================================
+
+Paso 1: Abre la carpeta
+  C:\Users\luisc\.docker\backup\
+
+Paso 2: Verifica dentro que haya:
+  ✓ Archivos en volumes/ (archivos .tar.gz comprimidos)
+  ✓ Carpeta en compose/ con nombre de hoy (dentro archivos .yml)
+  ✓ Carpetas en configs/ con nombres de los servicios
+  ✓ Archivo nuevo en logs/ (el más reciente)
+
+Paso 3: Lee el registro de lo que pasó
+  
+  Abre la carpeta: C:\Users\luisc\.docker\backup\logs\
+  
+  Abre el archivo MÁS RECIENTE (el que tiene la fecha/hora más nueva)
+  
+  Abre con Notepad (clic derecho > Abrir con > Bloc de notas)
+  
+  Busca al final del archivo estas líneas:
+    ✓ "BACKUP COMPLETED"
+    ✓ "Total volumes backed up: 2"
+    ✓ "Total containers backed up: 5"
+  
+  Si ves COMPLETED = Todo está bien ✓
+
+================================================================================
+LOS SERVICIOS QUE SE RESPALDAN
+================================================================================
+
+Estos son los servicios que viven en Docker:
+
+1. asistente_nautico
+   Qué hace: Bot de Telegram para temas náuticos
+   Importancia: Media
+
+2. anything-llm
+   Qué hace: Interface para trabajar con modelos de IA
+   Importancia: Alta
+
+3. open-webui
+   Qué hace: Página web para acceder a IA
+   Importancia: Alta
+   Nota: Este es el que más espacio ocupa en los respaldos
+
+4. filebrowser
+   Qué hace: Explorador de archivos web
+   Importancia: Media
+
+5. placeholder_dev
+   Qué hace: Contenedor de prueba/desarrollo
+   Importancia: Baja
+
+================================================================================
+PROBLEMAS COMUNES Y SOLUCIONES
+================================================================================
+
+Problema: Hago doble clic pero no pasa nada
+→ Probablemente Docker no está corriendo
+  Solución:
+    1. Abre Docker Desktop desde el menú de inicio
+    2. Espera a que esté listo (el ícono de Docker en la bandeja)
+    3. Intenta nuevamente el respaldo
+
+Problema: Se abre la ventana pero cierra muy rápido
+→ Probablemente Docker no está corriendo
+  Solución: Inicia Docker Desktop
+
+Problema: No veo archivos en backup después de hacer respaldo
+→ Probablemente falta permiso o espacio en disco
+  Solución:
+    1. Verifica que tienes 10 GB libres en C:\
+    2. Si no tienes espacio, borra respaldos viejos
+
+Problema: Los archivos son muy grandes (> 5 GB)
+→ Es normal, especialmente el archivo open-webui
+  Solución: Asegúrate de tener espacio en disco
+
+Problema: La ventana de respaldo se detiene a mitad
+→ Probablemente se acabó el espacio en disco
+  Solución:
+    1. Borra respaldos muy antiguos de volumes/
+    2. Intenta de nuevo
+
+Problema: No sé si funcionó el respaldo
+→ Solución:
+    1. Abre el archivo log más reciente en: logs/
+    2. Lee si termina con "BACKUP COMPLETED"
+    3. Si dice COMPLETED = ✓ Está bien
+    4. Si hay errores, muéstraselos a alguien técnico
+
+================================================================================
+TAREAS SEMANALES Y MENSUALES
+================================================================================
+
+CADA LUNES MAANA (o cada semana):
+  
+  □ Inicia Docker Desktop
+  □ Espera a que esté listo (ícono en bandeja)
+  □ Haz un respaldo: Doble clic en docker-backup.bat
+  □ Espera a que termine (5-10 minutos)
+  □ Verifica que esté todo bien (leer el log)
+
+CADA MES (primer lunes del mes):
+  
+  □ Haz lo de arriba
+  □ Después, abre manifest.txt
+  □ Agrega una línea como esta:
+    "2026-04-01 09:00 - Respaldo mensual - Todo OK"
+
+ANTES DE CAMBIOS IMPORTANTES:
+  
+  □ Haz un respaldo PRIMERO
+  □ Espera a que termine
+  □ LUEGO haz el cambio
+  □ Así si algo falla, tienes una copia de seguridad
+
+================================================================================
+INFORMACIÓN IMPORTANTE
+================================================================================
+
+Ubicación del programa de respaldo:
+  C:\Users\luisc\.docker\backup\scripts\docker-backup.bat
+
+Ubicación donde guarda todo:
+  C:\Users\luisc\.docker\backup\
+
+Dónde están los archivos de configuración original:
+  C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\
+
+Archivos de configuración:
+  bots.yml      → Configuración del bot de Telegram
+  dev.yml       → Configuración de desarrollo
+  prod.yml      → Configuración de producción
+  tools.yml     → Herramientas varias
+
+================================================================================
+REGLAS DE ORO
+================================================================================
+
+1. ANTES DE CAMBIOS → HAGA RESPALDO
+   No cambies nada sin respaldar primero
+
+2. DOCKER DEBE ESTAR CORRIENDO
+   Abre Docker Desktop antes de hacer respaldo
+
+3. CADA LUNES → RESPALDO
+   Una vez por semana, aunque no cambies nada. Seguridad.
+
+4. VERIFICA QUE FUNCIONÓ
+   Después de hacer respaldo, abre el log y verifica "COMPLETED"
+
+5. TEN ESPACIO EN DISCO
+   Los respaldos ocupan mucho (1-10 GB), asegúrate de tener espacio
+
+6. SI ALGO FALLA
+   No lo hagas manual. Llama a Luis o consulta ESTRUCTURA_Y_PROCEDIMIENTOS.txt
+
+================================================================================
+CONTACTO
+================================================================================
+
+Si algo no funciona:
+  1. Lee de nuevo esta guía
+  2. Abre el log y busca errores
+  3. Contacta a: Luis (o tu superior técnico)
+
+Documentación completa (para casos más complejos):
+  ESTRUCTURA_Y_PROCEDIMIENTOS.txt (en la misma carpeta con más detalles)
+
+================================================================================
+CHECKLIST FINAL
+================================================================================
+
+Antes de empezar a usar el sistema:
+
+  ☐ Tienes Docker Desktop instalado
+  ☐ Encuentras el archivo docker-backup.bat
+  ☐ Hiciste un respaldo de prueba
+  ☐ El respaldo funcionó (viste "COMPLETED" en el log)
+  ☐ Entiendes dónde se guardan los respaldos
+
+Si todo está ✓, ¡LISTO PARA USAR!
+
+================================================================================

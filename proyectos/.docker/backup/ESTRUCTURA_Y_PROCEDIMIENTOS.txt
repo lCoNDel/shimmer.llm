@@ -1,0 +1,431 @@
+================================================================================
+         DOCKER BACKUP MANUAL - ESTRUCTURA Y PROCEDIMIENTOS (v2.0)
+================================================================================
+Fecha: 2026-03-27
+Actualizado: 2026-03-27
+Versión: 2.0
+Ejecución: MANUAL (tú controlas cuándo ejecutar)
+
+================================================================================
+1. DESCRIPCIÓN GENERAL
+================================================================================
+
+Sistema de respaldos manuales para tu entorno Docker con tres componentes:
+
+✓ VOLÚMENES Docker         → Datos persistentes (comprimidos .tar.gz)
+✓ CONFIGURACIÓN Compose    → Archivos .yml (búsqueda automática en .docker/compose/)
+✓ CONFIGURACIÓN CONTENEDORES → JSON con variables, puertos, labels, networks
+
+Cuándo se ejecuta:
+→ MANUALMENTE - Tú decides cuándo hacer el respaldo
+
+================================================================================
+2. ANATOMÍA DE UN CONTENEDOR DOCKER
+================================================================================
+
+Cuando ejecutas: docker-compose -f .docker/compose/bots.yml up
+
+Docker internamente:
+  1. Lee el archivo bots.yml
+  2. Crea los contenedores
+  3. AGREGA LABELS (etiquetas) al contenedor con metadata:
+     - "com.docker.compose.project": "bots"
+     - "com.docker.compose.project.config_files": "C:\\...\\bots.yml"
+     - "com.docker.compose.project.working_dir": "C:\\...\\compose"
+     - "com.docker.compose.service": "asistente_nautico"
+
+Estos labels quedan almacenados en:
+  Linux:   /var/lib/docker/containers/[ID]/config.v2.json
+  Windows: En la VM Linux de Docker Desktop (inaccesible directo desde Windows)
+
+Acceso:   docker inspect [container] muestra estos labels
+
+Importancia:
+  → Los JSONs respaldados CONTIENEN estos labels
+  → Si pierdes los .yml, puedes recuperar la info desde los JSONs respaldados
+
+================================================================================
+3. ESTRUCTURA DE DIRECTORIOS
+================================================================================
+
+.docker/backup/
+├── volumes/                           (respaldos de volúmenes .tar.gz)
+│   ├── anythingllm_storage_*.tar.gz
+│   └── open-webui_*.tar.gz
+│
+├── compose/                           (archivos .yml respaldados)
+│   └── [FECHA]/
+│       ├── bots.yml
+│       ├── dev.yml
+│       ├── prod.yml
+│       └── tools.yml
+│
+├── configs/                           (JSON con config de cada contenedor)
+│   ├── asistente_nautico/
+│   │   └── asistente_nautico_*.json
+│   ├── anything-llm/
+│   ├── open-webui/
+│   ├── filebrowser/
+│   └── placeholder_dev/
+│
+├── logs/                              (logs de cada ejecución)
+│   ├── backup_032026_2028.log
+│   └── backup_032026_2009.log
+│
+├── scripts/
+│   ├── docker-backup.sh               (Linux/Mac ejecutable)
+│   └── docker-backup.bat              (Windows ejecutable)
+│
+├── ESTRUCTURA_Y_PROCEDIMIENTOS.txt    (este archivo)
+└── manifest.txt                       (registro manual de respaldos)
+
+================================================================================
+4. CÓMO EJECUTAR UN RESPALDO
+================================================================================
+
+OPCIÓN 1: Script automático (RECOMENDADO)
+───────────────────────────────────────
+
+Linux/Mac:
+  $ sh ~/.docker/backup/scripts/docker-backup.sh
+
+Windows (CMD):
+  C:\Users\[TuUsuario]\.docker\backup\scripts\docker-backup.bat
+
+Windows (PowerShell):
+  & 'C:\Users\[TuUsuario]\.docker\backup\scripts\docker-backup.bat'
+
+El script hace automáticamente:
+  
+  [1/3] RESPALDO DE VOLÚMENES
+    ✓ Encuentra todos los volúmenes: docker volume ls -q
+    ✓ Los comprime: tar czf volumen_TIMESTAMP.tar.gz
+    ✓ Los guarda en: ~/.docker/backup/volumes/
+
+  [2/3] RESPALDO DE DOCKER COMPOSE
+    ✓ Busca en múltiples ubicaciones:
+      - Raíz del proyecto
+      - .docker/compose/          ← TU UBICACIÓN
+      - Otras rutas comunes
+    ✓ Copia TODOS los *.yml encontrados
+    ✓ Los guarda en: ~/.docker/backup/compose/[FECHA]/
+    
+    Archivos respaldados:
+      - bots.yml
+      - dev.yml
+      - prod.yml
+      - tools.yml
+
+  [3/3] RESPALDO DE CONFIGURACIÓN DE CONTENEDORES
+    ✓ Ejecuta: docker ps -aq (todos los contenedores)
+    ✓ Extrae config: docker inspect [container]
+    ✓ Los guarda como JSON en: ~/.docker/backup/configs/[NOMBRE]/
+    
+    Información guardada en JSON:
+      - Variables de entorno (ENV)
+      - Puertos expuestos
+      - Volúmenes montados
+      - Labels (incluyendo referencia a .yml original)
+      - Configuración de red
+      - Limites de recursos
+
+
+OPCIÓN 2: Comandos manuales paso a paso
+────────────────────────────────────────
+
+A. Respaldar VOLÚMENES:
+
+   $ for volume in $(docker volume ls -q); do
+   >   docker run --rm -v "$volume":/data \
+   >     -v ~/.docker/backup/volumes:/backup \
+   >     alpine tar czf "/backup/${volume}_$(date +%Y%m%d_%H%M%S).tar.gz" -C / data
+   > done
+
+B. Respaldar DOCKER COMPOSE (desde .docker/compose/):
+
+   $ cd .docker/compose/
+   $ mkdir -p ~/.docker/backup/compose/$(date +%Y-%m-%d_%H-%M-%S)
+   $ cp *.yml ~/.docker/backup/compose/$(date +%Y-%m-%d_%H-%M-%S)/
+
+C. Respaldar CONFIGURACIÓN DE CONTENEDORES:
+
+   $ for container in $(docker ps -aq); do
+   >   CONTAINER_NAME=$(docker inspect -f '{{.Name}}' "$container" | sed 's/^\///')
+   >   mkdir -p ~/.docker/backup/configs/$CONTAINER_NAME
+   >   docker inspect "$container" > ~/.docker/backup/configs/$CONTAINER_NAME/$(date +%Y%m%d_%H%M%S).json
+   > done
+
+================================================================================
+5. QUÉ INFORMACIÓN SE RESPALDA EN CADA PARTE
+================================================================================
+
+VOLÚMENES (.tar.gz)
+───────────────────
+Qué es:
+  Datos persistentes almacenados en volúmenes Docker
+  Ejemplo: Base de datos, ficheros de configuración, archivos de la app
+
+Cuándo sirve:
+  ✓ Recuperar datos si se borra el volumen
+  ✓ Migrar datos a otro Docker
+  ✓ Tener histórico de cambios en los datos
+
+Restauración:
+  docker volume create nuevo-volumen
+  docker run --rm -v nuevo-volumen:/data -v ~/.docker/backup/volumes:/backup \
+    alpine tar xzf /backup/volumen_TIMESTAMP.tar.gz -C /
+
+
+DOCKER COMPOSE (.yml)
+─────────────────────
+Qué es:
+  Archivos de definición que especifican cómo crear y gestionar contenedores
+  Contiene: servicios, variables de entorno, redes, volúmenes, puertos
+
+Cuándo sirve:
+  ✓ Recrear exactamente la misma infraestructura
+  ✓ Cambiar variables sin modificar el archivo (usa .env)
+  ✓ Parar/reiniciar servicios: docker-compose -f bots.yml restart
+  ✓ Ver logs: docker-compose -f bots.yml logs
+  ✓ Ejecutar comandos: docker-compose -f bots.yml exec service bash
+
+Nota IMPORTANTE:
+  El archivo .yml es la "fuente de verdad" de tu infraestructura.
+  Sin los .yml, puedes:
+    ✅ Mantener contenedores corriendo (si ya existen)
+    ❌ Recrearlos con docker-compose (necesitas los archivos)
+    ❌ Gestionar servicios de forma coherente
+
+Restauración:
+  cp ~/.docker/backup/compose/[FECHA]/*.yml .docker/compose/
+  docker-compose -f bots.yml up -d
+
+
+CONFIGURACIÓN DE CONTENEDORES (JSON)
+────────────────────────────────────
+Qué es:
+  Snapshot completo de cada contenedor en formato JSON
+  Contiene TODA la información interna de Docker sobre ese contenedor
+
+Información incluida:
+  - ID del contenedor
+  - Estado (running, exited, etc)
+  - Imagen usada
+  - Comando de inicio
+  - Variables de entorno completas
+  - Puertos expuestos y mapeados
+  - Volúmenes montados
+  - Labels (incluyendo referencia al .yml original)
+  - Configuración de red
+  - Limites de CPU/memoria
+  - Logs configurados
+
+Cuándo sirve:
+  ✓ Documentación completa de cómo estaba configurado cada servicio
+  ✓ Recuperar variables de entorno exactas
+  ✓ Entender qué puertos usaba cada servicio
+  ✓ Debuggear problemas de configuración
+  ✓ Detectar cambios de configuración históricos
+
+Acceso a labels (importante):
+  $ cat ~/.docker/backup/configs/asistente_nautico/asistente_nautico_*.json | grep "com.docker.compose"
+  
+  Verías algo como:
+    "com.docker.compose.project.config_files": "C:\\...\\bots.yml"
+    → Exactamente dónde estaba el .yml original
+
+Restauración:
+  El JSON es principalmente INFORMACIÓN. Para restaurar contenedor:
+  1. Copia la info del JSON
+  2. Recrea con: docker run -e VAR1=valor1 -p puerto:puerto imageName
+  ó mejor:
+  1. Restaura los .yml desde compose/
+  2. Ejecuta: docker-compose up
+
+
+================================================================================
+6. VERIFICAR LOS RESPALDOS
+================================================================================
+
+Ver estructura completa:
+  $ tree ~/.docker/backup/  (si instalado)
+  $ find ~/.docker/backup -type f | head -30
+
+Ver archivos recientes:
+  $ ls -lthR ~/.docker/backup/
+
+Validar integridad de volúmenes comprimidos:
+  $ tar -tzf ~/.docker/backup/volumes/[nombre].tar.gz | head -20
+
+Ver último log de ejecución:
+  $ tail ~/.docker/backup/logs/backup_*.log
+
+Espacio ocupado:
+  $ du -sh ~/.docker/backup/
+  $ du -sh ~/.docker/backup/*
+
+Ver configuración de contenedor específico:
+  $ cat ~/.docker/backup/configs/asistente_nautico/asistente_nautico_*.json | jq '.' | head -50
+
+Buscar una variable de entorno en los backups:
+  $ grep -r "TU_VARIABLE" ~/.docker/backup/configs/ 
+
+================================================================================
+7. RESTAURACIÓN COMPLETA (si necesitas recuperar todo)
+================================================================================
+
+ESCENARIO: Perdiste todo y necesitas recrear la infraestructura
+────────────────────────────────────────────────────────────────
+
+Paso 1: Restaurar configuración de Compose
+
+  cd .docker/compose/
+  cp ~/.docker/backup/compose/[FECHA_MAS_RECIENTE]/*.yml ./
+  docker-compose -f bots.yml up -d
+  docker-compose -f dev.yml up -d
+  docker-compose -f prod.yml up -d
+  docker-compose -f tools.yml up -d
+
+Paso 2: Restaurar datos en volúmenes (si es necesario)
+
+  docker volume create anythingllm_storage
+  docker run --rm -v anythingllm_storage:/data \
+    -v ~/.docker/backup/volumes:/backup \
+    alpine tar xzf /backup/anythingllm_storage_TIMESTAMP.tar.gz -C /
+
+Paso 3: Verificar todo funciona
+
+  docker ps -a
+  docker logs asistente_nautico
+  docker-compose ps
+
+
+ESCENARIO: Un contenedor específico se corrompió
+─────────────────────────────────────────────────
+
+Paso 1: Ver la config JSON respaldada
+
+  cat ~/.docker/backup/configs/asistente_nautico/asistente_nautico_TIMESTAMP.json | jq '.Config' > config_backup.json
+
+Paso 2: Parar y eliminar el contenedor corrupto
+
+  docker stop asistente_nautico
+  docker rm asistente_nautico
+
+Paso 3: Recrear desde .yml
+
+  docker-compose -f bots.yml up -d asistente_nautico
+
+Paso 4: Restaurar datos del volumen si fue dañado
+
+  (Seguir pasos anteriores para volúmenes)
+
+================================================================================
+8. BUENAS PRÁCTICAS
+================================================================================
+
+✓ Ejecuta respaldos ANTES de cambios importantes en la infraestructura
+✓ Ten respaldos en MÚLTIPLES UBICACIONES (externo/nube/USB)
+✓ Prueba restauraciones mensualmente (mejor saber que funciona ahora)
+✓ Mantén LOG de cuándo y qué respaldaste en manifest.txt
+✓ Monitorea espacio en disco - limpia respaldos muy antiguos manualmente
+✓ Protege el directorio de backups con permisos restrictivos
+✓ Los .yml son críticos - respalda también en Git si es posible
+✓ Cada vez que cambies un .yml, ejecuta backup inmediatamente
+
+================================================================================
+9. TROUBLESHOOTING
+================================================================================
+
+Problema: "docker: command not found"
+→ Docker no está instalado o no en PATH
+  Solución: Instala Docker u agrega a PATH
+
+Problema: Script genera log pero sin datos
+
+→ Causas posibles:
+  1. Docker daemon no está corriendo
+  2. Script ejecutado desde directorio incorrecto (para compose manual)
+  3. Permisos insuficientes
+  
+  Solución:
+  docker ps    # Verifica que Docker responde
+  pwd          # Verifica ubicación actual
+
+Problema: Archivos .yml vacíos o archivos JSON vacíos
+
+→ El script ahora valida:
+  - Elimina archivos vacíos automáticamente
+  - Reporta qué no se pudo respaldar
+  
+  Solución: Ver logs para entender qué falló
+
+Problema: "No such file or directory" con compose files
+
+→ Lo nuevo: El script busca en .docker/compose/ automáticamente
+  Si aún falla, asegúrate de que los .yml existen en:
+  .docker/compose/bots.yml    ← TU UBICACIÓN
+
+Problema: Poco espacio en disco
+
+→ Respaldos acumulándose (especialmente open-webui es ~3GB)
+  Solución: 
+  du -sh ~/.docker/backup/*    # Ver qué ocupa más
+  rm -rf ~/.docker/backup/volumes/open-webui_FECHA.tar.gz
+  # Borra respaldos viejos manualmente
+
+Problema: Volumen 0 bytes respaldado
+
+→ Volumen vacío o sin acceso
+  Solución: Verifica con: docker volume inspect [volumen]
+
+================================================================================
+10. REFERENCIA RÁPIDA
+================================================================================
+
+Preparar primero:
+  mkdir -p ~/.docker/backup/{volumes,compose,configs,logs}
+
+Ver qué tengo en Docker:
+  docker volume ls
+  docker ps -a
+  ls .docker/compose/*.yml
+
+Hacer respaldo RÁPIDO (script):
+  .docker/backup/scripts/docker-backup.bat
+
+Ver respaldos más recientes:
+  ls -lt ~/.docker/backup/*/*.{yml,json,tar.gz,log} | head -20
+
+Ver logs de último backup:
+  tail ~/.docker/backup/logs/backup_*.log
+
+Ver config de contenedor respaldado:
+  cat ~/.docker/backup/configs/[NOMBRE]/[NOMBRE]_*.json | jq '.Config.Env[]'
+
+Restaurar un volumen:
+  docker volume create nuevo-vol
+  docker run --rm -v nuevo-vol:/data -v ~/.docker/backup/volumes:/backup \
+    alpine tar xzf /backup/volumen_TIMESTAMP.tar.gz -C /
+
+Restaurar todo desde compose:
+  cp ~/.docker/backup/compose/*/*/yml .docker/compose/
+  docker-compose -f *.yml up -d
+
+Espacio total usado:
+  du -sh ~/.docker/backup
+
+================================================================================
+11. CAMBIOS RECIENTES (v2.0)
+================================================================================
+
+✓ Script Windows mejorado: Busca automáticamente en .docker/compose/
+✓ Script Linux/Mac mejorado: Mejor validación de archivos vacíos
+✓ Mejor manejo de errores: No se detiene en fallos menores
+✓ Validación de integridad: Elimina automáticamente archivos vacíos
+✓ Mejor documentación: Explicación de labels de Docker
+✓ Fallback de comandos: Si "docker-compose" falla, intenta "docker compose"
+✓ Mejor logging: Mensajes más informativos en los logs
+
+================================================================================
+
