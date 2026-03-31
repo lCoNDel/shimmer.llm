@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // 0. red de distribuidores touron s.a.
     const dealers = [
         { name: "Touron S.A. (Sede Central)", lat: 40.4561, lng: -3.4562, location: "Torrejón de Ardoz, Madrid" },
@@ -371,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. Handle Map Clicks to fetch Marine Data
     map.on('click', async (e) => {
-        if (isTrackingActive) return; // bloquea clics si el gps está activo
+        if (isTrackingActive || isRulerActive) return; // bloquea clics si el gps o la regla están activos
 
         const { lat, lng } = e.latlng;
 
@@ -429,6 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 trackingWatchId = null;
             }
             geoBtn.classList.remove('active');
+            document.getElementById('gpsLockMsg').classList.add('hidden');
             geoBtn.innerHTML = `
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
@@ -458,6 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </svg>
                             BLOQUEO GPS ACTIVO
                         `;
+                        document.getElementById('gpsLockMsg').classList.remove('hidden');
                     }
 
                     updateBoatMarker(latlng);
@@ -697,8 +699,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // controles personalizados de radio
     const customRadioPlayBtn = document.getElementById('customRadioPlayBtn');
     const customRadioMuteBtn = document.getElementById('customRadioMuteBtn');
-    const radioVisualizer = document.getElementById('radioVisualizer');
-
     // alternar play/pausa
     if (customRadioPlayBtn) {
         customRadioPlayBtn.addEventListener('click', () => {
@@ -753,19 +753,17 @@ document.addEventListener('DOMContentLoaded', () => {
     radioPlayer.addEventListener('play', () => {
         document.getElementById('iconPlay').classList.add('hidden');
         document.getElementById('iconPause').classList.remove('hidden');
-        if (radioVisualizer) radioVisualizer.classList.add('playing');
+
     });
 
     radioPlayer.addEventListener('pause', () => {
         document.getElementById('iconPause').classList.add('hidden');
         document.getElementById('iconPlay').classList.remove('hidden');
-        if (radioVisualizer) radioVisualizer.classList.remove('playing');
     });
 
     radioPlayer.addEventListener('ended', () => {
         document.getElementById('iconPause').classList.add('hidden');
         document.getElementById('iconPlay').classList.remove('hidden');
-        if (radioVisualizer) radioVisualizer.classList.remove('playing');
     });
 
     // 9. integración vesselfinder (tráfico marítimo)
@@ -839,34 +837,107 @@ document.addEventListener('DOMContentLoaded', () => {
     const owmLayerBtn = document.getElementById('owmLayerBtn');
     let radarLayer = null;
     let isRadarActive = false;
+    let radarFrames = [];
+    let radarAnimIndex = 0;
+    let radarAnimInterval = null;
+    let radarAnimPlaying = true;
+    const RADAR_MAX_ZOOM = 7;
 
-    // obtiene el frame de radar más reciente
-    async function getRainViewerFrame() {
+    // obtiene todos los frames disponibles (pasado + nowcast)
+    async function getRainViewerFrames() {
         try {
             const response = await fetch('https://api.rainviewer.com/public/weather-maps.json');
             const data = await response.json();
-            if (data && data.radar && data.radar.past && data.radar.past.length > 0) {
-                const latest = data.radar.past[data.radar.past.length - 1];
-                return { host: data.host, path: latest.path };
-            }
-        } catch (error) {
-            console.error('Error fetching RainViewer data:', error);
+            if (!data || !data.radar) return null;
+            const host = data.host;
+            const frames = [];
+            (data.radar.past || []).forEach(f => frames.push({ host, path: f.path, time: f.time, type: 'past' }));
+            (data.radar.nowcast || []).forEach(f => frames.push({ host, path: f.path, time: f.time, type: 'nowcast' }));
+            return frames.length > 0 ? frames : null;
+        } catch (e) {
+            console.error('Error fetching RainViewer data:', e);
+            return null;
         }
-        return null;
+    }
+
+    function radarTimestamp(frame) {
+        const d = new Date(frame.time * 1000);
+        return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    let radarLayerPrev = null;
+
+    function radarShowFrame(index) {
+        // si aún hay una capa "anterior" pendiente de eliminar, la quitamos ya
+        if (radarLayerPrev) { map.removeLayer(radarLayerPrev); radarLayerPrev = null; }
+
+        radarLayerPrev = radarLayer; // la actual pasa a ser la anterior
+
+        const frame = radarFrames[index];
+        const tileUrl = `${frame.host}${frame.path}/256/{z}/{x}/{y}/6/1_1.png`;
+        radarLayer = L.tileLayer(tileUrl, {
+            maxZoom: RADAR_MAX_ZOOM, opacity: 0.7, zIndex: 400,
+            attribution: '&copy; <a href="https://www.rainviewer.com/api.html">RainViewer</a>',
+            errorTileUrl: ''
+        });
+        radarLayer.addTo(map);
+
+        // elimina la anterior tras 400ms (tiempo suficiente para que carguen los tiles)
+        setTimeout(() => {
+            if (radarLayerPrev) { map.removeLayer(radarLayerPrev); radarLayerPrev = null; }
+        }, 400);
+
+        radarUpdateHud(index);
+    }
+
+    function radarUpdateHud(index) {
+        const frame = radarFrames[index];
+        const isNowcast = frame.type === 'nowcast';
+        const isPast = index < radarFrames.findIndex(f => f.type === 'nowcast');
+        const isPresent = !isNowcast && index === radarFrames.filter(f => f.type === 'past').length - 1;
+
+        const label = isNowcast ? 'PRONÓSTICO' : isPresent ? 'AHORA' : 'PASADO';
+        const labelClass = isNowcast ? 'nowcast' : isPresent ? 'present' : 'past';
+
+        document.getElementById('radarHudTime').textContent = radarTimestamp(frame);
+        const labelEl = document.getElementById('radarHudLabel');
+        labelEl.textContent = label;
+        labelEl.className = `radar-hud-label ${labelClass}`;
+
+        const progress = (index / (radarFrames.length - 1)) * 100;
+        document.getElementById('radarHudProgress').style.width = `${progress}%`;
+
+        const nowcastStart = radarFrames.findIndex(f => f.type === 'nowcast');
+        if (nowcastStart > 0) {
+            document.getElementById('radarHudDivider').style.left = `${(nowcastStart / radarFrames.length) * 100}%`;
+        }
+    }
+
+    function radarStartAnim() {
+        radarAnimInterval = setInterval(() => {
+            if (!radarAnimPlaying) return;
+            radarAnimIndex = (radarAnimIndex + 1) % radarFrames.length;
+            radarShowFrame(radarAnimIndex);
+        }, 1000);
+    }
+
+    function radarStopAnim() {
+        clearInterval(radarAnimInterval);
+        radarAnimInterval = null;
+        if (radarLayerPrev) { map.removeLayer(radarLayerPrev); radarLayerPrev = null; }
+        if (radarLayer) { map.removeLayer(radarLayer); radarLayer = null; }
     }
 
     if (owmLayerBtn) {
         owmLayerBtn.addEventListener('click', async () => {
             if (isRadarActive) {
-                if (radarLayer) {
-                    map.removeLayer(radarLayer);
-                    radarLayer = null;
-                }
+                radarStopAnim();
                 owmLayerBtn.classList.remove('active');
                 isRadarActive = false;
+                radarFrames = [];
                 map.setMaxZoom(18);
+                document.getElementById('radarHud').classList.add('hidden');
             } else {
-                // incompatible con vesselfinder
                 if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
                 if (isWindLayerActive) { showToast('Capa de viento desactivada'); windLayerBtn.click(); }
                 if (isRulerActive) { showToast('Regla náutica desactivada'); rulerBtn.click(); }
@@ -874,28 +945,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 owmLayerBtn.classList.add('active');
                 isRadarActive = true;
 
-                const frame = await getRainViewerFrame();
-                if (!frame) {
+                const frames = await getRainViewerFrames();
+                if (!frames) {
                     showToast('No se pudieron obtener datos del radar.');
                     owmLayerBtn.classList.remove('active');
                     isRadarActive = false;
                     return;
                 }
 
-                const RADAR_MAX_ZOOM = 7;
-                const tileUrl = `${frame.host}${frame.path}/256/{z}/{x}/{y}/6/1_1.png`;
+                radarFrames = frames;
+                radarAnimIndex = radarFrames.filter(f => f.type === 'past').length - 1;
+                radarAnimPlaying = true;
 
-                radarLayer = L.tileLayer(tileUrl, {
-                    maxZoom: RADAR_MAX_ZOOM,
-                    opacity: 0.7,
-                    zIndex: 400,
-                    attribution: '&copy; <a href="https://www.rainviewer.com/api.html">RainViewer</a>',
-                    errorTileUrl: ''
-                });
+                radarShowFrame(radarAnimIndex);
+                radarStartAnim();
 
-                radarLayer.addTo(map);
+                document.getElementById('radarPlayPauseBtn').textContent = '⏸';
+                document.getElementById('radarHud').classList.remove('hidden');
 
-                // limita el zoom máximo mientras el radar está activo
                 map.setMaxZoom(RADAR_MAX_ZOOM);
                 if (map.getZoom() > RADAR_MAX_ZOOM) {
                     map.setZoom(RADAR_MAX_ZOOM, { animate: true });
@@ -906,6 +973,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // controles del HUD
+    document.getElementById('radarPrevBtn').addEventListener('click', () => {
+        radarAnimPlaying = false;
+        document.getElementById('radarPlayPauseBtn').textContent = '▶';
+        radarAnimIndex = (radarAnimIndex - 1 + radarFrames.length) % radarFrames.length;
+        radarShowFrame(radarAnimIndex);
+    });
+
+    document.getElementById('radarNextBtn').addEventListener('click', () => {
+        radarAnimPlaying = false;
+        document.getElementById('radarPlayPauseBtn').textContent = '▶';
+        radarAnimIndex = (radarAnimIndex + 1) % radarFrames.length;
+        radarShowFrame(radarAnimIndex);
+    });
+
+    document.getElementById('radarPlayPauseBtn').addEventListener('click', () => {
+        radarAnimPlaying = !radarAnimPlaying;
+        document.getElementById('radarPlayPauseBtn').textContent = radarAnimPlaying ? '⏸' : '▶';
+    });
 
     // restaura el zoom máximo al desactivar el radar
     map.on('zoomend', () => {
@@ -1647,6 +1734,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 guideModal.classList.add('hidden');
             }
         });
+    }
+
+    // banner de permisos (primera visita)
+    const permissionsBanner = document.getElementById('permissionsBanner');
+    const permissionsGrantBtn = document.getElementById('permissionsGrantBtn');
+    const permissionsDismissBtn = document.getElementById('permissionsDismissBtn');
+
+    async function requestPermissions() {
+        permissionsBanner.classList.add('hidden');
+        localStorage.setItem('permissionsBannerSeen', '1');
+
+        // geolocalización primero: debe ejecutarse dentro del gesto del usuario
+        // antes de cualquier await, o el navegador la bloquea silenciosamente
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(() => {}, () => {});
+        }
+
+        // notificaciones después
+        if ('Notification' in window && Notification.permission === 'default') {
+            await Notification.requestPermission();
+        }
+    }
+
+    permissionsGrantBtn.addEventListener('click', requestPermissions);
+    permissionsDismissBtn.addEventListener('click', () => {
+        permissionsBanner.classList.add('hidden');
+        localStorage.setItem('permissionsBannerSeen', '1');
+    });
+
+    // mostrar solo si no se ha visto antes y faltan permisos
+    if (!localStorage.getItem('permissionsBannerSeen')) {
+        const geoState = await navigator.permissions.query({ name: 'geolocation' }).catch(() => ({ state: 'prompt' }));
+        const notifState = 'Notification' in window ? Notification.permission : 'granted';
+
+        if (geoState.state === 'prompt' || notifState === 'default') {
+            setTimeout(() => permissionsBanner.classList.remove('hidden'), 800);
+        } else {
+            localStorage.setItem('permissionsBannerSeen', '1');
+        }
     }
 
 });

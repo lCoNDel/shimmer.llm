@@ -220,6 +220,11 @@
             </button>
 
 
+            <p id="gpsLockMsg" class="hidden" style="font-size:0.78rem; color:#e67e22; text-align:center; margin: -1rem 0 1rem; display:flex; align-items:center; justify-content:center; gap:5px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                El click en el mapa está bloqueado por el GPS
+            </p>
+
             <div class="location-info">
                 <span class="icon">📍</span>
                 <p id="latlonDisplay">Selecciona un punto en el mar</p>
@@ -297,16 +302,6 @@
                                     <rect x="14" y="4" width="4" height="16"></rect>
                                 </svg>
                             </button>
-
-                            <!-- Animación de Ondas -->
-                            <div id="radioVisualizer" class="audio-waves"
-                                style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; height: 24px;">
-                                <div class="wave"></div>
-                                <div class="wave"></div>
-                                <div class="wave"></div>
-                                <div class="wave"></div>
-                                <div class="wave"></div>
-                            </div>
 
                             <!-- Volume Control Slider -->
                             <input type="range" id="radioVolumeSlider" min="0" max="1" step="0.01" value="1"
@@ -519,6 +514,56 @@
     </div>
 
     <div id="toast-container"></div>
+
+    <!-- HUD animación radar -->
+    <div id="radarHud" class="radar-hud hidden">
+        <div class="radar-hud-controls">
+            <button id="radarPrevBtn" class="radar-hud-btn" title="Frame anterior">&#8592;</button>
+            <button id="radarPlayPauseBtn" class="radar-hud-btn radar-hud-play">⏸</button>
+            <span id="radarHudTime" class="radar-hud-time">--:--</span>
+            <span id="radarHudLabel" class="radar-hud-label present">AHORA</span>
+            <button id="radarNextBtn" class="radar-hud-btn" title="Frame siguiente">&#8594;</button>
+        </div>
+        <div class="radar-hud-bar">
+            <div id="radarHudProgress" class="radar-hud-progress"></div>
+            <div id="radarHudDivider" class="radar-hud-divider"></div>
+        </div>
+        <div class="radar-hud-legend">
+            <span>PASADO</span><span>PRONÓSTICO</span>
+        </div>
+    </div>
+
+    <!-- Banner de permisos (primera visita) -->
+    <div id="permissionsBanner" class="permissions-banner hidden">
+        <div class="permissions-banner-card">
+            <div class="permissions-banner-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+            </div>
+            <div class="permissions-banner-body">
+                <strong class="permissions-title">Esta app necesita acceso a tu dispositivo</strong>
+                <ul class="permissions-list">
+                    <li>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span><strong>GPS</strong> — para la alarma de fondeo y el S.O.S</span>
+                    </li>
+                    <li>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <span><strong>Notificaciones</strong> — alertas aunque la app esté en segundo plano</span>
+                    </li>
+                </ul>
+                <p class="permissions-tip">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Selecciona <strong>"Permitir siempre"</strong> para que los permisos no expiren.
+                </p>
+            </div>
+            <div class="permissions-banner-actions">
+                <button id="permissionsGrantBtn" class="btn btn-primary">Conceder permisos</button>
+                <button id="permissionsDismissBtn" class="permissions-banner-dismiss">Continuar sin permisos</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

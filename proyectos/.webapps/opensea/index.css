@@ -237,6 +237,24 @@ body {
     box-shadow: 0 4px 12px rgba(107, 181, 255, 0.3);
 }
 
+.btn-primary.active {
+    background-color: #e67e22;
+    color: #fff;
+    animation: gpsGlow 1.8s infinite;
+}
+
+@keyframes gpsGlow {
+    0% {
+        box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(230, 126, 34, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(230, 126, 34, 0);
+    }
+}
+
 .btn-secondary {
     background-color: transparent;
     color: var(--brand-text);
@@ -927,49 +945,6 @@ body {
     display: none !important;
 }
 
-/* Custom Audio Waves Animation */
-.audio-waves .wave {
-    width: 4px;
-    height: 4px;
-    background: var(--brand-text-muted);
-    border-radius: 2px;
-    transition: all 0.2s ease;
-}
-
-.audio-waves.playing .wave {
-    background: var(--brand-primary);
-    animation: soundWave 1.2s infinite ease-in-out alternate;
-}
-
-.audio-waves.playing .wave:nth-child(1) {
-    animation-delay: 0.0s;
-}
-
-.audio-waves.playing .wave:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.audio-waves.playing .wave:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-.audio-waves.playing .wave:nth-child(4) {
-    animation-delay: 0.2s;
-}
-
-.audio-waves.playing .wave:nth-child(5) {
-    animation-delay: 0.0s;
-}
-
-@keyframes soundWave {
-    0% {
-        height: 4px;
-    }
-
-    100% {
-        height: 24px;
-    }
-}
 
 /* Custom Tooltip System */
 [data-tooltip] {
@@ -1126,4 +1101,252 @@ body {
 
 #anchorCountdown.urgent {
     color: #e84118;
+}
+/* Banner de permisos */
+/* Overlay de permisos */
+.permissions-banner {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(1, 10, 25, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: bannerFadeIn 0.3s ease;
+}
+
+.permissions-banner.hidden {
+    display: none;
+}
+
+@keyframes bannerFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.permissions-banner-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 40px 48px 32px;
+    max-width: 700px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: bannerScaleIn 0.3s ease;
+}
+
+@keyframes bannerScaleIn {
+    from { transform: scale(0.93); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+.permissions-banner-icon {
+    background: #e8f2ff;
+    border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--brand-primary);
+    margin-bottom: 4px;
+}
+
+.permissions-banner-body {
+    font-size: 1rem;
+    color: #5a6b82;
+    line-height: 1.5;
+    width: 100%;
+}
+
+.permissions-banner-body .permissions-title {
+    display: block;
+    color: #010A19;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.permissions-banner-body p {
+    margin: 0 0 10px;
+}
+
+.permissions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+}
+
+.permissions-list li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: #3a4a5c;
+}
+
+.permissions-list li svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--brand-primary);
+}
+
+.permissions-tip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: #fff8e6;
+    border: 1px solid #f0c040;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.92rem;
+    color: #7a5800;
+    text-align: center;
+    margin: 0 !important;
+}
+
+.permissions-tip svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: #c89000;
+}
+
+.permissions-banner-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: 8px;
+}
+
+.permissions-banner-actions .btn-primary {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.permissions-banner-dismiss {
+    background: none;
+    border: none;
+    color: #5a6b82;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px;
+    transition: color 0.2s;
+}
+
+.permissions-banner-dismiss:hover {
+    color: #010A19;
+}
+
+/* HUD radar de lluvia */
+.radar-hud {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1050;
+    background: rgba(1, 10, 25, 0.88);
+    border: 1px solid rgba(107, 181, 255, 0.2);
+    border-radius: 12px;
+    padding: 10px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 260px;
+    backdrop-filter: blur(6px);
+}
+
+.radar-hud.hidden { display: none; }
+
+.radar-hud-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.radar-hud-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.radar-hud-btn:hover { background: rgba(255,255,255,0.22); }
+
+.radar-hud-play { font-size: 0.75rem; }
+
+.radar-hud-time {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.05em;
+    min-width: 44px;
+    text-align: center;
+}
+
+.radar-hud-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    border-radius: 4px;
+}
+
+.radar-hud-label.past     { background: rgba(107,181,255,0.2); color: #6bb5ff; }
+.radar-hud-label.present  { background: rgba(46,213,115,0.2);  color: #2ed573; }
+.radar-hud-label.nowcast  { background: rgba(255,165,2,0.2);   color: #ffa502; }
+
+.radar-hud-bar {
+    position: relative;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    overflow: visible;
+}
+
+.radar-hud-progress {
+    height: 100%;
+    background: var(--brand-primary);
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+.radar-hud-divider {
+    position: absolute;
+    top: -3px;
+    width: 2px;
+    height: 10px;
+    background: #ffa502;
+    border-radius: 1px;
+}
+
+.radar-hud-legend {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.05em;
 }
