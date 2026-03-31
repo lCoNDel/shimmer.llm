@@ -604,6 +604,20 @@ body {
     line-height: 1.4;
 }
 
+.dealer-phone {
+    font-size: 0.8rem;
+    color: var(--brand-text);
+    margin-top: 0.3rem;
+}
+
+.dealer-desc {
+    font-size: 0.75rem;
+    color: var(--brand-text-muted);
+    margin-top: 0.2rem;
+    font-style: italic;
+    line-height: 1.3;
+}
+
 /* Map Legend */
 /* Map Controls Bottom Left Group */
 .map-controls-bottom-left {

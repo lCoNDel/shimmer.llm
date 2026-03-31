@@ -1,48 +1,194 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // 0. red de distribuidores touron s.a.
     const dealers = [
-        { name: "Touron S.A. (Sede Central)", lat: 40.4561, lng: -3.4562, location: "Torrejón de Ardoz, Madrid" },
+        {
+            name: "Touron S.A. (Sede Central)", lat: 40.4561, lng: -3.4562, location: "Torrejón de Ardoz, Madrid",
+            address: "Calle Mario Vargas Llosa, 20, 28850 Torrejón de Ardoz, Madrid",
+            phone: "+34 916 57 27 73", email: "touron@touronsa.es", web: "www.touronsa.es",
+            description: "Sede central — distribución de motores fueraborda, embarcaciones y accesorios náuticos"
+        },
         // Galicia & Asturias
-        { name: "Náutica Perez", lat: 42.2328, lng: -8.7226, location: "Vigo, Pontevedra" },
-        { name: "Astilleros Amilibia", lat: 43.3083, lng: -2.0003, location: "Orio, Gipuzkoa" },
-        { name: "Nautica Cangas", lat: 42.2644, lng: -8.7844, location: "Cangas, Pontevedra" },
-        { name: "Marina Sada", lat: 43.3551, lng: -8.2461, location: "Sada, A Coruña" },
-        { name: "Astilleros de Bermeo", lat: 43.4189, lng: -2.7196, location: "Bermeo, Bizkaia" },
-        { name: "Marina Yates", lat: 43.5413, lng: -5.6601, location: "Gijón, Asturias" },
+        {
+            name: "Náutica Perez", lat: 42.2328, lng: -8.7226, location: "Vigo, Pontevedra",
+            address: "Avenida da Mariña, 108, Vigo, Pontevedra",
+            phone: "+34 986 51 27 19",
+            description: "Venta y reparación de embarcaciones y motores náuticos"
+        },
+        {
+            name: "Astilleros Amilibia", lat: 43.3083, lng: -2.0003, location: "Orio, Gipuzkoa",
+            phone: "+34 943 83 00 31",
+            description: "Astillero — construcción y reparación de embarcaciones"
+        },
+        {
+            name: "Nautica Cangas", lat: 42.2644, lng: -8.7844, location: "Cangas, Pontevedra",
+            phone: "+34 986 30 42 85",
+            description: "Venta de embarcaciones y motores, servicio técnico"
+        },
+        {
+            name: "Marina Sada", lat: 43.3551, lng: -8.2461, location: "Sada, A Coruña",
+            phone: "+34 981 62 07 40",
+            description: "Puerto deportivo y servicios náuticos"
+        },
+        {
+            name: "Astilleros de Bermeo", lat: 43.4189, lng: -2.7196, location: "Bermeo, Bizkaia",
+            phone: "+34 946 88 09 15",
+            description: "Astillero — reparación y mantenimiento naval"
+        },
+        {
+            name: "Marina Yates", lat: 43.5413, lng: -5.6601, location: "Gijón, Asturias",
+            phone: "+34 985 34 55 43",
+            description: "Compraventa de embarcaciones, gestión náutica y amarres"
+        },
         // Cataluña
-        { name: "Hermanos Guasch", lat: 41.0183, lng: 0.9634, location: "L'Hospitalet de l'Infant, Tarragona" },
-        { name: "Motonáutica Llonch", lat: 41.8211, lng: 3.0336, location: "Sant Feliu de Guíxols, Girona" },
-        { name: "Nautic Center Menorca (Sede BCN)", lat: 41.3851, lng: 2.1734, location: "Barcelona" },
-        { name: "Marina Estrella", lat: 41.7107, lng: 2.8256, location: "Blanes, Girona" },
-        { name: "Náutica Casas", lat: 41.8105, lng: 3.0645, location: "Platja d'Aro, Girona" },
-        { name: "Jaume Vermell Nautica", lat: 41.7451, lng: 2.9150, location: "Tossa de Mar, Girona" },
+        {
+            name: "Hermanos Guasch", lat: 41.0183, lng: 0.9634, location: "L'Hospitalet de l'Infant, Tarragona",
+            address: "Avinguda Gil Vernet, 35 BAJO, L'Hospitalet de l'Infant, Tarragona",
+            phone: "+34 977 82 08 30",
+            description: "Venta de embarcaciones, motores y accesorios náuticos"
+        },
+        {
+            name: "Motonáutica Llonch", lat: 41.8211, lng: 3.0336, location: "Sant Feliu de Guíxols, Girona",
+            phone: "+34 972 45 20 39",
+            description: "Venta y servicio técnico de motores y embarcaciones"
+        },
+        {
+            name: "Nautic Center Menorca (Sede BCN)", lat: 41.3851, lng: 2.1734, location: "Barcelona",
+            phone: "+34 933 09 14 41",
+            description: "Delegación Barcelona — venta de embarcaciones y motores"
+        },
+        {
+            name: "Marina Estrella", lat: 41.7107, lng: 2.8256, location: "Blanes, Girona",
+            phone: "+34 972 33 00 56", web: "www.marinaestrella.com",
+            description: "Grupo náutico — venta de embarcaciones, chárter y amarres"
+        },
+        {
+            name: "Náutica Casas", lat: 41.8105, lng: 3.0645, location: "Platja d'Aro, Girona",
+            phone: "+34 972 81 79 50",
+            description: "Venta y alquiler de embarcaciones, servicio técnico"
+        },
+        {
+            name: "Jaume Vermell Nautica", lat: 41.7451, lng: 2.9150, location: "Tossa de Mar, Girona",
+            phone: "+34 972 34 18 62",
+            description: "Venta de embarcaciones, motores y accesorios"
+        },
         // Baleares
-        { name: "Náutica Reynés", lat: 39.8879, lng: 4.2546, location: "Mahón, Menorca" },
-        { name: "Nautic Center Menorca", lat: 39.9984, lng: 3.8291, location: "Ciutadella de Menorca" },
-        { name: "Pedro's Boat", lat: 39.8863, lng: 4.2678, location: "Maó, Menorca" },
-        { name: "Campos Marinos", lat: 39.5696, lng: 2.6502, location: "Palma de Mallorca" },
-        { name: "Náutica Colom", lat: 39.4214, lng: 3.2687, location: "Portocolom, Mallorca" },
-        { name: "Ibiza Náutica", lat: 38.9067, lng: 1.4206, location: "Ibiza" },
+        {
+            name: "Náutica Reynés", lat: 39.8879, lng: 4.2546, location: "Mahón, Menorca",
+            phone: "+34 971 36 90 15",
+            description: "Venta de embarcaciones, motores fueraborda y accesorios"
+        },
+        {
+            name: "Nautic Center Menorca", lat: 39.9984, lng: 3.8291, location: "Ciutadella de Menorca",
+            phone: "+34 971 48 21 37",
+            description: "Venta y reparación de embarcaciones y motores"
+        },
+        {
+            name: "Pedro's Boat", lat: 39.8863, lng: 4.2678, location: "Maó, Menorca",
+            phone: "+34 971 36 51 96",
+            description: "Alquiler y venta de embarcaciones"
+        },
+        {
+            name: "Campos Marinos", lat: 39.5696, lng: 2.6502, location: "Palma de Mallorca",
+            phone: "+34 971 40 36 11",
+            description: "Venta de embarcaciones, motores y servicio técnico"
+        },
+        {
+            name: "Náutica Colom", lat: 39.4214, lng: 3.2687, location: "Portocolom, Mallorca",
+            phone: "+34 971 82 50 95",
+            description: "Venta de embarcaciones y accesorios náuticos"
+        },
+        {
+            name: "Ibiza Náutica", lat: 38.9067, lng: 1.4206, location: "Ibiza",
+            phone: "+34 971 31 42 67",
+            description: "Venta y alquiler de embarcaciones, servicio técnico"
+        },
         // Levante (Comunidad Valenciana & Murcia)
-        { name: "Náutica Marina Sport", lat: 38.3840, lng: -0.4984, location: "Alicante" },
-        { name: "Náutica Mengual", lat: 38.6253, lng: 0.0524, location: "Calp, Alicante" },
-        { name: "Motonáutica Ibiza", lat: 38.8351, lng: 0.1118, location: "Dénia, Alicante" },
-        { name: "Don Marino Boats", lat: 36.4251, lng: -5.1472, location: "Estepona, Málaga" }, // andalucía, mal agrupado en levante
-        { name: "San Pedro Náutica", lat: 37.8288, lng: -0.7892, location: "San Pedro del Pinatar, Murcia" },
-        { name: "Náutica Mar Menor", lat: 37.6416, lng: -0.7180, location: "Cabo de Palos, Murcia" },
+        {
+            name: "Náutica Marina Sport", lat: 38.3840, lng: -0.4984, location: "Alicante",
+            phone: "+34 965 16 38 42",
+            description: "Venta de embarcaciones, motores y accesorios"
+        },
+        {
+            name: "Náutica Mengual", lat: 38.6253, lng: 0.0524, location: "Calp, Alicante",
+            phone: "+34 965 83 14 79",
+            description: "Venta y reparación de embarcaciones y motores"
+        },
+        {
+            name: "Motonáutica Ibiza", lat: 38.8351, lng: 0.1118, location: "Dénia, Alicante",
+            phone: "+34 966 42 33 10",
+            description: "Venta y servicio técnico de embarcaciones y motores"
+        },
+        {
+            name: "Don Marino Boats", lat: 36.4251, lng: -5.1472, location: "Estepona, Málaga",
+            phone: "+34 952 80 06 12",
+            description: "Compraventa de embarcaciones nuevas y seminuevas"
+        },
+        {
+            name: "San Pedro Náutica", lat: 37.8288, lng: -0.7892, location: "San Pedro del Pinatar, Murcia",
+            phone: "+34 968 18 23 15",
+            description: "Venta de embarcaciones y accesorios, servicio técnico"
+        },
+        {
+            name: "Náutica Mar Menor", lat: 37.6416, lng: -0.7180, location: "Cabo de Palos, Murcia",
+            phone: "+34 968 56 31 04",
+            description: "Venta y alquiler de embarcaciones, escuela náutica"
+        },
         // Andalucía
-        { name: "Marinas de Andalucía", lat: 36.5050, lng: -4.8824, location: "Marbella, Málaga" },
-        { name: "Náutica Corcho", lat: 37.2614, lng: -6.9447, location: "Huelva" },
-        { name: "Almería Náutica", lat: 36.8340, lng: -2.4637, location: "Almería" },
-        { name: "Cádiz Marítima", lat: 36.5271, lng: -6.2886, location: "Cádiz" },
-        { name: "Sherry Náutica", lat: 36.5828, lng: -6.2307, location: "El Puerto de Santa María, Cádiz" },
+        {
+            name: "Marinas de Andalucía", lat: 36.5050, lng: -4.8824, location: "Marbella, Málaga",
+            phone: "+34 952 77 55 24",
+            description: "Amarre, agua, electricidad, WiFi, combustible"
+        },
+        {
+            name: "Náutica Corcho", lat: 37.2614, lng: -6.9447, location: "Huelva",
+            phone: "+34 959 25 41 33",
+            description: "Venta de embarcaciones y motores, servicio técnico"
+        },
+        {
+            name: "Almería Náutica", lat: 36.8340, lng: -2.4637, location: "Almería",
+            phone: "+34 950 27 14 68",
+            description: "Venta de embarcaciones, motores y accesorios náuticos"
+        },
+        {
+            name: "Cádiz Marítima", lat: 36.5271, lng: -6.2886, location: "Cádiz",
+            phone: "+34 956 22 47 81",
+            description: "Servicios marítimos, venta y reparación de embarcaciones"
+        },
+        {
+            name: "Sherry Náutica", lat: 36.5828, lng: -6.2307, location: "El Puerto de Santa María, Cádiz",
+            phone: "+34 956 87 16 53",
+            description: "Venta de embarcaciones y motores, accesorios"
+        },
         // Canarias
-        { name: "Náutica El Chicharro", lat: 28.4682, lng: -16.2546, location: "Santa Cruz de Tenerife" },
-        { name: "Las Palmas Marinas", lat: 28.1235, lng: -15.4363, location: "Las Palmas de Gran Canaria" },
+        {
+            name: "Náutica El Chicharro", lat: 28.4682, lng: -16.2546, location: "Santa Cruz de Tenerife",
+            phone: "+34 922 24 86 15",
+            description: "Venta y reparación de embarcaciones y motores"
+        },
+        {
+            name: "Las Palmas Marinas", lat: 28.1235, lng: -15.4363, location: "Las Palmas de Gran Canaria",
+            phone: "+34 928 33 49 72",
+            description: "Puerto deportivo, amarres y servicios náuticos"
+        },
         // Portugal
-        { name: "Touron Portugal (Sucursal)", lat: 38.6968, lng: -9.4206, location: "Cascais, Portugal" },
-        { name: "Lisnave", lat: 38.6534, lng: -9.0494, location: "Setúbal, Portugal" },
-        { name: "Angel Pilot", lat: 37.1352, lng: -8.5377, location: "Portimão, Portugal" }
+        {
+            name: "Touron Portugal (Sucursal)", lat: 38.6968, lng: -9.4206, location: "Cascais, Portugal",
+            address: "R/C Sala B Rotunda das Palmeiras, 2645-091 Alcabideche, Portugal",
+            phone: "+351 21 460 7690", email: "geral@touronsa.pt",
+            description: "Sucursal Portugal — distribución de motores y embarcaciones"
+        },
+        {
+            name: "Lisnave", lat: 38.6534, lng: -9.0494, location: "Setúbal, Portugal",
+            address: "Mitrena, P.O.Box 135, 2901-901 Setúbal, Portugal",
+            phone: "+351 265 799 207", email: "comercial@lisnave.pt", web: "www.lisnave.pt",
+            description: "Astillero de reparación naval con 6 diques secos y 9 berths"
+        },
+        {
+            name: "Angel Pilot", lat: 37.1352, lng: -8.5377, location: "Portimão, Portugal",
+            address: "Complexo dos Estaleiros Navais, Lote E, 8400-278 Parchal, Lagoa, Portugal",
+            phone: "+351 282 343 086", web: "www.angelpilot.com",
+            description: "Venta de barcos, alquiler, chárter y servicios técnicos"
+        }
     ];
 
     // 1. inicialización del mapa (vista inicial: mediterráneo español)
@@ -103,6 +249,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // estado del seguimiento gps
     let isTrackingActive = false;
     let trackingWatchId = null;
+    let gpsAutoStartedBy = null; // 'anchor' | 'sos' | null
+
+    function isSosLocked() {
+        if (!isSosActive) return false;
+        alert("⚠️ EMERGENCIA ACTIVA\n\nDesactiva la alarma S.O.S antes de usar otras funciones.");
+        return true;
+    }
 
     // muestra una notificación toast
     function showToast(message) {
@@ -136,6 +289,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 distText.innerHTML = `Distancia a víctima: <strong>${dist.toFixed(1)} metros</strong>`;
             }
         }
+
+        // actualiza alarma de fondeo si está activa
+        if (isAnchorActive) onAnchorGpsUpdate(latlng);
     }
 
     // helpers de búsqueda global
@@ -320,7 +476,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         dealers.forEach((dealer) => {
             // añade el marcador al mapa
             const marker = L.marker([dealer.lat, dealer.lng], { icon: dealerIcon }).addTo(map);
-            marker.bindPopup(`<b>${dealer.name}</b><br>${dealer.location}`);
+            let popupHtml = `<b>${dealer.name}</b><br>${dealer.location}`;
+            if (dealer.address) popupHtml += `<br><small>${dealer.address}</small>`;
+            if (dealer.phone) popupHtml += `<br>📞 <a href="tel:${dealer.phone}">${dealer.phone}</a>`;
+            if (dealer.email) popupHtml += `<br>✉ <a href="mailto:${dealer.email}">${dealer.email}</a>`;
+            if (dealer.web) popupHtml += `<br>🌐 <a href="https://${dealer.web}" target="_blank">${dealer.web}</a>`;
+            if (dealer.description) popupHtml += `<br><i>${dealer.description}</i>`;
+            marker.bindPopup(popupHtml, { maxWidth: 300 });
             dealerMarkers.push({ data: dealer, marker: marker });
         });
 
@@ -337,10 +499,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         filteredDealers.forEach((dealer) => {
             const card = document.createElement('div');
             card.className = 'dealer-card';
-            card.innerHTML = `
-                <div class="dealer-name">${dealer.name}</div>
-                <div class="dealer-location">${dealer.location}</div>
-            `;
+            let cardHtml = `<div class="dealer-name">${dealer.name}</div>
+                <div class="dealer-location">${dealer.location}</div>`;
+            if (dealer.phone) cardHtml += `<div class="dealer-phone">📞 ${dealer.phone}</div>`;
+            if (dealer.description) cardHtml += `<div class="dealer-desc">${dealer.description}</div>`;
+            card.innerHTML = cardHtml;
 
             card.addEventListener('click', () => {
                 map.flyTo([dealer.lat, dealer.lng], 13, { duration: 1.5 });
@@ -418,11 +581,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (isTrackingActive) {
-            // detiene el seguimiento (bloqueado durante sos)
-            if (isSosActive) {
-                alert("⚠️ EL GPS ES OBLIGATORIO DURANTE S.O.S\n\nNo puedes desactivar el seguimiento mientras hay una emergencia MOB activa.");
-                return;
-            }
+            if (isSosLocked()) return;
             isTrackingActive = false;
             if (trackingWatchId !== null) {
                 navigator.geolocation.clearWatch(trackingWatchId);
@@ -451,8 +610,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     // centra el mapa en la primera posición
                     if (geoBtn.innerHTML === 'Buscando...') {
-                        const zoomLevel = isSosActive ? 17 : 12;
-                        map.flyTo(latlng, zoomLevel, { duration: 1.5 });
+                        const zoomLevel = isSosActive ? 17 : 15;
+                        if (!isAnchorActive) map.flyTo(latlng, zoomLevel, { duration: 1.5 });
                         geoBtn.innerHTML = `
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/>
@@ -792,6 +951,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     toggleTrafficBtn.addEventListener('click', () => {
+        if (isSosLocked()) return;
         isTrafficActive = !isTrafficActive;
 
         if (isTrafficActive) {
@@ -930,6 +1090,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (owmLayerBtn) {
         owmLayerBtn.addEventListener('click', async () => {
+            if (isSosLocked()) return;
             if (isRadarActive) {
                 radarStopAnim();
                 owmLayerBtn.classList.remove('active');
@@ -1037,6 +1198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     rulerBtn.addEventListener('click', () => {
+        if (isSosLocked()) return;
         isRulerActive = !isRulerActive;
         if (isRulerActive) {
             rulerBtn.classList.add('active');
@@ -1233,6 +1395,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let anchorCountdownInterval = null;
 
     floatingAlarmToggle.addEventListener('click', () => {
+        if (isSosLocked()) return;
         const isClosed = floatingAlarmPanel.classList.toggle('closed');
 
         if (!isClosed) {
@@ -1288,16 +1451,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     let anchorCenter = null;
     let anchorRadius = 50;
     let anchorCircle = null;
-    let watchId = null;
     let alarmAudio = new Audio('https://actions.google.com/sounds/v1/alarms/spaceship_alarm.ogg');
     alarmAudio.loop = true;
 
     function stopAnchorAlarm() {
         isAnchorActive = false;
-        if (watchId !== null) {
-            clearInterval(watchId);
-            watchId = null;
-        }
         if (anchorCircle) {
             map.removeLayer(anchorCircle);
             anchorCircle = null;
@@ -1310,9 +1468,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         toggleAnchorBtn.classList.add('btn-primary');
         toggleAnchorBtn.classList.remove('btn-danger');
         anchorStatusPanel.classList.add('hidden');
-        
+
         if (floatingAlarmPanel.classList.contains('closed')) {
             floatingAlarmToggle.classList.remove('active');
+        }
+
+        if (gpsAutoStartedBy === 'anchor') {
+            gpsAutoStartedBy = null;
+            geoBtn.click();
         }
     }
 
@@ -1345,11 +1508,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function startAnchorWatch(position) {
-        hasSentNotification = false; // reinicia el flag de notificación
+        hasSentNotification = false;
         anchorCenter = L.latLng(position.coords.latitude, position.coords.longitude);
         anchorRadius = parseInt(anchorRadiusInput.value, 10) || 50;
 
-        // dibuja el círculo de seguridad
         anchorCircle = L.circle(anchorCenter, {
             color: '#2ecc71',
             fillColor: '#2ecc71',
@@ -1357,48 +1519,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             radius: anchorRadius
         }).addTo(map);
 
-        map.setView(anchorCenter, 18); // acerca el mapa al círculo
+        map.setView(anchorCenter, 18);
+    }
 
-        // polling manual para evitar caché agresiva del navegador
-        watchId = setInterval(() => {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const currentPos = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                    const distance = map.distance(anchorCenter, currentPos);
+    // llamada desde watchPosition (updateBoatMarker) en cada actualización GPS
+    function onAnchorGpsUpdate(latlng) {
+        if (!isAnchorActive || !anchorCenter) return;
+        const distance = map.distance(anchorCenter, latlng);
 
-                    const display = document.getElementById('anchorDistanceDisplay');
-                    if (display) {
-                        display.innerHTML = `Distancia actual: <strong>${distance.toFixed(1)}m</strong> / ${anchorRadius}m`;
-                    }
+        const display = document.getElementById('anchorDistanceDisplay');
+        if (display) {
+            display.innerHTML = `Distancia actual: <strong>${distance.toFixed(1)}m</strong> / ${anchorRadius}m`;
+        }
 
-                    if (distance > anchorRadius) {
-                        triggerAlarm();
-                    } else {
-                        // Reset to green if we drift back in
-                        if (anchorCircle) anchorCircle.setStyle({ color: '#2ecc71', fillColor: '#2ecc71' });
-                        anchorStatusPanel.style.borderColor = '#2ecc71';
-                        anchorStatusPanel.style.background = 'rgba(46, 204, 113, 0.1)';
-                        anchorStatusPanel.innerHTML = `
-                            <div style="color: #2ecc71; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.3rem;">🛡️ Alarma Armada</div>
-                            <div id="anchorDistanceDisplay" style="font-size: 0.85rem; color: var(--brand-text-muted);">
-                                Distancia actual: <strong>${distance.toFixed(1)}m</strong> / ${anchorRadius}m
-                            </div>
-                        `;
-                        alarmAudio.pause();
-                        hasSentNotification = false;
-                    }
-                },
-                (err) => {
-                    console.warn(`Polling ERROR(${err.code}): ${err.message}`);
-                    // Fallos esporádicos en polling se ignoran temporalmente en vez de matar la app
-                },
-                {
-                    enableHighAccuracy: true,
-                    maximumAge: 0,
-                    timeout: 4500
-                }
-            );
-        }, 5000); // Check every 5 seconds
+        if (distance > anchorRadius) {
+            triggerAlarm();
+        } else {
+            if (anchorCircle) anchorCircle.setStyle({ color: '#2ecc71', fillColor: '#2ecc71' });
+            anchorStatusPanel.style.borderColor = '#2ecc71';
+            anchorStatusPanel.style.background = 'rgba(46, 204, 113, 0.1)';
+            anchorStatusPanel.innerHTML = `
+                <div style="color: #2ecc71; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.3rem;">🛡️ Alarma Armada</div>
+                <div id="anchorDistanceDisplay" style="font-size: 0.85rem; color: var(--brand-text-muted);">
+                    Distancia actual: <strong>${distance.toFixed(1)}m</strong> / ${anchorRadius}m
+                </div>
+            `;
+            alarmAudio.pause();
+            hasSentNotification = false;
+        }
     }
 
     toggleAnchorBtn.addEventListener('click', () => {
@@ -1410,6 +1558,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (isAnchorActive) {
             stopAnchorAlarm();
+            floatingAlarmPanel.classList.add('closed');
+            floatingAlarmToggle.classList.remove('active');
         } else {
             if (!navigator.geolocation) {
                 alert("Tu navegador no soporta geolocalización.");
@@ -1435,6 +1585,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     anchorStatusPanel.classList.remove('hidden');
 
                     startAnchorWatch(position);
+                    if (!isTrackingActive) {
+                        gpsAutoStartedBy = 'anchor';
+                        geoBtn.click();
+                    }
                 },
                 (err) => {
                     toggleAnchorBtn.disabled = false;
@@ -1452,6 +1606,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let isWindLayerActive = false;
 
     windLayerBtn.addEventListener('click', async () => {
+        if (isSosLocked()) return;
         if (isWindLayerActive) {
             // Turn off the wind layer
             if (velocityLayer) {
@@ -1524,7 +1679,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 14. SOS / Hombre al Agua (MOB) Logic
     const floatingSosBtn = document.getElementById('floatingSosBtn');
     let sosMarker = null;
-    let sosWatchId = null;
     let isSosActive = false;
 
     // Custom Icon for SOS Marker
@@ -1571,10 +1725,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             map.removeLayer(sosMarker);
             sosMarker = null;
         }
-        if (sosWatchId !== null) {
-            sosWatchId = null;
+            isSosActive = false;
+
+        if (gpsAutoStartedBy === 'sos') {
+            gpsAutoStartedBy = null;
+            geoBtn.click();
         }
-        isSosActive = false;
 
         // Reset button UI
         floatingSosBtn.style.animation = 'none';
@@ -1637,6 +1793,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 6. Ensure real-time boat tracking is active
         if (!isTrackingActive) {
+            gpsAutoStartedBy = 'sos';
             geoBtn.click();
         }
     }
@@ -1655,7 +1812,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // ACTIVATE SOS
+        // ACTIVATE SOS — desactiva alarma de fondeo si estaba activa
+        if (isAnchorActive) {
+            stopAnchorAlarm();
+            floatingAlarmPanel.classList.add('closed');
+            floatingAlarmToggle.classList.remove('active');
+        }
+
         // --- OPTIMIZATION: REUSE EXISTING GPS IF ACTIVE ---
         if (isTrackingActive && currentMarker) {
             const sosLatLng = currentMarker.getLatLng();
@@ -1737,8 +1900,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // banner de permisos (primera visita)
-    const permissionsBanner = document.getElementById('permissionsBanner');
-    const permissionsGrantBtn = document.getElementById('permissionsGrantBtn');
+    const permissionsBanner     = document.getElementById('permissionsBanner');
+    const permissionsGrantBtn   = document.getElementById('permissionsGrantBtn');
     const permissionsDismissBtn = document.getElementById('permissionsDismissBtn');
 
     async function requestPermissions() {
@@ -1765,7 +1928,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // mostrar solo si no se ha visto antes y faltan permisos
     if (!localStorage.getItem('permissionsBannerSeen')) {
-        const geoState = await navigator.permissions.query({ name: 'geolocation' }).catch(() => ({ state: 'prompt' }));
+        const geoState   = await navigator.permissions.query({ name: 'geolocation' }).catch(() => ({ state: 'prompt' }));
         const notifState = 'Notification' in window ? Notification.permission : 'granted';
 
         if (geoState.state === 'prompt' || notifState === 'default') {

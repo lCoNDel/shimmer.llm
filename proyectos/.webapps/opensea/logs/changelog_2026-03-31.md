@@ -19,6 +19,19 @@
 - Geolocalización se solicita antes que notificaciones para respetar el contexto de gesto del usuario
 - Se almacena en `localStorage` para no volver a mostrarse tras la primera interacción
 
+## Base de datos de distribuidores — información enriquecida
+- Cada distribuidor ahora incluye campos opcionales: `address`, `phone`, `email`, `web`, `description`
+- Popup del mapa: muestra dirección completa, teléfono (enlace `tel:`), email (`mailto:`), web (enlace externo) y descripción
+- Tarjeta del panel lateral: muestra teléfono y descripción bajo la ubicación
+- Datos verificados por búsqueda web: Touron Madrid, Náutica Perez, Hermanos Guasch, Motonáutica Llonch, Marinas de Andalucía, Touron Portugal, Lisnave, Angel Pilot
+- Distribuidores cubiertos: 32 en total (España peninsular, Baleares, Canarias y Portugal)
+
+## GPS — Refactor de estado y polling
+- Eliminado polling redundante en alarma de fondeo: la alarma ya no usa `setInterval` + `getCurrentPosition`; se engancha a las actualizaciones de `watchPosition` mediante `onAnchorGpsUpdate()`
+- Estado simétrico con `gpsAutoStartedBy`: registra qué feature (`'anchor'` / `'sos'`) auto-activó el GPS y lo desactiva al cerrar esa feature
+- Limpieza de código muerto: eliminada variable `sosWatchId` y su bloque vacío en `stopSosAlarm()`
+- Bloqueo global SOS: función `isSosLocked()` impide activar tráfico, radar, viento, regla, fondeo o desactivar GPS mientras SOS está activo
+
 ## Correcciones
 - Eliminado el visualizador de ondas de audio del reproductor de radio (`radioVisualizer`, `.audio-waves`, `@keyframes soundWave`) — código muerto sin efecto en la UI
 
@@ -58,6 +71,22 @@
 - `requestPermissions()`: llama primero a `navigator.geolocation.getCurrentPosition()` (antes de cualquier `await`) y luego a `Notification.requestPermission()` — el orden es crítico para que el navegador asocie ambas llamadas al gesto del usuario
 - Botón "Continuar sin permisos" (`#permissionsDismissBtn`) también guarda `permissionsBannerSeen` sin solicitar permisos
 - Card: fondo blanco sólido, `max-width: 700px`, overlay oscuro `rgba(1,10,25,0.85)` que cubre toda la pantalla
+
+### Base de datos de distribuidores — información enriquecida
+**Archivos:** `app.js` (array `dealers` al inicio del DOMContentLoaded, funciones `initDealers()` y `renderDealerList()`), `index.css` (`.dealer-phone`, `.dealer-desc`)
+
+- El array `dealers` ahora acepta campos opcionales: `address`, `phone`, `email`, `web`, `description`
+- `initDealers()`: construye `popupHtml` dinámico — solo muestra campos que existen en el objeto del dealer
+- Teléfonos se renderizan como `<a href="tel:...">`, emails como `<a href="mailto:...">`, webs como `<a href="https://..." target="_blank">`
+- `renderDealerList()`: la tarjeta del panel lateral muestra `.dealer-phone` y `.dealer-desc` si existen
+- Popup configurado con `maxWidth: 300` para acomodar la información adicional
+
+### GPS — Refactor de estado y polling
+**Archivos:** `app.js` (variables de estado globales, `updateBoatMarker()`, `onAnchorGpsUpdate()`, `startAnchorWatch()`, `stopAnchorAlarm()`, `activateSos()`, `stopSosAlarm()`, `isSosLocked()`)
+
+- `onAnchorGpsUpdate(latlng)`: calcula distancia al `anchorCenter` y dispara/detiene alarma sonora. Se invoca desde `updateBoatMarker()` cuando `isAnchorActive === true`
+- `gpsAutoStartedBy`: variable global (`null` | `'anchor'` | `'sos'`). Se asigna al auto-activar GPS desde alarma/SOS. En `stopAnchorAlarm()` / `stopSosAlarm()`, si coincide, hace `geoBtn.click()` para desactivar GPS
+- `isSosLocked()`: retorna `true` si `isSosActive`. Se llama antes de activar tráfico, radar, viento, regla, fondeo y al intentar desactivar GPS — muestra alerta informativa
 
 ### Correcciones
 - Eliminado el visualizador de ondas de audio del reproductor de radio: `const radioVisualizer`, las 3 llamadas a `radioVisualizer.classList`, el `<div id="radioVisualizer">` en HTML y los estilos `.audio-waves` + `@keyframes soundWave` en CSS
