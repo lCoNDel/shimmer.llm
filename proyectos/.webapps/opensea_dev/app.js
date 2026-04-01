@@ -219,6 +219,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const weatherPanel = document.getElementById('weatherPanel');
     const weatherContent = document.getElementById('weatherContent');
     const loader = document.getElementById('loader');
+
+    // Separar radio del weather panel en mobile — evita clipping por overflow del panel padre
+    if (window.innerWidth <= 768) {
+        const radioSection = weatherPanel.querySelector('.radio-section');
+        const appContainer = document.querySelector('.app-container');
+        if (radioSection && appContainer) {
+            radioSection.id = 'radioFloatingPanel';
+            radioSection.classList.add('closed');
+            appContainer.appendChild(radioSection);
+        }
+    }
     const latlonDisplay = document.getElementById('latlonDisplay');
     const geoBtn = document.getElementById('geoBtn');
 
@@ -419,6 +430,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function closeMobileSearch() {
         document.body.classList.remove('mobile-search-active');
         globalSearchResults.classList.add('hidden');
+        const radioPanel = document.getElementById('radioFloatingPanel');
+        if (radioPanel) radioPanel.classList.add('closed');
     }
 
     if (mobileSearchBtn) {
@@ -427,6 +440,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isActive = document.body.classList.toggle('mobile-search-active');
             if (isActive) {
                 globalSearchInput.focus();
+                if (isTrafficActive)   { showToast('Tráfico marítimo desactivado');  toggleTrafficBtn.click(); }
+                if (isWindLayerActive) { showToast('Capa de viento desactivada');     windLayerBtn.click(); }
+                if (isRadarActive)     { showToast('Radar meteorológico desactivado'); owmLayerBtn.click(); }
+                if (isRulerActive)     { showToast('Regla náutica desactivada');       rulerBtn.click(); }
+                const radioPanel = document.getElementById('radioFloatingPanel');
+                if (radioPanel) radioPanel.classList.add('closed');
             } else {
                 globalSearchResults.classList.add('hidden');
             }
@@ -437,6 +456,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!document.body.classList.contains('mobile-search-active')) return;
             if (globalSearchContainer && globalSearchContainer.contains(e.target)) return;
             closeMobileSearch();
+        });
+    }
+
+    // Botón radio mobile
+    const radioMobileBtn = document.getElementById('radioMobileBtn');
+    if (radioMobileBtn) {
+        radioMobileBtn.addEventListener('click', () => {
+            const panel = document.getElementById('radioFloatingPanel');
+            if (!panel) return;
+            panel.classList.toggle('closed');
         });
     }
 
@@ -1065,6 +1094,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (isTrafficActive) {
             toggleTrafficBtn.classList.add('active');
+            if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
+            const radioPanel = document.getElementById('radioFloatingPanel');
+            if (radioPanel) radioPanel.classList.add('closed');
 
             // desactiva otros modos incompatibles
             if (isWindLayerActive) { showToast('Capa de viento desactivada'); windLayerBtn.click(); }
@@ -1162,7 +1194,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     function radarUpdateHud(index) {
         const frame = radarFrames[index];
         const isNowcast = frame.type === 'nowcast';
-        const isPast = index < radarFrames.findIndex(f => f.type === 'nowcast');
         const isPresent = !isNowcast && index === radarFrames.filter(f => f.type === 'past').length - 1;
 
         const label = isNowcast ? 'PRONÓSTICO' : isPresent ? 'AHORA' : 'PASADO';
@@ -1208,6 +1239,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 map.setMaxZoom(18);
                 document.getElementById('radarHud').classList.add('hidden');
             } else {
+                if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
+                const radioPanel = document.getElementById('radioFloatingPanel');
+                if (radioPanel) radioPanel.classList.add('closed');
                 if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
                 if (isWindLayerActive) { showToast('Capa de viento desactivada'); windLayerBtn.click(); }
                 if (isRulerActive) { showToast('Regla náutica desactivada'); rulerBtn.click(); }
@@ -1312,6 +1346,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (isRulerActive) {
             rulerBtn.classList.add('active');
             document.getElementById('map').style.cursor = 'crosshair';
+            if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
+            const radioPanel = document.getElementById('radioFloatingPanel');
+            if (radioPanel) radioPanel.classList.add('closed');
 
             // Si el tráfico marítimo u otros modos están activos, los cerramos
             if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
@@ -1726,6 +1763,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             // Turn on the wind layer
             windLayerBtn.classList.add('active');
+            if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
+            const radioPanel = document.getElementById('radioFloatingPanel');
+            if (radioPanel) radioPanel.classList.add('closed');
 
             // Set off other map modes
             if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
