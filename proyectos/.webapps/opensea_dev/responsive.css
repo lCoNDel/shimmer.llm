@@ -156,7 +156,8 @@
 
     /* Sin transición mientras el dedo arrastra */
     .weather-panel.is-dragging,
-    .search-panel.is-dragging {
+    .search-panel.is-dragging,
+    #radioFloatingPanel.is-dragging {
         transition: none !important;
     }
 

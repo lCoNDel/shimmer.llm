@@ -278,6 +278,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => toast.remove(), 3100);
     }
 
+    // Muestra el tooltip de una herramienta al activarla y lo oculta a los 2.5s
+    function showToolLabel(btn) {
+        btn.classList.add('tooltip-active');
+        setTimeout(() => btn.classList.remove('tooltip-active'), 2500);
+    }
+
+    // Feedback al intentar consultar condiciones con herramienta activa (no se repite hasta 3s después)
+    let _toolBlockFeedbackTimer = null;
+    function showToolBlockedFeedback() {
+        if (_toolBlockFeedbackTimer) return;
+        showToast('Desactiva la herramienta activa para consultar condiciones marítimas');
+        _toolBlockFeedbackTimer = setTimeout(() => { _toolBlockFeedbackTimer = null; }, 3000);
+    }
+
     // actualiza el marcador del barco
     function updateBoatMarker(latlng) {
         const iconHtml = `<div style="background-color: #3498db; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(52, 152, 219, 0.8);"></div>`;
@@ -642,12 +656,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     addSwipeToClose(weatherPanel);
     addSwipeToClose(searchPanel);
+    const radioFloatingPanel = document.getElementById('radioFloatingPanel');
+    if (radioFloatingPanel) addSwipeToClose(radioFloatingPanel);
 
     initDealers();
 
     // 5. Handle Map Clicks to fetch Marine Data
     map.on('click', async (e) => {
-        if (isTrackingActive || isRulerActive) return; // bloquea clics si el gps o la regla están activos
+        if (isTrackingActive || isRulerActive || isRadarActive || isTrafficActive || isWindLayerActive) {
+            if (!isTrackingActive && !isRulerActive) showToolBlockedFeedback();
+            return;
+        }
 
         const { lat, lng } = e.latlng;
 
@@ -691,6 +710,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // 6. lógica de geolocalización
+    const gpsShortcutBtn   = document.getElementById('gpsShortcutBtn');
+    const gpsShortcutLabel = document.getElementById('gpsShortcutLabel');
+
+    function syncGpsShortcut(state) {
+        if (!gpsShortcutBtn) return;
+        gpsShortcutBtn.classList.remove('gps-searching', 'gps-active');
+        if (state === 'searching') {
+            gpsShortcutBtn.classList.add('gps-searching');
+            gpsShortcutLabel.textContent = '...';
+        } else if (state === 'active') {
+            gpsShortcutBtn.classList.add('gps-active');
+            gpsShortcutLabel.textContent = 'ON';
+        } else {
+            gpsShortcutLabel.textContent = 'OFF';
+        }
+    }
+
+    if (gpsShortcutBtn) {
+        gpsShortcutBtn.addEventListener('click', () => geoBtn.click());
+    }
+
     geoBtn.addEventListener('click', () => {
         if (!navigator.geolocation) {
             alert('Tu navegador no soporta la geolocalización.');
@@ -705,6 +745,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 trackingWatchId = null;
             }
             geoBtn.classList.remove('active');
+            syncGpsShortcut('off');
             document.getElementById('gpsLockMsg').classList.add('hidden');
             geoBtn.innerHTML = `
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -719,6 +760,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             isTrackingActive = true;
             geoBtn.classList.add('active');
+            syncGpsShortcut('searching');
 
             trackingWatchId = navigator.geolocation.watchPosition(
                 async (position) => {
@@ -736,6 +778,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             BLOQUEO GPS ACTIVO
                         `;
                         document.getElementById('gpsLockMsg').classList.remove('hidden');
+                        syncGpsShortcut('active');
                     }
 
                     updateBoatMarker(latlng);
@@ -759,6 +802,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     isTrackingActive = false;
                     geoBtn.classList.remove('active');
+                    syncGpsShortcut('off');
                     geoBtn.innerHTML = originalHTML;
                     if (trackingWatchId !== null) {
                         navigator.geolocation.clearWatch(trackingWatchId);
@@ -1094,6 +1138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (isTrafficActive) {
             toggleTrafficBtn.classList.add('active');
+            showToolLabel(toggleTrafficBtn);
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
             const radioPanel = document.getElementById('radioFloatingPanel');
             if (radioPanel) radioPanel.classList.add('closed');
@@ -1125,6 +1170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         } else {
             toggleTrafficBtn.classList.remove('active');
+            toggleTrafficBtn.blur();
             vesselFinderOverlay.classList.add('hidden');
             exitTrafficMode();
         }
@@ -1234,6 +1280,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (isRadarActive) {
                 radarStopAnim();
                 owmLayerBtn.classList.remove('active');
+                owmLayerBtn.blur();
                 isRadarActive = false;
                 radarFrames = [];
                 map.setMaxZoom(18);
@@ -1247,6 +1294,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (isRulerActive) { showToast('Regla náutica desactivada'); rulerBtn.click(); }
 
                 owmLayerBtn.classList.add('active');
+                showToolLabel(owmLayerBtn);
                 isRadarActive = true;
 
                 const frames = await getRainViewerFrames();
@@ -1345,6 +1393,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         isRulerActive = !isRulerActive;
         if (isRulerActive) {
             rulerBtn.classList.add('active');
+            showToolLabel(rulerBtn);
             document.getElementById('map').style.cursor = 'crosshair';
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
             const radioPanel = document.getElementById('radioFloatingPanel');
@@ -1357,6 +1406,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         } else {
             rulerBtn.classList.remove('active');
+            rulerBtn.blur();
             document.getElementById('map').style.cursor = '';
             clearRuler();
         }
@@ -1759,10 +1809,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 map.removeLayer(velocityLayer);
             }
             windLayerBtn.classList.remove('active');
+            windLayerBtn.blur();
             isWindLayerActive = false;
         } else {
             // Turn on the wind layer
             windLayerBtn.classList.add('active');
+            showToolLabel(windLayerBtn);
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
             const radioPanel = document.getElementById('radioFloatingPanel');
             if (radioPanel) radioPanel.classList.add('closed');
@@ -2002,31 +2054,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
     });
 
-    // 15. Utilities Dropdown Logic
-    const utilidadesToggleBtn = document.getElementById('utilidadesToggleBtn');
-    const utilidadesDropdown = document.getElementById('utilidadesDropdown');
-
-    if (utilidadesToggleBtn && utilidadesDropdown) {
-        utilidadesToggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            utilidadesDropdown.classList.toggle('closed');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!utilidadesDropdown.contains(e.target) && e.target !== utilidadesToggleBtn) {
-                utilidadesDropdown.classList.add('closed');
-            }
-        });
-
-        // Cierra el menú cuando se hace clic en cualquier opción interna
-        document.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', () => {
-                utilidadesDropdown.classList.add('closed');
-            });
-        });
-    }
-
-    // 16. Guía de Uso Modal Logic
+    // 15. Guía de Uso Modal Logic
     const openGuideBtn = document.getElementById('openGuideBtn');
     const closeGuideBtn = document.getElementById('closeGuideBtn');
     const guideModal = document.getElementById('guideModal');
