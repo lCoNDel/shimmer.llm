@@ -4,10 +4,12 @@
    Breakpoints: tablet ≤1024px, móvil ≤768px
    ============================================================ */
 
-/* Ocultar botón de cierre del weather panel en desktop (solo visible en mobile) */
-#closeWeatherBtn {
+/* Ocultar en desktop elementos exclusivos de mobile */
+#closeWeatherBtn,
+#floatingMobileSearchContainer {
     display: none;
 }
+
 
 /* ---- TABLET (≤1024px) ------------------------------------ */
 @media screen and (max-width: 1024px) {
@@ -56,9 +58,44 @@
         white-space: nowrap;
     }
 
-    /* Mostrar botón de cierre del weather panel solo en mobile */
+    /* Alarma de fondeo: oculta en mobile (el móvil se mueve con el usuario) */
+    #floatingAlarmContainer {
+        display: none;
+    }
+
+    /* Mostrar elementos exclusivos de mobile */
     #closeWeatherBtn {
         display: block;
+    }
+
+    #floatingMobileSearchContainer {
+        display: block;
+    }
+
+    /* Buscador flotante sobre el mapa cuando está activo */
+    body.mobile-search-active .global-search-container {
+        display: flex;
+        position: fixed;
+        top: 56px;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        z-index: 1100;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        padding: 4px;
+    }
+
+    body.mobile-search-active .global-search-input {
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    body.mobile-search-active .global-search-results {
+        width: 100%;
+        left: 0;
+        right: 0;
     }
 
     /* -- Weather Panel → drawer desde abajo -- */
@@ -83,11 +120,8 @@
         height: 4px;
         background: rgba(0, 0, 0, 0.15);
         border-radius: 2px;
-        margin: 0.6rem auto 1rem;
-        padding: 12px 40px;
-        box-sizing: content-box;
+        margin: 0.6rem auto 0.6rem;
         cursor: grab;
-        touch-action: none;
     }
 
     /* Sin transición mientras el dedo arrastra */
@@ -122,11 +156,22 @@
         transform: translateY(100%);
     }
 
-    /* -- Controles flotantes Bottom-Left --
-       El SOS está en bottom: 30px centrado.
-       Subimos los controles para no solaparse. */
+    /* -- Ocultar zoom de Leaflet en mobile (el mapa se hace zoom con pellizco) -- */
+    .leaflet-control-zoom {
+        display: none !important;
+    }
+
+    /* -- SOS: mover a la derecha, alineado con las herramientas -- */
+    #floatingSosContainer {
+        bottom: 50px !important;
+        left: auto !important;
+        right: 12px !important;
+        transform: none !important;
+    }
+
+    /* -- Controles flotantes Bottom-Left -- */
     .map-controls-bottom-left {
-        bottom: 90px;
+        bottom: 50px;
         left: 12px;
         gap: 8px;
     }

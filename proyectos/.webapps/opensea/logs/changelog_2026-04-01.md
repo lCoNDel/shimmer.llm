@@ -18,13 +18,21 @@
 - Header con padding más compacto
 
 ### Móvil (≤768px)
-- **Weather Panel**: convertido en drawer que sube desde abajo (`position: fixed; bottom: 0; width: 100%; max-height: 75vh`); pill handle generado con `::before`; estado `.closed` pasa de `translateX(400px)` a `translateY(100%)`
+- **Weather Panel**: convertido en drawer que sube desde abajo (`position: fixed; bottom: 0; width: 100%; max-height: 75vh`); pill handle como `<div class="drawer-handle">` real; estado `.closed` pasa de `translateX(400px)` a `translateY(100%)`
 - **Search Panel**: mismo tratamiento drawer; `height: 80vh`; estado `.closed` pasa de `translateX(100%)` a `translateY(100%)`
-- **Header**: buscador oculto (`.global-search-container { display: none }`), título de app ocultado, logo comprimido
-- **Controles flotantes**: subidos a `bottom: 90px` para no solaparse con el botón SOS (que permanece en `bottom: 30px`)
+- **Header**: buscador oculto, título de app ocultado, nombre de empresa con `white-space: nowrap`
+- **Botón × en Weather Panel**: visible solo en mobile (`#closeWeatherBtn` oculto en desktop vía `responsive.css`)
+- **Swipe-to-close**: arrastrar la barra superior de cada drawer hacia abajo lo cierra; detecta velocidad (flick) y distancia (>80px); sin conflicto con el scroll del contenido
+- **Buscador de direcciones en mobile**: botón lupa flotante junto a la regla náutica; al pulsarlo el buscador del header se reposiciona como overlay sobre el mapa; se cierra al seleccionar resultado, al buscar o al tocar fuera
+- **Botón SOS**: reposicionado a `bottom: 50px; right: 12px` (esquina inferior derecha, alineado con herramientas)
+- **Controles flotantes**: alineados a `bottom: 50px; left: 12px`; separados de los créditos del mapa
+- **Zoom de Leaflet**: oculto en mobile (el pellizco con dos dedos lo sustituye)
+- **Alarma de fondeo**: oculta en mobile (no aplica cuando el móvil viaja con el usuario)
 - **Radar HUD**: `top: 65px`, ancho fluid (`calc(100% - 32px)`), controles reducidos
 - **Modales y banner de permisos**: `width: 95vw`, alturas ajustadas a `90vh`
-- Sin cambios en `app.js` — la lógica de toggle (clase `.closed` + `transform`) funciona igual en ambas orientaciones
+
+## Correcciones
+- `stop.ps1`: corregido bug con la variable reservada `$pid` de PowerShell — renombrada a `$procId` en ambos proyectos (`opensea` y `opensea_dev`)
 
 ---
 
@@ -44,9 +52,28 @@
 - `@keyframes cardValueUpdate`: `opacity: 0.3 → 1` + `translateY(3px → 0)`, 0.35s ease-out
 
 ### Responsive — Arquitectura de archivos
-**Archivos:** `responsive.css` (nuevo), `index.html` (un `<link>` añadido)
+**Archivos:** `responsive.css` (nuevo), `index.html` (cambios menores), `app.js` (swipe + mobile search)
 
-- `responsive.css` es una capa de overrides pura — no importa ni extiende `index.css`
-- Los paneles en móvil usan `position: fixed` (en desktop usan `position: absolute` relativo al contenedor del mapa)
-- El pill handle de los drawers se genera con `::before` en CSS — no requiere HTML adicional
-- Para añadir más breakpoints o ajustes futuros: editar solo `responsive.css`
+- `responsive.css` es una capa de overrides pura — no toca `index.css`
+- Los paneles en móvil usan `position: fixed` (en desktop usan `position: absolute`)
+- El pill handle es un `<div class="drawer-handle" aria-hidden="true">` real al inicio de cada panel — necesario para recibir eventos touch
+- Elementos exclusivos de desktop ocultos con regla global fuera de `@media`: `#closeWeatherBtn`, `#floatingMobileSearchContainer`
+- Elementos exclusivos de mobile dentro del bloque `@media (max-width: 768px)`: `#floatingAlarmContainer { display: none }`
+
+### Swipe-to-close en drawers
+**Archivos:** `app.js` (función `addSwipeToClose(panel)`), `responsive.css` (`.is-dragging { transition: none }`)
+
+- Listeners en el panel completo; se activa solo si el toque empieza en los primeros 80px desde la parte superior (`SWIPE_ZONE_HEIGHT`)
+- Durante el arrastre: `panel.classList.add('is-dragging')` + `panel.style.transform = translateY(deltaY)`
+- Al soltar: si `deltaY ≥ 80px` o `velocidad ≥ 0.3px/ms` → `classList.add('closed')`; si no → snap-back limpiando el inline style
+- `touchcancel` manejado para evitar estados inconsistentes
+- Todos los listeners con `{ passive: true }`
+- Guard `window.innerWidth > 768` en `touchstart` y `touchmove`
+
+### Buscador de direcciones en mobile
+**Archivos:** `app.js` (listener `#mobileSearchBtn`), `responsive.css` (`body.mobile-search-active .global-search-container`)
+
+- `#mobileSearchBtn`: botón flotante junto a `#floatingRulerContainer`, oculto en desktop
+- Al activar: `document.body.classList.add('mobile-search-active')` reposiciona `.global-search-container` como `position: fixed; top: 56px` vía CSS
+- Se cierra: al seleccionar sugerencia del dropdown, al completar búsqueda (`performGlobalSearch`), o al tocar fuera (listener en `document`)
+- Toda la lógica de búsqueda (Nominatim, debounce, marcador) se reutiliza sin duplicación

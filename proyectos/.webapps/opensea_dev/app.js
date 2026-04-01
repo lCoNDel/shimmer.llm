@@ -368,6 +368,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 globalSearchResults.classList.add('hidden');
                 globalSearchClearBtn.classList.remove('hidden');
                 setSearchMarker(lat, lon);
+                document.body.classList.remove('mobile-search-active');
             });
 
             globalSearchResults.appendChild(item);
@@ -396,6 +397,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 map.flyTo([lat, lon], 13, { duration: 1.5 });
                 globalSearchClearBtn.classList.remove('hidden');
                 setSearchMarker(lat, lon);
+                document.body.classList.remove('mobile-search-active');
             } else {
                 showToast('No se encontró el lugar. Prueba con otro nombre.');
             }
@@ -409,6 +411,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     globalSearchClearBtn.addEventListener('click', clearSearch);
     globalSearchBtn.addEventListener('click', performGlobalSearch);
+
+    // botón lupa mobile — muestra/oculta el buscador sobre el mapa
+    const mobileSearchBtn = document.getElementById('mobileSearchBtn');
+    const globalSearchContainer = document.querySelector('.global-search-container');
+
+    function closeMobileSearch() {
+        document.body.classList.remove('mobile-search-active');
+        globalSearchResults.classList.add('hidden');
+    }
+
+    if (mobileSearchBtn) {
+        mobileSearchBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = document.body.classList.toggle('mobile-search-active');
+            if (isActive) {
+                globalSearchInput.focus();
+            } else {
+                globalSearchResults.classList.add('hidden');
+            }
+        });
+
+        // cerrar al tocar fuera del buscador
+        document.addEventListener('click', (e) => {
+            if (!document.body.classList.contains('mobile-search-active')) return;
+            if (globalSearchContainer && globalSearchContainer.contains(e.target)) return;
+            closeMobileSearch();
+        });
+    }
 
     globalSearchInput.addEventListener('input', (e) => {
         const query = e.target.value;
@@ -536,17 +566,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // ── Swipe-to-close para drawers móvil ────────────────────────────────────
     function addSwipeToClose(panel) {
-        const handle = panel.querySelector('.drawer-handle');
-        if (!handle) return;
-
         const DISTANCE_THRESHOLD = 80;   // px para cerrar con arrastre lento
         const VELOCITY_THRESHOLD = 0.3;  // px/ms para cerrar con flick rápido
+        const SWIPE_ZONE_HEIGHT  = 80;   // px desde la parte superior del panel donde se activa el gesto
 
         let startY = 0, startTime = 0, currentDeltaY = 0, isDragging = false;
 
-        handle.addEventListener('touchstart', (e) => {
+        panel.addEventListener('touchstart', (e) => {
             if (window.innerWidth > 768) return;
             if (panel.classList.contains('closed')) return;
+            const touchYRelative = e.touches[0].clientY - panel.getBoundingClientRect().top;
+            if (touchYRelative > SWIPE_ZONE_HEIGHT) return; // fuera de la zona superior
             startY = e.touches[0].clientY;
             startTime = Date.now();
             currentDeltaY = 0;
@@ -554,14 +584,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             panel.classList.add('is-dragging');
         }, { passive: true });
 
-        handle.addEventListener('touchmove', (e) => {
+        panel.addEventListener('touchmove', (e) => {
             if (!isDragging || window.innerWidth > 768) return;
             currentDeltaY = e.touches[0].clientY - startY;
             if (currentDeltaY < 0) { panel.style.transform = ''; return; }
             panel.style.transform = `translateY(${currentDeltaY}px)`;
         }, { passive: true });
 
-        handle.addEventListener('touchend', () => {
+        panel.addEventListener('touchend', () => {
             if (!isDragging) return;
             isDragging = false;
             const velocity = currentDeltaY / Math.max(Date.now() - startTime, 1);
@@ -573,7 +603,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentDeltaY = 0;
         }, { passive: true });
 
-        handle.addEventListener('touchcancel', () => {
+        panel.addEventListener('touchcancel', () => {
             isDragging = false;
             panel.classList.remove('is-dragging');
             panel.style.transform = '';
