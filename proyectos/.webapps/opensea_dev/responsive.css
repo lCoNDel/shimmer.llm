@@ -193,7 +193,7 @@
 
     /* -- SOS: mover a la derecha, alineado con las herramientas -- */
     #floatingSosContainer {
-        bottom: 50px !important;
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
         left: auto !important;
         right: 12px !important;
         transform: none !important;
@@ -201,9 +201,14 @@
 
     /* -- Controles flotantes Bottom-Left -- */
     .map-controls-bottom-left {
-        bottom: 50px;
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px));
         left: 12px;
         gap: 8px;
+    }
+
+    /* Créditos del mapa por encima de la toolbar del navegador */
+    .leaflet-bottom {
+        padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
     }
 
     .floating-alarm-toggle {
