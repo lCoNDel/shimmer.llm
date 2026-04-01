@@ -261,6 +261,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     let isTrackingActive = false;
     let trackingWatchId = null;
     let gpsAutoStartedBy = null; // 'anchor' | 'sos' | null
+    let gpsMarineRefreshId = null; // intervalo de refresco de datos marinos durante GPS
+    let lastGpsLat = null;
+    let lastGpsLng = null;
+    const GPS_MARINE_REFRESH_MS = 5 * 60 * 1000; // refresca condiciones cada 5 min
 
     function isSosLocked() {
         if (!isSosActive) return false;
@@ -744,6 +748,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 navigator.geolocation.clearWatch(trackingWatchId);
                 trackingWatchId = null;
             }
+            if (gpsMarineRefreshId !== null) {
+                clearInterval(gpsMarineRefreshId);
+                gpsMarineRefreshId = null;
+            }
             geoBtn.classList.remove('active');
             syncGpsShortcut('off');
             document.getElementById('gpsLockMsg').classList.add('hidden');
@@ -761,10 +769,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             isTrackingActive = true;
             geoBtn.classList.add('active');
             syncGpsShortcut('searching');
+            gpsMarineRefreshId = setInterval(async () => {
+                if (lastGpsLat !== null && lastGpsLng !== null) {
+                    try { await fetchMarineWeatherAnalysis(lastGpsLat, lastGpsLng); } catch (_) {}
+                }
+            }, GPS_MARINE_REFRESH_MS);
 
             trackingWatchId = navigator.geolocation.watchPosition(
                 async (position) => {
                     const { latitude, longitude } = position.coords;
+                    lastGpsLat = latitude;
+                    lastGpsLng = longitude;
                     const latlng = L.latLng(latitude, longitude);
 
                     // centra el mapa en la primera posición
@@ -807,6 +822,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (trackingWatchId !== null) {
                         navigator.geolocation.clearWatch(trackingWatchId);
                         trackingWatchId = null;
+                    }
+                    if (gpsMarineRefreshId !== null) {
+                        clearInterval(gpsMarineRefreshId);
+                        gpsMarineRefreshId = null;
                     }
                     
                     let errorMsg = 'No se pudo obtener tu ubicación precisa.';
