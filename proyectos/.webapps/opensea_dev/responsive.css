@@ -37,10 +37,37 @@
 /* ---- MÓVIL (≤768px) -------------------------------------- */
 @media screen and (max-width: 768px) {
 
+    /* Evitar que cualquier elemento desborde el viewport horizontalmente
+       (causa el zoom-out automático del navegador en dispositivos reales) */
+    html, body {
+        overflow-x: hidden;
+        max-width: 100vw;
+    }
+
     /* -- Header -- */
     .app-header {
         padding: 0.6rem 1rem;
         gap: 0.4rem;
+        flex-wrap: nowrap;
+        overflow: hidden;
+    }
+
+    .logo-container {
+        flex-shrink: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .auth-nav {
+        flex-shrink: 0;
+        display: flex;
+        gap: 0.4rem;
+    }
+
+    .auth-nav .btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.78rem;
+        white-space: nowrap;
     }
 
     /* Ocultar buscador del header: no cabe junto al logo y botones */
@@ -96,6 +123,7 @@
         width: 100%;
         left: 0;
         right: 0;
+        max-width: 100%;
     }
 
     /* -- Weather Panel → drawer desde abajo -- */
