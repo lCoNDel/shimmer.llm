@@ -205,8 +205,10 @@
         </div>
 
         <aside class="weather-panel" id="weatherPanel">
+            <div class="drawer-handle" aria-hidden="true"></div>
             <div class="panel-header">
                 <h2>Condiciones Marítimas</h2>
+                <button class="close-btn" id="closeWeatherBtn" aria-label="Cerrar panel">&times;</button>
             </div>
 
             <!-- Explicit Geolocation Action -->
@@ -331,6 +333,7 @@
 
         <!-- Search Modal Panel -->
         <aside class="search-panel closed" id="searchPanel">
+            <div class="drawer-handle" aria-hidden="true"></div>
             <div class="panel-header">
                 <h2>Red de Distribuidores</h2>
                 <button class="close-btn" id="closeSearchBtn" aria-label="Cerrar buscador">&times;</button>

@@ -445,6 +445,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchPanel.classList.add('closed');
     });
 
+    document.getElementById('closeWeatherBtn').addEventListener('click', () => {
+        weatherPanel.classList.add('closed');
+    });
+
     // modal de información del proyecto
     infoBtn.addEventListener('click', () => {
         infoModal.classList.remove('hidden');
@@ -529,6 +533,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
         renderDealerList(filtered);
     });
+
+    // ── Swipe-to-close para drawers móvil ────────────────────────────────────
+    function addSwipeToClose(panel) {
+        const handle = panel.querySelector('.drawer-handle');
+        if (!handle) return;
+
+        const DISTANCE_THRESHOLD = 80;   // px para cerrar con arrastre lento
+        const VELOCITY_THRESHOLD = 0.3;  // px/ms para cerrar con flick rápido
+
+        let startY = 0, startTime = 0, currentDeltaY = 0, isDragging = false;
+
+        handle.addEventListener('touchstart', (e) => {
+            if (window.innerWidth > 768) return;
+            if (panel.classList.contains('closed')) return;
+            startY = e.touches[0].clientY;
+            startTime = Date.now();
+            currentDeltaY = 0;
+            isDragging = true;
+            panel.classList.add('is-dragging');
+        }, { passive: true });
+
+        handle.addEventListener('touchmove', (e) => {
+            if (!isDragging || window.innerWidth > 768) return;
+            currentDeltaY = e.touches[0].clientY - startY;
+            if (currentDeltaY < 0) { panel.style.transform = ''; return; }
+            panel.style.transform = `translateY(${currentDeltaY}px)`;
+        }, { passive: true });
+
+        handle.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            const velocity = currentDeltaY / Math.max(Date.now() - startTime, 1);
+            panel.classList.remove('is-dragging');
+            panel.style.transform = '';
+            if (currentDeltaY >= DISTANCE_THRESHOLD || velocity >= VELOCITY_THRESHOLD) {
+                panel.classList.add('closed');
+            }
+            currentDeltaY = 0;
+        }, { passive: true });
+
+        handle.addEventListener('touchcancel', () => {
+            isDragging = false;
+            panel.classList.remove('is-dragging');
+            panel.style.transform = '';
+            currentDeltaY = 0;
+        }, { passive: true });
+    }
+
+    addSwipeToClose(weatherPanel);
+    addSwipeToClose(searchPanel);
 
     initDealers();
 
