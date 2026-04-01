@@ -37,9 +37,9 @@
 /* ---- MÓVIL (≤768px) -------------------------------------- */
 @media screen and (max-width: 768px) {
 
-    /* Evitar que cualquier elemento desborde el viewport horizontalmente
-       (causa el zoom-out automático del navegador en dispositivos reales) */
-    html, body {
+    /* Contener el overflow en el wrapper, no en body/html.
+       overflow-x: hidden en body/html clipa los position:fixed en Android — bug conocido. */
+    .app-container {
         overflow-x: hidden;
         max-width: 100vw;
     }
@@ -183,6 +183,7 @@
     /* Cambia dirección del cierre: de translateX a translateY */
     .search-panel.closed {
         transform: translateY(100%);
+        pointer-events: none;
     }
 
     /* -- Ocultar zoom de Leaflet en mobile (el mapa se hace zoom con pellizco) -- */
