@@ -37,11 +37,12 @@
 /* ---- MÓVIL (≤768px) -------------------------------------- */
 @media screen and (max-width: 768px) {
 
-    /* Contener el overflow en el wrapper, no en body/html.
-       overflow-x: hidden en body/html clipa los position:fixed en Android — bug conocido. */
-    .app-container {
-        overflow-x: hidden;
-        max-width: 100vw;
+    /* Causa raíz del problema con Brave/Edge (toolbar inferior):
+       100vh = "large viewport" (ignora la toolbar visible del navegador).
+       100dvh = "dynamic viewport" = área visible real en todo momento.
+       Corrige el posicionamiento de todos los elementos position:absolute dentro de <main>. */
+    body {
+        height: 100dvh;
     }
 
     /* -- Header -- */
@@ -193,7 +194,7 @@
 
     /* -- SOS: mover a la derecha, alineado con las herramientas -- */
     #floatingSosContainer {
-        bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
         left: auto !important;
         right: 12px !important;
         transform: none !important;
@@ -201,14 +202,14 @@
 
     /* -- Controles flotantes Bottom-Left -- */
     .map-controls-bottom-left {
-        bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
         left: 12px;
         gap: 8px;
     }
 
-    /* Créditos del mapa por encima de la toolbar del navegador */
+    /* Créditos del mapa — env() cubre home indicator del dispositivo */
     .leaflet-bottom {
-        padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
     }
 
     .floating-alarm-toggle {
