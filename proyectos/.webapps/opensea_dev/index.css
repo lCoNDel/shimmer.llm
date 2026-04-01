@@ -388,6 +388,14 @@ body {
     border-color: rgba(107, 181, 255, 0.3);
 }
 
+@keyframes cardValueUpdate {
+    0%   { opacity: 0.3; transform: translateY(3px); }
+    100% { opacity: 1;   transform: translateY(0);   }
+}
+.card-value-update {
+    animation: cardValueUpdate 0.35s ease-out;
+}
+
 .card-label {
     font-size: 0.75rem;
     text-transform: uppercase;

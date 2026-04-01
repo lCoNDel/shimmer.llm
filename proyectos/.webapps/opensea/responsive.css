@@ -1,0 +1,165 @@
+/* ============================================================
+   responsive.css — OpenSea Dev
+   Capa de overrides responsive. index.css (desktop) no se toca.
+   Breakpoints: tablet ≤1024px, móvil ≤768px
+   ============================================================ */
+
+/* ---- TABLET (≤1024px) ------------------------------------ */
+@media screen and (max-width: 1024px) {
+    .app-header {
+        padding: 0.8rem 1.2rem;
+    }
+
+    .weather-panel {
+        width: 300px;
+    }
+
+    .search-panel {
+        width: 340px;
+    }
+
+    .global-search-input {
+        width: 160px;
+    }
+
+    .global-search-input:focus {
+        width: 200px;
+    }
+}
+
+/* ---- MÓVIL (≤768px) -------------------------------------- */
+@media screen and (max-width: 768px) {
+
+    /* -- Header -- */
+    .app-header {
+        padding: 0.6rem 1rem;
+        gap: 0.4rem;
+    }
+
+    /* Ocultar buscador del header: no cabe junto al logo y botones */
+    .global-search-container {
+        display: none;
+    }
+
+    /* Comprimir título */
+    .app-title {
+        display: none;
+    }
+
+    .brand-company-name {
+        font-size: 0.85rem;
+    }
+
+    /* -- Weather Panel → drawer desde abajo -- */
+    .weather-panel {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-height: 75vh;
+        overflow-y: auto;
+        border-radius: 16px 16px 0 0;
+        border: none;
+        border-top: 1px solid var(--brand-accent);
+        padding: 0.5rem 1.2rem 1.5rem;
+    }
+
+    /* Pill handle visual (sin tocar el HTML) */
+    .weather-panel::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 2px;
+        margin: 0.5rem auto 1rem;
+    }
+
+    /* Cambia dirección del cierre: de translateX a translateY */
+    .weather-panel.closed {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    /* -- Search Panel → drawer desde abajo -- */
+    .search-panel {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 80vh;
+        border-radius: 16px 16px 0 0;
+        border-left: none;
+        border-top: 1px solid var(--brand-accent);
+        padding: 0.5rem 1.2rem 1.5rem;
+    }
+
+    .search-panel::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 2px;
+        margin: 0.5rem auto 1rem;
+    }
+
+    /* Cambia dirección del cierre: de translateX a translateY */
+    .search-panel.closed {
+        transform: translateY(100%);
+    }
+
+    /* -- Controles flotantes Bottom-Left --
+       El SOS está en bottom: 30px centrado.
+       Subimos los controles para no solaparse. */
+    .map-controls-bottom-left {
+        bottom: 90px;
+        left: 12px;
+        gap: 8px;
+    }
+
+    .floating-alarm-toggle {
+        width: 40px;
+        height: 40px;
+        padding: 0.4rem;
+    }
+
+    .floating-alarm-toggle svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* -- Radar HUD -- */
+    .radar-hud {
+        top: 65px;
+        min-width: auto;
+        width: calc(100% - 32px);
+        padding: 8px 12px;
+    }
+
+    .radar-hud-time {
+        font-size: 0.9rem;
+    }
+
+    .radar-hud-btn {
+        width: 24px;
+        height: 24px;
+    }
+
+    /* -- Modales -- */
+    .info-modal-content {
+        width: 95vw;
+        max-height: 90vh;
+        padding: 1.5rem;
+    }
+
+    /* -- Banner de permisos -- */
+    .permissions-banner-card {
+        width: 95vw;
+        padding: 1.5rem;
+    }
+}

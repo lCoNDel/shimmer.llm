@@ -556,8 +556,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         // abre el panel meteorológico con el cargador
         weatherPanel.classList.remove('closed');
         latlonDisplay.textContent = `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lng).toFixed(4)}° ${lng >= 0 ? 'E' : 'W'}`;
-        weatherContent.classList.add('hidden');
-        loader.classList.remove('hidden');
+        // solo muestra el loader si no hay datos previos (primera carga)
+        if (!weatherContent.querySelector('.weather-grid')) {
+            weatherContent.classList.add('hidden');
+            loader.classList.remove('hidden');
+        }
 
         try {
             await fetchMarineWeatherAnalysis(lat, lng);
@@ -565,6 +568,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("Error fetching marine dat:", error);
             loader.classList.add('hidden');
             weatherContent.classList.remove('hidden');
+            // limpia la grid para que el próximo intento muestre el loader desde cero
             weatherContent.innerHTML = `
                 <div class="empty-state">
                     <p style="color: #ff6b6b;">No se pudo obtener datos marinos para esta ubicación. Asegúrate de hacer clic en el mar.</p>
@@ -704,32 +708,53 @@ document.addEventListener('DOMContentLoaded', async () => {
             dirArrow = `<span style="display:inline-block; transform: rotate(${data.swellDirection}deg);">↓</span>`;
         }
 
-        const html = `
+        // si ya hay una grid renderizada, actualiza los valores en-place (sin parpadeo)
+        const existingGrid = weatherContent.querySelector('.weather-grid');
+        if (existingGrid) {
+            const updates = {
+                'swell-height':    `${data.swellHeight} <span class="card-unit">metros</span>`,
+                'swell-direction': `${data.swellDirection}° ${dirArrow}`,
+                'swell-period':    `${data.swellPeriod} <span class="card-unit">segundos</span>`,
+                'wind-wave':       `${data.windWaveHeight} <span class="card-unit">metros</span>`,
+                'water-temp':      `${data.waterTemp} <span class="card-unit">°C</span>`
+            };
+            Object.entries(updates).forEach(([key, html]) => {
+                const el = existingGrid.querySelector(`[data-key="${key}"]`);
+                if (el) {
+                    el.classList.remove('card-value-update');
+                    void el.offsetWidth; // fuerza reflow para reiniciar la animación
+                    el.innerHTML = html;
+                    el.classList.add('card-value-update');
+                }
+            });
+            return;
+        }
+
+        // primera carga: construye la grid completa
+        weatherContent.innerHTML = `
             <div class="weather-grid">
                 <div class="weather-card">
                     <span class="card-label">Oleaje (Swell)</span>
-                    <div class="card-value">${data.swellHeight} <span class="card-unit">metros</span></div>
+                    <div class="card-value" data-key="swell-height">${data.swellHeight} <span class="card-unit">metros</span></div>
                 </div>
                 <div class="weather-card">
                     <span class="card-label">Dirección</span>
-                    <div class="card-value">${data.swellDirection}° ${dirArrow}</div>
+                    <div class="card-value" data-key="swell-direction">${data.swellDirection}° ${dirArrow}</div>
                 </div>
                 <div class="weather-card">
                     <span class="card-label">Tiempo Ola</span>
-                    <div class="card-value">${data.swellPeriod} <span class="card-unit">segundos</span></div>
+                    <div class="card-value" data-key="swell-period">${data.swellPeriod} <span class="card-unit">segundos</span></div>
                 </div>
                 <div class="weather-card">
                     <span class="card-label">Oleaje (Chop)</span>
-                    <div class="card-value">${data.windWaveHeight} <span class="card-unit">metros</span></div>
+                    <div class="card-value" data-key="wind-wave">${data.windWaveHeight} <span class="card-unit">metros</span></div>
                 </div>
                 <div class="weather-card" style="grid-column: span 2;">
                     <span class="card-label">Temperatura Superficie</span>
-                    <div class="card-value">${data.waterTemp} <span class="card-unit">°C</span></div>
+                    <div class="card-value" data-key="water-temp">${data.waterTemp} <span class="card-unit">°C</span></div>
                 </div>
             </div>
         `;
-
-        weatherContent.innerHTML = html;
     }
 
     // 8. sistema de radio (radio browser api)

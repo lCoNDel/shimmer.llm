@@ -11,9 +11,9 @@ try {
         # Intento alternativo usando netstat si el cmdlet falla
         $netstat = netstat -ano | findstr ":$port"
         if ($netstat) {
-            $pid = ($netstat[-1] -split '\s+')[-1]
-            Write-Host "Forzando cierre de PID $pid..." -ForegroundColor Yellow
-            taskkill /F /PID $pid
+            $procId = ($netstat[-1] -split '\s+')[-1]
+            Write-Host "Forzando cierre de PID $procId..." -ForegroundColor Yellow
+            taskkill /F /PID $procId
             Write-Host "Servidor detenido (vía taskkill)." -ForegroundColor Green
         } else {
             Write-Host "No hay ningún proceso escuchando en el puerto $port." -ForegroundColor Cyan
