@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 0. red de distribuidores touron s.a.
     const dealers = [
         {
-            name: "Touron S.A. (Sede Central)", lat: 40.4561, lng: -3.4562, location: "Torrejón de Ardoz, Madrid",
+            name: "Touron S.A. (Sede Central)", lat: 40.4746, lng: -3.4332, location: "Torrejón de Ardoz, Madrid",
             address: "Calle Mario Vargas Llosa, 20, 28850 Torrejón de Ardoz, Madrid",
             phone: "+34 916 57 27 73", email: "touron@touronsa.es", web: "www.touronsa.es",
             description: "Sede central — distribución de motores fueraborda, embarcaciones y accesorios náuticos"
@@ -545,13 +545,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // inicializa marcadores y lista de distribuidores
     function initDealers() {
-        // icono personalizado para distribuidores
-        const dealerIconHtml = `<div style="background-color: transparent; width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--brand-primary); box-shadow: 0 0 10px rgba(107, 181, 255, 0.8);"></div>`;
+        // icono personalizado para distribuidores (bandera con "T" de Touron)
+        const dealerIconHtml = `
+            <div style="position: relative; width: 22px; height: 32px;">
+                <div style="
+                    position: absolute; top: 0; left: 3px;
+                    width: 18px; height: 14px;
+                    background: linear-gradient(135deg, #1a6fc4, #0d4a8a);
+                    border-radius: 2px;
+                    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+                    display: flex; align-items: center; justify-content: center;
+                ">
+                    <span style="
+                        color: white;
+                        font-size: 11px;
+                        font-weight: 800;
+                        font-family: sans-serif;
+                        line-height: 1;
+                        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+                    ">T</span>
+                </div>
+                <div style="
+                    position: absolute; top: 0; left: 3px;
+                    width: 2px; height: 32px;
+                    background: #333;
+                    border-radius: 1px;
+                "></div>
+            </div>`;
         const dealerIcon = L.divIcon({
             html: dealerIconHtml,
             className: '',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
+            iconSize: [22, 32],
+            iconAnchor: [4, 32]
         });
 
         dealers.forEach((dealer) => {
@@ -665,7 +690,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     initDealers();
 
-    // 5. Handle Map Clicks to fetch Marine Data
+    // 5. clics en el mapa para obtener datos marinos
     map.on('click', async (e) => {
         if (isTrackingActive || isRulerActive || isRadarActive || isTrafficActive || isWindLayerActive) {
             if (!isTrackingActive && !isRulerActive) showToolBlockedFeedback();
@@ -1765,7 +1790,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     toggleAnchorBtn.addEventListener('click', () => {
-        // Clear any auto-close timeout and countdown when interacting with the button
+        // limpia el temporizador de cierre automático y la cuenta atrás al interactuar con el botón
         if (anchorCountdownInterval) { clearInterval(anchorCountdownInterval); anchorCountdownInterval = null; }
         const countdownEl = document.getElementById('anchorCountdown');
         if (countdownEl) { countdownEl.textContent = ''; countdownEl.classList.remove('urgent'); }
@@ -1781,12 +1806,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            // Ask for Notification Permissions before starting
+            // solicita permisos de notificación antes de iniciar
             if ('Notification' in window && Notification.permission !== 'granted') {
                 Notification.requestPermission();
             }
 
-            // Set UI to loading state
+            // establece la UI en estado de carga
             toggleAnchorBtn.textContent = 'OBTENIENDO GPS...';
             toggleAnchorBtn.disabled = true;
 
@@ -1815,7 +1840,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 13. Wind Particle Animation Layer (Leaflet-Velocity)
+    // 13. capa de animación de partículas de viento (Leaflet-Velocity)
     const windLayerBtn = document.getElementById('windLayerBtn');
     let velocityLayer = null;
     let isWindLayerActive = false;
@@ -1823,7 +1848,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     windLayerBtn.addEventListener('click', async () => {
         if (isSosLocked()) return;
         if (isWindLayerActive) {
-            // Turn off the wind layer
+            // desactiva la capa de viento
             if (velocityLayer) {
                 map.removeLayer(velocityLayer);
             }
@@ -1831,20 +1856,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             windLayerBtn.blur();
             isWindLayerActive = false;
         } else {
-            // Turn on the wind layer
+            // activa la capa de viento
             windLayerBtn.classList.add('active');
             showToolLabel(windLayerBtn);
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
             const radioPanel = document.getElementById('radioFloatingPanel');
             if (radioPanel) radioPanel.classList.add('closed');
 
-            // Set off other map modes
+            // desactiva otros modos del mapa
             if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
             if (isRadarActive) { showToast('Radar meteorológico desactivado'); owmLayerBtn.click(); }
             if (isRulerActive) { showToast('Regla náutica desactivada'); rulerBtn.click(); }
 
             try {
-                // Fetch the downloaded GFS wind data (wind-global.json)
+                // carga los datos de viento GFS descargados (wind-global.json)
                 const response = await fetch('wind-global.json');
                 const data = await response.json();
 
@@ -1860,11 +1885,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         speedUnit: 'k/h'
                     },
                     data: data,
-                    maxVelocity: 25, // increase max velocity to spread colors better
-                    velocityScale: 0.01, // double the particle speed
-                    particleAge: 90, // how long particles live before dying
-                    particleMultiplier: 1 / 200, // higher density of particles
-                    lineWidth: 3, // thicker, more visible lines
+                    maxVelocity: 25, // aumenta velocidad máxima para mejor distribución de colores
+                    velocityScale: 0.01, // duplica la velocidad de las partículas
+                    particleAge: 90, // vida útil de las partículas antes de desaparecer
+                    particleMultiplier: 1 / 200, // mayor densidad de partículas
+                    lineWidth: 3, // líneas más gruesas y visibles
                     colorScale: [
                         "rgba(255, 255, 255, 0.9)", // White (Low wind)
                         "rgba(0, 255, 255, 0.9)",   // Cyan
@@ -1896,12 +1921,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 14. SOS / Hombre al Agua (MOB) Logic
+    // 14. SOS / Hombre al Agua (MOB) — lógica
     const floatingSosBtn = document.getElementById('floatingSosBtn');
     let sosMarker = null;
     let isSosActive = false;
 
-    // Custom Icon for SOS Marker
+    // icono personalizado para el marcador SOS
     const sosIconHtml = `
         <div style="
             background-color: #ff4757; 
@@ -1926,7 +1951,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         iconAnchor: [16, 16]
     });
 
-    // Add pulse animation style to document if not exists
+    // añade estilo de animación de pulso al documento si no existe
     if (!document.getElementById('sos-pulse-style')) {
         const style = document.createElement('style');
         style.id = 'sos-pulse-style';
@@ -1952,12 +1977,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             geoBtn.click();
         }
 
-        // Reset button UI
+        // reinicia la UI del botón
         floatingSosBtn.style.animation = 'none';
         floatingSosBtn.style.background = '#ff4757';
         floatingSosBtn.title = '¡HOMBRE AL AGUA (MOB)!';
 
-        // Remove tracking panel if it exists
+        // elimina el panel de seguimiento si existe
         const oldPanel = document.getElementById('sos-tracking-panel');
         if (oldPanel) oldPanel.remove();
     }
@@ -1965,20 +1990,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     function activateSos(sosLatLng) {
         isSosActive = true;
 
-        // 1. Place Permanent Marker (MOB Point)
+        // 1. coloca marcador permanente (punto MOB)
         sosMarker = L.marker(sosLatLng, { icon: sosIcon, zIndexOffset: 1000 }).addTo(map);
 
-        // 2. Focus Map tightly on the emergency
+        // 2. centra el mapa en la emergencia
         map.setView(sosLatLng, 17);
 
-        // 3. Update Boat Marker IMMEDIATELY with the same coordinates
+        // 3. actualiza el marcador del barco INMEDIATAMENTE con las mismas coordenadas
         updateBoatMarker(sosLatLng);
 
-        // 4. Update Button UI to show it's active
+        // 4. actualiza la UI del botón para indicar que está activo
         floatingSosBtn.style.animation = 'pulse-red 1s infinite';
         floatingSosBtn.title = 'S.O.S ACTIVO (Clic para gestionar)';
 
-        // 5. Create Tracking Panel
+        // 5. crea el panel de seguimiento
         const trackingPanel = document.createElement('div');
         trackingPanel.id = 'sos-tracking-panel';
         trackingPanel.style.cssText = `
@@ -2011,7 +2036,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
         document.querySelector('.app-container').appendChild(trackingPanel);
 
-        // 6. Ensure real-time boat tracking is active
+        // 6. asegura que el seguimiento GPS en tiempo real esté activo
         if (!isTrackingActive) {
             gpsAutoStartedBy = 'sos';
             geoBtn.click();
@@ -2020,7 +2045,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     floatingSosBtn.addEventListener('click', () => {
         if (isSosActive) {
-            // DOUBLE CONFIRMATION to cancel SOS
+            // DOBLE CONFIRMACIÓN para cancelar SOS
             const firstConfirm = confirm("⚠️ ¿ESTÁS SEGURO DE DETENER LA ALARMA S.O.S?\n\nSi detienes la alarma, se borrará la marca de HOMBRE AL AGUA del mapa.");
             if (firstConfirm) {
                 const secondConfirm = confirm("🛑 CONFIRMACIÓN DE SEGURIDAD 🛑\n\n¿Cancelamos definitivamente el rescate y borramos el marcador S.O.S?");
@@ -2039,7 +2064,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             floatingAlarmToggle.classList.remove('active');
         }
 
-        // --- OPTIMIZATION: REUSE EXISTING GPS IF ACTIVE ---
+        // --- OPTIMIZACIÓN: REUTILIZA GPS EXISTENTE SI ESTÁ ACTIVO ---
         if (isTrackingActive && currentMarker) {
             const sosLatLng = currentMarker.getLatLng();
             activateSos(sosLatLng);
@@ -2051,13 +2076,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // --- IMMEDIATE FEEDBACK ---
+        // --- FEEDBACK INMEDIATO ---
         const originalHTML = floatingSosBtn.innerHTML;
         floatingSosBtn.innerHTML = '<span style="font-size: 0.7rem; font-weight: 800;">GPS...</span>';
         floatingSosBtn.style.background = '#e84118';
         floatingSosBtn.title = 'Obteniendo GPS Crítico...';
 
-        // High priority GPS request
+        // solicitud GPS de alta prioridad
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 floatingSosBtn.innerHTML = originalHTML;
@@ -2073,7 +2098,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
     });
 
-    // 15. Guía de Uso Modal Logic
+    // 15. lógica del modal de guía de uso
     const openGuideBtn = document.getElementById('openGuideBtn');
     const closeGuideBtn = document.getElementById('closeGuideBtn');
     const guideModal = document.getElementById('guideModal');
@@ -2087,7 +2112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             guideModal.classList.add('hidden');
         });
 
-        // Close when clicking outside of the modal content
+        // cierra al hacer clic fuera del contenido del modal
         guideModal.addEventListener('click', (e) => {
             if (e.target === guideModal) {
                 guideModal.classList.add('hidden');
