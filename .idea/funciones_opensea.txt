@@ -1,0 +1,11 @@
+Velocidad SOG (Speed Over Ground) — navigator.geolocation ya devuelve coords.speed en m/s. Con el GPS activo, mostrar velocidad en nudos en tiempo real sin ninguna API adicional. Fundamental en navegación.
+
+Compartir posición de emergencia — Botón que abre un deep link de WhatsApp/SMS con las coordenadas GPS actuales preformateadas. Una sola línea de código, cero dependencias, muy útil en situaciones de emergencia.
+
+Amanecer / anochecer — Cálculo astronómico puro (sin API, solo matemáticas) para la posición actual del mapa. Saber cuánta luz queda es crítico en navegación costera.
+
+Pronóstico marino 24h — La API de Open-Meteo (ya en uso) devuelve datos horarios. Se podría mostrar una mini-tabla dentro del panel de condiciones con las próximas 12-24h sin llamadas adicionales.
+
+Waypoints guardados — Marcar puntos nombrados en el mapa (fondeo favorito, boya de referencia, peligro conocido) guardados en localStorage. Sin API, sin servidor.
+
+Modo nocturno / cartas náuticas — Cambiar el tile layer a un mapa oscuro o a cartas náuticas oficiales de OpenSeaMap. Crítico para navegación nocturna sin deslumbramiento.
