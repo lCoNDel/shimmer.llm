@@ -1,0 +1,65 @@
+services:
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - "3000:8080"
+    volumes:
+      - open-webui-data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434   # Si usas Ollama local
+      # - OPENAI_API_KEY=sk-...               # O si usas OpenAI/compatible
+    networks:
+      - rag-net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - rag-net
+    # Descomenta si tienes GPU NVIDIA:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  sharepoint-sync:
+    build:
+      context: ./sharepoint-sync
+    container_name: sharepoint-sync
+    restart: unless-stopped
+    volumes:
+      - sync-state:/data          # Persistencia del estado SQLite
+    environment:
+      # ── SharePoint / Azure ──────────────────────────────────────
+      SP_TENANT_ID: "${SP_TENANT_ID}"
+      SP_CLIENT_ID: "${SP_CLIENT_ID}"
+      SP_CLIENT_SECRET: "${SP_CLIENT_SECRET}"
+      SP_SITE_URL: "${SP_SITE_URL}"
+      # ── Open WebUI ───────────────────────────────────────────────
+      OWUI_BASE_URL: "http://open-webui:8080"
+      OWUI_API_KEY: "${OWUI_API_KEY}"
+      OWUI_KNOWLEDGE_ID: "${OWUI_KNOWLEDGE_ID}"
+      # ── Frecuencia de sincronización (minutos) ───────────────────
+      SYNC_INTERVAL_MINUTES: "60"
+    networks:
+      - rag-net
+    depends_on:
+      - open-webui
+
+volumes:
+  open-webui-data:
+  ollama-data:
+  sync-state:
+
+networks:
+  rag-net:
+    driver: bridge
