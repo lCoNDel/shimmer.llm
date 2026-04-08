@@ -28,3 +28,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File ./runtime/stop.ps1
 
 > [!NOTE]
 > El servidor se inicia en segundo plano. Los logs se pueden ver en la terminal donde se ejecutó el script de inicio.
+
+## Comportamiento esperado del agente
+
+- Al iniciar el servicio, ejecutar el script y nada más. **No verificar** el estado HTTP con curl ni comprobar que responde — se asume que el script funciona correctamente.

@@ -193,7 +193,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 1. inicialización del mapa (vista inicial: mediterráneo español)
     const map = L.map('map', {
-        zoomControl: false // se mueve al panel inferior derecho
+        zoomControl: false, // se mueve al panel inferior derecho
+        maxBounds: [[-90, -180], [90, 180]],
+        maxBoundsViscosity: 1.0,
+        minZoom: 4
     }).setView([39.5, 2.5], 7);
 
     // control de zoom abajo a la derecha
@@ -206,13 +209,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 18,
+        noWrap: true,
         className: 'cartodb-base-layer'
     }).addTo(map);
 
     // 3. capa náutica openseamap (boyas, luces, marcas)
     L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
         attribution: 'Map data: &copy; <a href="http://www.openseamap.org">OpenSeaMap</a> contributors',
-        maxZoom: 18
+        maxZoom: 18,
+        noWrap: true
     }).addTo(map);
 
     // 4. elementos de la interfaz
@@ -516,10 +521,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     openSearchBtn.addEventListener('click', () => {
         searchPanel.classList.remove('closed');
         searchInput.focus();
+        map.invalidateSize({ animate: true });
     });
 
     closeSearchBtn.addEventListener('click', () => {
         searchPanel.classList.add('closed');
+        map.invalidateSize({ animate: true });
     });
 
     document.getElementById('closeWeatherBtn').addEventListener('click', () => {
@@ -699,6 +706,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const { lat, lng } = e.latlng;
 
+        // actualiza sol/luna si el panel está abierto
+        if (!sunMoonPanel.classList.contains('closed')) {
+            try { computeSunMoon(lat, lng); } catch (e) {}
+        }
+
         // actualiza o crea el marcador de posición
         if (currentMarker) {
             currentMarker.setLatLng(e.latlng);
@@ -868,8 +880,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.lastRequestedLat = lat;
         window.lastRequestedLng = lng;
 
-        // solicita oleaje, viento y temperatura de superficie
-        const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&current=swell_wave_height,swell_wave_direction,swell_wave_period,wind_wave_height&hourly=sea_surface_temperature`;
+        // solicita oleaje, viento, temperatura de superficie y nivel del mar
+        const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&current=swell_wave_height,swell_wave_direction,swell_wave_period,wind_wave_height&hourly=sea_surface_temperature,sea_level_height_msl`;
 
         const response = await fetch(url);
         if (!response.ok) throw new Error("API request failed");
@@ -890,13 +902,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             wTemp = data.hourly.sea_surface_temperature[0];
         }
 
+        // nivel del mar: usamos la hora actual para mayor precisión
+        let seaLevel = '-';
+        const currentHour = new Date().getHours();
+        if (data.hourly && data.hourly.sea_level_height_msl && data.hourly.sea_level_height_msl.length > currentHour) {
+            const raw = data.hourly.sea_level_height_msl[currentHour];
+            seaLevel = raw !== null ? raw.toFixed(2) : '-';
+        }
+
         // renderiza la cuadrícula meteorológica
         renderWeatherGrid({
             swellHeight: swellHeight !== null ? swellHeight : '-',
             swellDirection: swellDirection !== null ? swellDirection : '-',
             swellPeriod: swellPeriod !== null ? swellPeriod : '-',
             windWaveHeight: windWaveHeight !== null ? windWaveHeight : '-',
-            waterTemp: wTemp !== null ? wTemp : '-'
+            waterTemp: wTemp !== null ? wTemp : '-',
+            seaLevel
         });
     }
 
@@ -917,7 +938,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'swell-direction': `${data.swellDirection}° ${dirArrow}`,
                 'swell-period':    `${data.swellPeriod} <span class="card-unit">segundos</span>`,
                 'wind-wave':       `${data.windWaveHeight} <span class="card-unit">metros</span>`,
-                'water-temp':      `${data.waterTemp} <span class="card-unit">°C</span>`
+                'water-temp':      `${data.waterTemp} <span class="card-unit">°C</span>`,
+                'sea-level':       `${data.seaLevel} <span class="card-unit">m</span>`
             };
             Object.entries(updates).forEach(([key, html]) => {
                 const el = existingGrid.querySelector(`[data-key="${key}"]`);
@@ -950,15 +972,79 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <span class="card-label">Oleaje (Chop)</span>
                     <div class="card-value" data-key="wind-wave">${data.windWaveHeight} <span class="card-unit">metros</span></div>
                 </div>
-                <div class="weather-card" style="grid-column: span 2;">
-                    <span class="card-label">Temperatura Superficie</span>
+                <div class="weather-card">
+                    <span class="card-label">Temp. Mar</span>
                     <div class="card-value" data-key="water-temp">${data.waterTemp} <span class="card-unit">°C</span></div>
+                </div>
+                <div class="weather-card">
+                    <span class="card-label">Nivel Mar</span>
+                    <div class="card-value" data-key="sea-level">${data.seaLevel} <span class="card-unit">m</span></div>
+                    <span class="card-disclaimer">Orientativo</span>
                 </div>
             </div>
         `;
     }
 
-    // 8. sistema de radio (radio browser api)
+    // 8. panel sol / luna (suncalc — cálculo local, sin api)
+    const sunMoonPanel   = document.getElementById('sunMoonPanel');
+    const sunMoonBtn     = document.getElementById('sunMoonBtn');
+    const closeSunMoonBtn = document.getElementById('closeSunMoonBtn');
+
+    function formatTime(date) {
+        if (!date || isNaN(date.getTime())) return '—';
+        return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function moonPhaseName(fraction) {
+        if (fraction < 0.03 || fraction > 0.97) return 'Luna nueva';
+        if (fraction < 0.22) return 'Creciente';
+        if (fraction < 0.28) return 'Cuarto creciente';
+        if (fraction < 0.47) return 'Gibosa creciente';
+        if (fraction < 0.53) return 'Luna llena';
+        if (fraction < 0.72) return 'Gibosa menguante';
+        if (fraction < 0.78) return 'Cuarto menguante';
+        return 'Menguante';
+    }
+
+    function computeSunMoon(lat, lng) {
+        const now = new Date();
+        const times     = SunCalc.getTimes(now, lat, lng);
+        const moonTimes = SunCalc.getMoonTimes(now, lat, lng);
+        const moonIllum = SunCalc.getMoonIllumination(now);
+
+        document.getElementById('sunMoonCoords').textContent =
+            `${Math.abs(lat).toFixed(3)}° ${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lng).toFixed(3)}° ${lng >= 0 ? 'E' : 'W'}`;
+
+        document.getElementById('smSunrise').textContent   = formatTime(times.sunrise);
+        document.getElementById('smSunset').textContent    = formatTime(times.sunset);
+        document.getElementById('smSolarNoon').textContent = formatTime(times.solarNoon);
+        document.getElementById('smMoonPhase').textContent = moonPhaseName(moonIllum.phase);
+        document.getElementById('smMoonrise').textContent  = moonTimes.rise ? formatTime(moonTimes.rise) : 'No sale hoy';
+        document.getElementById('smMoonset').textContent   = moonTimes.set  ? formatTime(moonTimes.set)  : 'No se pone';
+    }
+
+    sunMoonBtn.addEventListener('click', () => {
+        const isOpen = !sunMoonPanel.classList.contains('closed');
+        if (isOpen) {
+            sunMoonPanel.classList.add('closed');
+            return;
+        }
+        sunMoonPanel.classList.remove('closed');
+        // coordenadas en orden de prioridad
+        const lat = lastGpsLat ?? window.lastRequestedLat ?? map.getCenter().lat;
+        const lng = lastGpsLng ?? window.lastRequestedLng ?? map.getCenter().lng;
+        try {
+            computeSunMoon(lat, lng);
+        } catch (e) {
+            console.error('SunCalc error:', e);
+        }
+    });
+
+    closeSunMoonBtn.addEventListener('click', () => {
+        sunMoonPanel.classList.add('closed');
+    });
+
+    // 9. sistema de radio (radio browser api)
     const radioSearchInput = document.getElementById('radioSearchInput');
     const radioResults = document.getElementById('radioResults');
     const radioPlayer = document.getElementById('radioPlayer');

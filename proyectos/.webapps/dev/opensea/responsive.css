@@ -26,6 +26,10 @@
         width: 340px;
     }
 
+    .search-panel-inner {
+        min-width: 340px;
+    }
+
     .global-search-input {
         width: 160px;
     }
@@ -177,16 +181,26 @@
         right: 0;
         width: 100%;
         height: 80vh;
+        overflow: visible;
         border-radius: 16px 16px 0 0;
         border-left: none;
         border-top: 1px solid var(--brand-accent);
-        padding: 0.5rem 1.2rem 1.5rem;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: translateY(0);
     }
 
     /* Cambia dirección del cierre: de translateX a translateY */
     .search-panel.closed {
+        width: 100%;
         transform: translateY(100%);
         pointer-events: none;
+    }
+
+    .search-panel-inner {
+        min-width: unset;
+        width: 100%;
+        height: 100%;
+        padding: 0.5rem 1.2rem 1.5rem;
     }
 
     /* -- Ocultar zoom de Leaflet en mobile (el mapa se hace zoom con pellizco) -- */
@@ -301,4 +315,19 @@
         border-radius: 2px;
         margin: 0.6rem auto 0.8rem;
     }
+
+    /* Panel Sol/Luna en mobile: centrado y más ancho */
+    .sun-moon-panel {
+        left: 50%;
+        transform: translateX(-50%) translateY(0);
+        width: calc(100vw - 2rem);
+        top: 70px;
+    }
+
+    .sun-moon-panel.closed {
+        transform: translateX(-50%) translateY(-12px);
+        opacity: 0;
+        pointer-events: none;
+    }
+
 }

@@ -41,6 +41,14 @@
                 </svg>
             </button>
         </div>
+        <button class="btn btn-secondary" id="sunMoonBtn" aria-label="Sol y Luna" title="Salida y puesta de sol / luna">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+            </svg>
+        </button>
+
         <div class="global-search-container">
             <input type="text" id="globalSearchInput" class="global-search-input"
                 placeholder="Buscar puerto, ciudad o ría..." autocomplete="off">
@@ -56,14 +64,15 @@
             <div id="globalSearchResults" class="global-search-results hidden"></div>
         </div>
 
+        <button class="btn btn-secondary" id="gpsShortcutBtn" aria-label="GPS en tiempo real">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span id="gpsShortcutLabel">OFF</span>
+        </button>
+
         <nav class="auth-nav">
-            <button class="btn btn-secondary" id="gpsShortcutBtn" aria-label="GPS en tiempo real">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
-                </svg>
-                <span id="gpsShortcutLabel">OFF</span>
-            </button>
             <button class="btn btn-secondary" id="radioMobileBtn" aria-label="Radio">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -358,19 +367,62 @@
 
         <!-- Search Modal Panel -->
         <aside class="search-panel closed" id="searchPanel">
-            <div class="drawer-handle" aria-hidden="true"></div>
+            <div class="search-panel-inner">
+                <div class="drawer-handle" aria-hidden="true"></div>
+                <div class="panel-header">
+                    <h2>Red de Clientes</h2>
+                    <button class="close-btn" id="closeSearchBtn" aria-label="Cerrar buscador">&times;</button>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input"
+                        placeholder="Buscar náutica o astillero..." autocomplete="off">
+                </div>
+
+                <div class="dealer-list" id="dealerList">
+                    <!-- Dealer items will be injected here via JS -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sun/Moon Panel -->
+        <aside class="sun-moon-panel closed" id="sunMoonPanel">
             <div class="panel-header">
-                <h2>Red de Distribuidores</h2>
-                <button class="close-btn" id="closeSearchBtn" aria-label="Cerrar buscador">&times;</button>
+                <h2>Sol &amp; Luna</h2>
+                <button class="close-btn" id="closeSunMoonBtn" aria-label="Cerrar panel">&times;</button>
             </div>
-
-            <div class="search-container">
-                <input type="text" id="searchInput" class="search-input"
-                    placeholder="Buscar náutica, puerto o ciudad..." autocomplete="off">
-            </div>
-
-            <div class="dealer-list" id="dealerList">
-                <!-- Dealer items will be injected here via JS -->
+            <p id="sunMoonCoords" class="sun-moon-coords"></p>
+            <div id="sunMoonContent">
+                <div class="sun-moon-section">
+                    <h3 class="sun-moon-section-title">Sol</h3>
+                    <div class="sun-moon-row">
+                        <span class="sun-moon-label">Amanecer</span>
+                        <span class="sun-moon-value" id="smSunrise">—</span>
+                    </div>
+                    <div class="sun-moon-row">
+                        <span class="sun-moon-label">Atardecer</span>
+                        <span class="sun-moon-value" id="smSunset">—</span>
+                    </div>
+                    <div class="sun-moon-row">
+                        <span class="sun-moon-label">Mediodía solar</span>
+                        <span class="sun-moon-value" id="smSolarNoon">—</span>
+                    </div>
+                </div>
+                <div class="sun-moon-section">
+                    <h3 class="sun-moon-section-title">Luna</h3>
+                    <div class="sun-moon-row">
+                        <span class="sun-moon-label">Fase</span>
+                        <span class="sun-moon-value" id="smMoonPhase">—</span>
+                    </div>
+                    <div class="sun-moon-row">
+                        <span class="sun-moon-label">Salida</span>
+                        <span class="sun-moon-value" id="smMoonrise">—</span>
+                    </div>
+                    <div class="sun-moon-row">
+                        <span class="sun-moon-label">Puesta</span>
+                        <span class="sun-moon-value" id="smMoonset">—</span>
+                    </div>
+                </div>
             </div>
         </aside>
 
@@ -383,8 +435,11 @@
     <!-- Leaflet-Velocity JS -->
     <script src="https://unpkg.com/leaflet-velocity@1.9.0/dist/leaflet-velocity.min.js"></script>
 
+    <!-- SunCalc (cálculo local de sol y luna, sin API) -->
+    <script src="https://cdn.jsdelivr.net/npm/suncalc/suncalc.js"></script>
+
     <!-- Custom JS -->
-    <script src="app.js?v=16"></script>
+    <script src="app.js?v=17"></script>
 
     <!-- Information Modal -->
     <div class="info-modal-overlay hidden" id="infoModal">
@@ -421,6 +476,7 @@
     </div>
 
     <!-- Guía de Uso Modal -->
+    <!-- Manual de Uso / Guía de usuario / Use Guide -->
     <div class="info-modal-overlay hidden" id="guideModal">
         <div class="info-modal-content" style="max-width: 750px; max-height: 85vh; overflow-y: auto;">
             <button class="close-btn" id="closeGuideBtn" aria-label="Cerrar">&times;</button>
@@ -430,112 +486,132 @@
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                 </svg>
-                Manual de Uso de CARTÓGRAFO Marino
+                Manual de Uso — CARTÓGRAFO Marino
             </h2>
-            <p style="font-size: 1rem; color: var(--brand-text-muted); margin-bottom: 2rem;">
-                Las funciones y herramientas de CARTÓGRAFO Marino, directo al grano:
+            <p style="font-size: 0.95rem; color: var(--brand-text-muted); margin-bottom: 2rem;">
+                Toca o haz clic en el icono de cada función para saber qué hace.
             </p>
 
-            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
 
-                <!-- Búsqueda y Mapas -->
-                <div
-                    style="background: rgba(0, 118, 214, 0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid var(--brand-primary);">
-                    <h3
-                        style="margin-top: 0; color: var(--brand-primary); display: flex; align-items: center; gap: 0.5rem;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                        Navegación y Búsqueda
-                    </h3>
-                    <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
-                        <li><strong>Buscador Global:</strong> Barra de búsqueda <strong>(superior derecha)</strong>.
-                            Escribe un puerto o ciudad y pulsa Intro.</li>
-                        <li><strong>Concesionarios:</strong> Botón <strong>"Distribuidores" (arriba derecha)</strong>.
-                            Abre un panel lateral para buscar la red oficial.</li>
-                    </ul>
+                <!-- fila de entrada: buscador + distribuidores + favoritos -->
+                <div style="background: rgba(0,118,214,0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid var(--brand-primary);">
+                    <div style="display:flex; flex-direction:column; gap:0.9rem;">
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            </div>
+                            <div><strong>Buscador</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Busca puertos, ciudades o rías. El mapa vuela a la ubicación.</span></div>
+                        </div>
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700; color:var(--brand-primary); text-align:center; line-height:1.2;">DIST</div>
+                            <div><strong>Distribuidores</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Red oficial de Touron S.A. Toca cualquier entrada para ir a su ubicación en el mapa.</span></div>
+                        </div>
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <div><strong>Puntos Favoritos</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Clic derecho en el mapa para guardar un punto con nombre. Tócalo para eliminarlo.</span></div>
+                        </div>
+
+                    </div>
                 </div>
 
-                <!-- Favoritos -->
-                <div
-                    style="background: rgba(0, 118, 214, 0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid var(--brand-accent);">
-                    <h3
-                        style="margin-top: 0; color: var(--brand-primary); display: flex; align-items: center; gap: 0.5rem;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                        </svg>
-                        Tus Puntos Favoritos
-                    </h3>
-                    <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
-                        <li><strong>Guardar:</strong> <strong>Clic derecho</strong> en cualquier zona del mapa y escribe
-                            un nombre.</li>
-                        <li><strong>Borrar:</strong> Clic izquierdo sobre la chincheta guardada > Eliminar Favorito.
-                        </li>
-                    </ul>
+                <!-- condiciones marítimas + GPS + sol/luna -->
+                <div style="background: rgba(0,118,214,0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #0099cc;">
+                    <div style="display:flex; flex-direction:column; gap:0.9rem;">
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5s2.5 2 5 2 2.5-2 5-2 2.5 2 2.5 2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11s2.5 2 5 2 2.5-2 5-2 2.5 2 2.5 2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17s2.5 2 5 2 2.5-2 5-2 2.5 2 2.5 2"/></svg>
+                            </div>
+                            <div><strong>Condiciones Marítimas</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Toca cualquier punto del mar. Muestra oleaje, chop, dirección, temperatura y nivel del mar.</span></div>
+                        </div>
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div><strong>GPS</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Activa el seguimiento en tiempo real. Centra el mapa en tu posición y actualiza las condiciones marítimas automáticamente.</span></div>
+                        </div>
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                            </div>
+                            <div><strong>Sol &amp; Luna</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Amanecer, atardecer, mediodía solar, fase lunar y horas de salida y puesta de luna para el punto activo. Se actualiza al tocar el mapa.</span></div>
+                        </div>
+
+                    </div>
                 </div>
 
-                <!-- Utilidades Náuticas -->
-                <div
-                    style="background: rgba(0, 118, 214, 0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #f39c12;">
-                    <h3
-                        style="margin-top: 0; color: var(--brand-primary); display: flex; align-items: center; gap: 0.5rem;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M5 12h14M12 5l7 7-7 7"></path>
-                        </svg>
-                        Utilidades Avanzadas
-                    </h3>
-                    <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
-                        <li><strong>Tráfico Marítimo (AIS):</strong> Botón "Utilidades" <strong>(superior
-                                derecha)</strong>. Muestra barcos en el mapa gracias a datos globales en tiempo real de
-                            <strong>Vessel Finder</strong>.
-                        </li>
-                        <li><strong>Capa de Viento:</strong> Botón "Utilidades" <strong>(superior derecha)</strong>.
-                            Activa una capa animada con previsiones de viento.</li>
-                    </ul>
+                <!-- capas -->
+                <div style="background: rgba(0,118,214,0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #8e44ad;">
+                    <div style="display:flex; flex-direction:column; gap:0.9rem;">
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 21c.6.5 1.2 1 2.5 1 1.4 0 2.5-.5 3.5-1 .5-.5 1.3-1 2.5-1s2 .5 2.5 1c.6.5 1.2 1 2.5 1 1.4 0 2.5-.5 3.5-1 .5-.5 1.3-1 2.5-1s2 .5 2.5 1c.6.5 1.2 1 2.5 1h1"/><path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.2.5 4.1 1.62 6"/><path d="M12 10V2"/><path d="M12 4h6"/></svg>
+                            </div>
+                            <div><strong>Tráfico Marítimo</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Embarcaciones en tiempo real (AIS) vía VesselFinder.</span></div>
+                        </div>
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9"/><path d="m13 14-2 4h3l-2 4"/></svg>
+                            </div>
+                            <div><strong>Radar de Lluvia</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Animación con historial y previsión a corto plazo (RainViewer).</span></div>
+                        </div>
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+                            </div>
+                            <div><strong>Capa de Viento</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Flujo de viento animado con datos GFS globales.</span></div>
+                        </div>
+
+                    </div>
                 </div>
 
-                <!-- Herramientas (Regla) -->
-                <div
-                    style="background: rgba(0, 118, 214, 0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #2ecc71;">
-                    <h3
-                        style="margin-top: 0; color: var(--brand-primary); display: flex; align-items: center; gap: 0.5rem;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"></path>
-                            <path d="M15 15l-6-6"></path>
-                        </svg>
-                        Medición de Rumbos (Regla)
-                    </h3>
-                    <p style="margin: 0 0 0.5rem 0; font-size: 0.95rem;">Icono flotante <strong>(inferior
-                            izquierda)</strong>, junto a la Leyenda.</p>
-                    <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
-                        <li><strong>Medir:</strong> Haz un clic de origen y otro de destino en el mapa.</li>
-                        <li><strong>Resultado:</strong> Muestra la distancia (Millas Náuticas) y Rumbo (grados).</li>
-                        <li><strong>Limpiar:</strong> Un tercer clic reinicia la medida.</li>
-                    </ul>
+                <!-- herramientas + seguridad -->
+                <div style="background: rgba(0,118,214,0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #2ecc71;">
+                    <div style="display:flex; flex-direction:column; gap:0.9rem;">
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"/><path d="M15 15l-6-6"/></svg>
+                            </div>
+                            <div><strong>Regla Náutica</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Toca origen y destino en el mapa. Muestra distancia en millas náuticas y rumbo en grados. Tercer toque para reiniciar.</span></div>
+                        </div>
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></svg>
+                            </div>
+                            <div><strong>Alarma de Fondeo</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Define un radio en metros. Alerta sonora y visual si el barco garrea. Requiere GPS.</span></div>
+                        </div>
+
+                        <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                            <div style="flex-shrink:0; width:36px; height:36px; background:#ff4757; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <span style="font-size:0.65rem; font-weight:800; color:white;">SOS</span>
+                            </div>
+                            <div><strong>Hombre al Agua</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Marca la posición del incidente y muestra la distancia en tiempo real desde tu GPS. Requiere confirmación para desactivar.</span></div>
+                        </div>
+
+                    </div>
                 </div>
 
-                <!-- Seguridad y SOS -->
-                <div
-                    style="background: rgba(0, 118, 214, 0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #ff4757;">
-                    <h3
-                        style="margin-top: 0; color: var(--brand-primary); display: flex; align-items: center; gap: 0.5rem;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        </svg>
-                        Seguridad Vital
-                    </h3>
-                    <ul style="margin: 0; padding-left: 1.2rem; line-height: 1.6;">
-                        <li><strong>Alarma de Fondeo:</strong> Icono de ancla <strong>(inferior izquierda)</strong>.
-                            Fija un perímetro y el dispositivo alertará (requiere GPS) si se rebasa.</li>
-                        <li><strong>Hombre al Agua (S.O.S):</strong> Botón circular rojo <strong>(centro
-                                inferior)</strong>. Inicia rumbo de rescate automático hacia esa ubicación.</li>
-                    </ul>
+                <!-- radio -->
+                <div style="background: rgba(0,118,214,0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #1abc9c;">
+                    <div style="display:flex; align-items:flex-start; gap:0.9rem;">
+                        <div style="flex-shrink:0; width:36px; height:36px; background:var(--brand-accent); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                        </div>
+                        <div><strong>Radio Global</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Más de 90.000 emisoras de todo el mundo vía RadioBrowser. Busca por nombre o país.</span></div>
+                    </div>
                 </div>
 
             </div>

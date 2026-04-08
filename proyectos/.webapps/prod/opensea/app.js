@@ -439,10 +439,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     openSearchBtn.addEventListener('click', () => {
         searchPanel.classList.remove('closed');
         searchInput.focus();
+        map.invalidateSize({ animate: true });
     });
 
     closeSearchBtn.addEventListener('click', () => {
         searchPanel.classList.add('closed');
+        map.invalidateSize({ animate: true });
     });
 
     // modal de información del proyecto
