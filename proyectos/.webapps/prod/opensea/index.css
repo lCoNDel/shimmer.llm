@@ -264,6 +264,43 @@ body {
     color: var(--brand-primary);
 }
 
+/* GPS Shortcut Button */
+#gpsShortcutBtn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    margin-left: 0.75rem;
+    transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+#gpsShortcutBtn #gpsShortcutLabel {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+#gpsShortcutBtn.gps-searching {
+    color: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+
+#gpsShortcutBtn.gps-searching svg {
+    animation: gpsPulse 1s ease-in-out infinite;
+}
+
+#gpsShortcutBtn.gps-active {
+    background: var(--brand-primary);
+    color: #fff;
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 10px rgba(0, 118, 214, 0.4);
+}
+
+@keyframes gpsPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.85); }
+}
+
 /* Main Container */
 .app-container {
     display: flex;
@@ -414,6 +451,144 @@ body {
     font-size: 0.8rem;
     color: var(--brand-primary);
     font-weight: 500;
+}
+
+.card-disclaimer {
+    font-size: 0.65rem;
+    color: var(--brand-text-muted);
+    font-style: italic;
+}
+
+/* Radio floating button */
+.floating-radio-btn {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 1000;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--brand-accent);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--brand-text);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.floating-radio-btn:hover,
+.floating-radio-btn.active {
+    background: var(--brand-primary);
+    color: #fff;
+    box-shadow: 0 2px 14px rgba(0, 118, 214, 0.4);
+}
+
+.floating-radio-btn.playing {
+    animation: radioIconPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes radioIconPulse {
+    0%, 100% { background: rgba(255, 255, 255, 0.95); color: var(--brand-primary); }
+    50%       { background: var(--brand-primary); color: #fff; }
+}
+
+/* Radio Panel */
+.radio-panel {
+    position: absolute;
+    top: 68px;
+    left: 16px;
+    width: 300px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--brand-accent);
+    border-radius: 16px;
+    padding: 1.2rem 1.4rem;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+
+.radio-panel.closed {
+    transform: translateY(-10px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Sun/Moon Panel */
+.sun-moon-panel {
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    width: 280px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--brand-accent);
+    border-radius: 16px;
+    padding: 1.5rem;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    transform: translateY(0);
+    opacity: 1;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+}
+
+.sun-moon-panel.closed {
+    transform: translateY(-12px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sun-moon-coords {
+    font-size: 0.72rem;
+    color: var(--brand-text-muted);
+    margin: -0.5rem 0 1rem;
+}
+
+.sun-moon-section {
+    margin-bottom: 1rem;
+}
+
+.sun-moon-section:last-child {
+    margin-bottom: 0;
+}
+
+.sun-moon-section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--brand-primary);
+    margin-bottom: 0.5rem;
+}
+
+.sun-moon-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--brand-accent);
+}
+
+.sun-moon-row:last-child {
+    border-bottom: none;
+}
+
+.sun-moon-label {
+    font-size: 0.82rem;
+    color: var(--brand-text-muted);
+}
+
+.sun-moon-value {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--brand-text);
 }
 
 /* Loader */
@@ -1041,6 +1216,32 @@ body {
 .map-controls-bottom-left [data-tooltip]:hover::before,
 .map-controls-bottom-left [data-tooltip]:hover::after {
     transform: translateX(0) translateY(0);
+}
+
+/* Tooltip visible por JS al activar herramienta (auto-dismiss via setTimeout) */
+[data-tooltip].tooltip-active::before,
+[data-tooltip].tooltip-active::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.map-controls-bottom-left [data-tooltip].tooltip-active::before,
+.map-controls-bottom-left [data-tooltip].tooltip-active::after {
+    transform: translateX(0) translateY(0);
+}
+
+/* En dispositivos táctiles el :hover queda pegado — solo mostramos tooltip por JS */
+@media (hover: none) {
+    [data-tooltip]:hover::before,
+    [data-tooltip]:hover::after {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+    }
+
+    .map-controls-bottom-left [data-tooltip]:hover::before,
+    .map-controls-bottom-left [data-tooltip]:hover::after {
+        transform: translateX(0) translateY(10px);
+    }
 }
 
 /* ── VesselFinder Close Button ───────────────────────────────────── */

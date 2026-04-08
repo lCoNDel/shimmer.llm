@@ -4,6 +4,19 @@
    Breakpoints: tablet ≤1024px, móvil ≤768px
    ============================================================ */
 
+/* Ocultar en desktop elementos exclusivos de mobile */
+#closeWeatherBtn,
+#floatingMobileSearchContainer,
+#radioMobileBtn {
+    display: none;
+}
+
+/* Ocultar botón radio header en desktop (ya está en el mapa) */
+#radioMobileBtn {
+    display: none;
+}
+
+
 /* ---- TABLET (≤1024px) ------------------------------------ */
 @media screen and (max-width: 1024px) {
     .app-header {
@@ -34,10 +47,38 @@
 /* ---- MÓVIL (≤768px) -------------------------------------- */
 @media screen and (max-width: 768px) {
 
+    /* Causa raíz del problema con Brave/Edge (toolbar inferior):
+       100vh = "large viewport" (ignora la toolbar visible del navegador).
+       100dvh = "dynamic viewport" = área visible real en todo momento.
+       Corrige el posicionamiento de todos los elementos position:absolute dentro de <main>. */
+    body {
+        height: 100dvh;
+    }
+
     /* -- Header -- */
     .app-header {
         padding: 0.6rem 1rem;
         gap: 0.4rem;
+        flex-wrap: nowrap;
+        overflow: hidden;
+    }
+
+    .logo-container {
+        flex-shrink: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .auth-nav {
+        flex-shrink: 0;
+        display: flex;
+        gap: 0.4rem;
+    }
+
+    .auth-nav .btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.78rem;
+        white-space: nowrap;
     }
 
     /* Ocultar buscador del header: no cabe junto al logo y botones */
@@ -52,6 +93,48 @@
 
     .brand-company-name {
         font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    /* Alarma de fondeo: oculta en mobile (el móvil se mueve con el usuario) */
+    #floatingAlarmContainer {
+        display: none;
+    }
+
+    /* Mostrar elementos exclusivos de mobile */
+    #closeWeatherBtn {
+        display: block;
+    }
+
+    #floatingMobileSearchContainer {
+        display: block;
+    }
+
+    /* Buscador flotante sobre el mapa cuando está activo */
+    body.mobile-search-active .global-search-container {
+        display: flex;
+        position: fixed;
+        top: 56px;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        z-index: 1100;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        padding: 4px;
+    }
+
+    body.mobile-search-active .global-search-input {
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    body.mobile-search-active .global-search-results {
+        width: 100%;
+        left: 0;
+        right: 0;
+        max-width: 100%;
     }
 
     /* -- Weather Panel → drawer desde abajo -- */
@@ -70,21 +153,28 @@
         padding: 0.5rem 1.2rem 1.5rem;
     }
 
-    /* Pill handle visual (sin tocar el HTML) */
-    .weather-panel::before {
-        content: '';
-        display: block;
+    /* Handle táctil real — reemplaza ::before */
+    .drawer-handle {
         width: 40px;
         height: 4px;
         background: rgba(0, 0, 0, 0.15);
         border-radius: 2px;
-        margin: 0.5rem auto 1rem;
+        margin: 0.6rem auto 0.6rem;
+        cursor: grab;
+    }
+
+    /* Sin transición mientras el dedo arrastra */
+    .weather-panel.is-dragging,
+    .search-panel.is-dragging,
+    .radio-panel.is-dragging {
+        transition: none !important;
     }
 
     /* Cambia dirección del cierre: de translateX a translateY */
     .weather-panel.closed {
         transform: translateY(100%);
         opacity: 0;
+        pointer-events: none;
     }
 
     /* -- Search Panel → drawer desde abajo -- */
@@ -104,16 +194,6 @@
         transform: translateY(0);
     }
 
-    .search-panel::before {
-        content: '';
-        display: block;
-        width: 40px;
-        height: 4px;
-        background: rgba(0, 0, 0, 0.15);
-        border-radius: 2px;
-        margin: 0.5rem auto 1rem;
-    }
-
     /* Cambia dirección del cierre: de translateX a translateY */
     .search-panel.closed {
         width: 100%;
@@ -128,13 +208,29 @@
         padding: 0.5rem 1.2rem 1.5rem;
     }
 
-    /* -- Controles flotantes Bottom-Left --
-       El SOS está en bottom: 30px centrado.
-       Subimos los controles para no solaparse. */
+    /* -- Ocultar zoom de Leaflet en mobile (el mapa se hace zoom con pellizco) -- */
+    .leaflet-control-zoom {
+        display: none !important;
+    }
+
+    /* -- SOS: mover a la derecha, alineado con las herramientas -- */
+    #floatingSosContainer {
+        bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
+        left: auto !important;
+        right: 12px !important;
+        transform: none !important;
+    }
+
+    /* -- Controles flotantes Bottom-Left -- */
     .map-controls-bottom-left {
-        bottom: 90px;
+        bottom: calc(30px + env(safe-area-inset-bottom, 0px));
         left: 12px;
         gap: 8px;
+    }
+
+    /* Créditos del mapa — env() cubre home indicator del dispositivo */
+    .leaflet-bottom {
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
     }
 
     .floating-alarm-toggle {
@@ -177,4 +273,57 @@
         width: 95vw;
         padding: 1.5rem;
     }
+
+    /* -- Radio panel en mobile: drawer desde abajo -- */
+    .radio-panel {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-height: 75vh;
+        overflow-y: auto;
+        border-radius: 16px 16px 0 0;
+        border-top: 1px solid var(--brand-accent);
+        padding: 0.5rem 1.2rem 1.5rem;
+        z-index: 1060;
+        transform: translateY(0);
+        opacity: 1;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .radio-panel.closed {
+        transform: translateY(100%);
+        opacity: 1;
+        pointer-events: none;
+    }
+
+    .radio-panel .drawer-handle {
+        display: block;
+    }
+
+    /* Botón radio flotante: se queda visible en mobile */
+    .floating-radio-btn {
+        top: 12px;
+        left: 12px;
+        width: 38px;
+        height: 38px;
+    }
+
+    /* Panel Sol/Luna en mobile: centrado y más ancho */
+    .sun-moon-panel {
+        left: 50%;
+        transform: translateX(-50%) translateY(0);
+        width: calc(100vw - 2rem);
+        top: 70px;
+    }
+
+    .sun-moon-panel.closed {
+        transform: translateX(-50%) translateY(-12px);
+        opacity: 0;
+        pointer-events: none;
+    }
+
 }

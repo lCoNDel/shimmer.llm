@@ -15,6 +15,27 @@ proyectos/
 └── .webapps/   # Proyectos web paralelos
 ```
 
+## Reglas por zona
+
+### `.webapps/dev/`
+Zona de trabajo activo. Los cambios aquí son libres y no requieren autorización especial.
+Los cambios de dev se sincronizan manualmente a prod una vez validados.
+
+### `.webapps/prod/`
+Zona de producción. Contiene la versión publicada o lista para publicar.
+
+**ADVERTENCIA: Doble autorización requerida antes de cualquier cambio:**
+1. Describir exactamente qué archivo se va a modificar y qué cambio se hará.
+2. Esperar confirmación explícita del usuario.
+3. No proceder aunque el cambio sea idéntico a uno ya aplicado en `dev/`.
+
+Una autorización previa en `dev/` **no implica autorización en `prod/`**.
+
+### `.webapps/antiguos/`
+Archivo de versiones anteriores. No se modifican.
+
+---
+
 ## Convenciones
 
 - **Idioma**: Responder siempre en español salvo que el código o contexto técnico lo requiera en inglés.
