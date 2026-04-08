@@ -279,91 +279,89 @@
                 <p>Consultando boyas meteorológicas...</p>
             </div>
 
-            <!-- Radio Player Section (Compact & Modern) -->
-            <div class="radio-section"
-                style="margin-top: 1rem; border-top: 1px solid rgba(0, 118, 214, 0.15); padding-top: 1rem;">
-                <div class="panel-header" style="margin-bottom: 0.4rem; padding-bottom: 0;">
-                    <h2
-                        style="font-size: 1.05rem; display: flex; align-items: center; gap: 0.4rem; color: var(--brand-primary); margin: 0;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                        </svg>
-                        Radio Global
-                    </h2>
-                </div>
-                <div class="radio-controls" style="display: flex; flex-direction: column; gap: 0.6rem;">
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="radioSearchInput" class="search-input"
-                            style="flex: 1; padding: 0.5rem 0.8rem; font-size: 0.85rem; border-radius: 20px; border: 1px solid rgba(0, 118, 214, 0.2);"
-                            placeholder="Buscar emisora o género...">
-                    </div>
-
-                    <div id="radioResults" class="radio-results"
-                        style="max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;">
-                        <p class="empty-state" style="padding: 0.5rem;">Más de 90,000 estaciones disponibles</p>
-                    </div>
-
-                    <div id="activeRadio" class="active-radio hidden"
-                        style="background: linear-gradient(135deg, rgba(0, 118, 214, 0.05), rgba(0, 118, 214, 0.1)); border: 1px solid rgba(0, 118, 214, 0.2); padding: 0.6rem 0.8rem; border-radius: 12px; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), 0 4px 10px rgba(0,0,0,0.03);">
-
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="2" y="2" width="20" height="20" rx="4" ry="4"></rect>
-                                <circle cx="12" cy="15" r="3"></circle>
-                                <path d="M2 7h20"></path>
-                                <path d="M6 10v.01"></path>
-                            </svg>
-                            <div id="radioNameDisplay"
-                                style="font-weight: 600; color: var(--brand-primary); font-size: 0.9rem; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2;">
-                                Estación seleccionada</div>
-                        </div>
-
-                        <!-- Reproductor de Audio Customizado -->
-                        <div
-                            style="display: flex; align-items: center; background: rgba(255,255,255,0.7); border-radius: 30px; padding: 0.4rem 0.6rem; gap: 0.8rem; border: 1px solid rgba(0, 118, 214, 0.1); box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);">
-                            <!-- Botón Play/Pause -->
-                            <button id="customRadioPlayBtn"
-                                style="background: var(--brand-primary); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;"
-                                onmouseover="this.style.transform='scale(1.05)'"
-                                onmouseout="this.style.transform='scale(1)'">
-                                <svg id="iconPlay" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
-                                    stroke="none">
-                                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                                </svg>
-                                <svg id="iconPause" class="hidden" width="16" height="16" viewBox="0 0 24 24"
-                                    fill="currentColor" stroke="none">
-                                    <rect x="6" y="4" width="4" height="16"></rect>
-                                    <rect x="14" y="4" width="4" height="16"></rect>
-                                </svg>
-                            </button>
-
-                            <!-- Volume Control Slider -->
-                            <input type="range" id="radioVolumeSlider" min="0" max="1" step="0.01" value="1"
-                                style="width: 50px; height: 4px; border-radius: 2px; appearance: none; background: rgba(0, 118, 214, 0.2); cursor: pointer; outline: none; transition: background 0.2s;">
-                            <span id="radioVolumeValue"
-                                style="font-size: 0.75rem; color: var(--brand-primary); font-weight: 600; min-width: 35px; text-align: right;">100%</span>
-
-                            <!-- Mute Control -->
-                            <button id="customRadioMuteBtn"
-                                style="background: transparent; color: var(--brand-text-muted); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: color 0.2s;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                                    <path id="iconVolWaves"
-                                        d="M15.54 8.46a5 5 0 0 1 0 7.07 M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-                                    <line id="iconVolMute" class="hidden" x1="23" y1="9" x2="17" y2="15"></line>
-                                    <line id="iconVolMute2" class="hidden" x1="17" y1="9" x2="23" y2="15"></line>
-                                </svg>
-                            </button>
-                        </div>
-                        <audio id="radioPlayer" style="display: none;"></audio>
-                    </div>
-                </div>
-
         </aside>
+
+        <!-- Botón flotante Radio -->
+        <button class="floating-radio-btn" id="radioBtn" aria-label="Radio Global" title="Radio Global">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/>
+                <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/>
+                <circle cx="12" cy="12" r="2"/>
+                <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/>
+                <path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>
+            </svg>
+        </button>
+
+        <!-- Panel Radio (independiente) -->
+        <div class="radio-panel closed" id="radioPanel">
+            <div class="drawer-handle" aria-hidden="true"></div>
+            <div class="panel-header">
+                <h2 style="font-size: 1.05rem; display:flex; align-items:center; gap:0.4rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                    </svg>
+                    Radio Global
+                </h2>
+                <button class="close-btn" id="closeRadioBtn" aria-label="Cerrar radio">&times;</button>
+            </div>
+            <div class="radio-controls" style="display:flex; flex-direction:column; gap:0.6rem;">
+                <div style="display:flex; gap:0.5rem;">
+                    <input type="text" id="radioSearchInput" class="search-input"
+                        style="flex:1; padding:0.5rem 0.8rem; font-size:0.85rem; border-radius:20px; border:1px solid rgba(0,118,214,0.2);"
+                        placeholder="Buscar emisora o género...">
+                </div>
+                <div id="radioResults" class="radio-results"
+                    style="max-height:150px; overflow-y:auto; display:flex; flex-direction:column; gap:0.5rem;">
+                    <p class="empty-state" style="padding:0.5rem;">Más de 90,000 estaciones disponibles</p>
+                </div>
+                <div id="activeRadio" class="active-radio hidden"
+                    style="background:linear-gradient(135deg,rgba(0,118,214,0.05),rgba(0,118,214,0.1)); border:1px solid rgba(0,118,214,0.2); padding:0.6rem 0.8rem; border-radius:12px; display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem; transition:all 0.3s ease;">
+                    <div style="display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="4" ry="4"></rect>
+                            <circle cx="12" cy="15" r="3"></circle>
+                            <path d="M2 7h20"></path>
+                            <path d="M6 10v.01"></path>
+                        </svg>
+                        <div id="radioNameDisplay"
+                            style="font-weight:600; color:var(--brand-primary); font-size:0.9rem; max-width:170px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2;">
+                            Estación seleccionada</div>
+                    </div>
+                    <div style="display:flex; align-items:center; background:rgba(255,255,255,0.7); border-radius:30px; padding:0.4rem 0.6rem; gap:0.8rem; border:1px solid rgba(0,118,214,0.1);">
+                        <button id="customRadioPlayBtn"
+                            style="background:var(--brand-primary); color:white; border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.2s;"
+                            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            <svg id="iconPlay" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <svg id="iconPause" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                <rect x="6" y="4" width="4" height="16"></rect>
+                                <rect x="14" y="4" width="4" height="16"></rect>
+                            </svg>
+                        </button>
+                        <input type="range" id="radioVolumeSlider" min="0" max="1" step="0.01" value="0.5"
+                            style="width:50px; height:4px; border-radius:2px; appearance:none; background:rgba(0,118,214,0.2); cursor:pointer; outline:none;">
+                        <span id="radioVolumeValue"
+                            style="font-size:0.75rem; color:var(--brand-primary); font-weight:600; min-width:35px; text-align:right;">50%</span>
+                        <button id="customRadioMuteBtn"
+                            style="background:transparent; color:var(--brand-text-muted); border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                <path id="iconVolWaves" d="M15.54 8.46a5 5 0 0 1 0 7.07 M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                                <line id="iconVolMute" class="hidden" x1="23" y1="9" x2="17" y2="15"></line>
+                                <line id="iconVolMute2" class="hidden" x1="17" y1="9" x2="23" y2="15"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <audio id="radioPlayer" style="display:none;"></audio>
+                </div>
+            </div>
+        </div>
 
         <!-- Search Modal Panel -->
         <aside class="search-panel closed" id="searchPanel">
