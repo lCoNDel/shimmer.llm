@@ -11,7 +11,7 @@ proyectos/
 ├── .bots/      # Bots de mensajería (Telegram, WhatsApp...)
 ├── .docker/    # Docker Compose, Filebrowser inyectable, scripts de backup
 ├── .docs/      # Documentación de servicios (Open WebUI, etc.)
-├── .agents/       # Skills del sistema de agentes
+├── .agents/    # Skills y Workflows
 └── .webapps/   # Proyectos web paralelos
 ```
 

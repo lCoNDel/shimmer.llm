@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>04 — Responsabilidades y Compromisos · Plataforma IA Touron S.A.</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <span class="doc-title">Propuesta Técnica — Plataforma IA · Touron S.A.</span>
+    <span class="doc-ref">05 · Responsabilidades, Compromisos y Compensación</span>
+  </div>
+
+  <h2>Implicaciones Técnicas y Responsabilidades</h2>
+
+  <p>
+    El desarrollo y la gestión de la plataforma representan un conjunto de responsabilidades que van
+    significativamente más allá del perfil de soporte técnico habitual. A continuación se detalla
+    el alcance real del trabajo asumido y lo que implica para la empresa.
+  </p>
+
+  <h3>Responsabilidades de desarrollo</h3>
+
+  <ul>
+    <li>
+      <strong>Diseño de arquitectura de IA:</strong> selección de modelos de lenguaje, definición de
+      estrategia de embeddings, configuración del sistema RAG y decisiones de escalabilidad.
+    </li>
+    <li>
+      <strong>Desarrollo full-stack:</strong> backend (Docker, APIs REST, Python), frontend (aplicaciones
+      web responsive), infraestructura de contenedores y orquestación multi-entorno.
+    </li>
+    <li>
+      <strong>Diseño de sistemas RAG:</strong> estructuración de bases de conocimiento, integración de
+      fuentes documentales (SharePoint, manuales, ERP), optimización de la recuperación de información.
+    </li>
+    <li>
+      <strong>Creación de agentes especializados:</strong> diseño, entrenamiento mediante instrucciones
+      precisas (<em>prompt engineering</em> avanzado) y validación de los 9 agentes desarrollados.
+    </li>
+    <li>
+      <strong>Integración de APIs y servicios externos:</strong> meteorología marina, cartografía,
+      radar de lluvia, tráfico marítimo, geocodificación, radio, y futuras integraciones.
+    </li>
+    <li>
+      <strong>Gestión de entornos y versiones:</strong> mantenimiento de entornos de desarrollo y
+      producción separados, control de versiones con Git, documentación técnica completa.
+    </li>
+    <li>
+      <strong>Usabilidad sin formación técnica:</strong> todas las herramientas están diseñadas para
+      ser utilizadas por empleados sin conocimientos técnicos, absorbiendo la complejidad en el diseño.
+    </li>
+  </ul>
+
+  <h3>Responsabilidades de gestión de plataforma (continuas)</h3>
+
+  <p>
+    El desarrollo no es una actividad puntual. La plataforma requiere gestión continua para garantizar
+    su disponibilidad, seguridad y evolución:
+  </p>
+
+  <ul>
+    <li>
+      <strong>Administración del servidor dedicado:</strong> sistema operativo, actualizaciones de
+      seguridad, gestión del hardware, mantenimiento preventivo.
+    </li>
+    <li>
+      <strong>Gestión del stack de software:</strong> Docker, Open WebUI, Ollama, modelos LLM —
+      actualizaciones, gestión de versiones, compatibilidad entre componentes.
+    </li>
+    <li>
+      <strong>Monitorización y disponibilidad:</strong> seguimiento del rendimiento y estado de todos
+      los servicios de la plataforma.
+    </li>
+    <li>
+      <strong>Gestión de copias de seguridad:</strong> respaldo periódico de contenedores, volúmenes,
+      bases de conocimiento y configuraciones críticas.
+    </li>
+    <li>
+      <strong>Resolución de incidencias:</strong> atención a fallos técnicos de la plataforma, la red
+      o los servicios asociados.
+    </li>
+    <li>
+      <strong>Evolución tecnológica:</strong> evaluación continua de nuevos modelos, herramientas y
+      capacidades de IA para mantener la plataforma actualizada y competitiva.
+    </li>
+  </ul>
+
+  <div class="nota">
+    En un contrato con consultora externa, la gestión de plataforma se factura por separado como
+    servicio de mantenimiento recurrente (SLA), con costes típicos de 500 a 1.500 € mensuales,
+    independientemente del coste inicial de desarrollo.
+  </div>
+
+  <h3>Un rol multidisciplinar</h3>
+
+  <p>
+    El conjunto de responsabilidades descrito cubre funciones que en una organización de tamaño medio
+    recaerían sobre varios perfiles especializados:
+  </p>
+
+  <div class="cols-2">
+    <ul>
+      <li>Arquitecto de soluciones</li>
+      <li>Desarrollador full-stack</li>
+      <li>Administrador de sistemas</li>
+    </ul>
+    <ul>
+      <li>Especialista en sistemas RAG e IA</li>
+      <li>Diseñador de agentes conversacionales</li>
+      <li>Responsable de mantenimiento y operaciones</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <p>
+      Lo que esto significa para Touron S.A.: la empresa dispone de todos estos perfiles en una única
+      persona, con conocimiento profundo de su negocio, sus marcas y su contexto sectorial.
+      Es una combinación difícilmente replicable desde el exterior.
+    </p>
+  </div>
+
+  <hr class="sep">
+
+  <!-- CONDICIONES -->
+  <h2>Condiciones y Compromisos</h2>
+
+  <ul>
+    <li>
+      <strong>Propiedad intelectual:</strong> todo el desarrollo —código, agentes, documentación y
+      bases de conocimiento— pertenece íntegramente a Touron S.A.
+    </li>
+    <li>
+      <strong>Continuidad:</strong> el desarrollador garantiza el mantenimiento y la evolución
+      continuada de la plataforma mientras forme parte de la empresa.
+    </li>
+    <li>
+      <strong>Disponibilidad:</strong> gestión dentro del horario laboral habitual, con atención
+      a incidencias críticas cuando la situación lo requiera.
+    </li>
+    <li>
+      <strong>Costes de software:</strong> la plataforma se basa en software de código abierto y gratuito
+      —sin costes de licencia para los servicios desplegados—. Sin embargo, el desarrollo profesional
+      de esta envergadura requiere herramientas especializadas —entorno de desarrollo (VS Code) y
+      asistencia de IA avanzada (Claude Code)— cuyo coste forma parte del equipamiento técnico del rol
+      y deberá ser asumido por la empresa. Los costes de infraestructura y servicios de la plataforma
+      se detallan en el documento de costes adjunto.
+    </li>
+    <li>
+      <strong>Confidencialidad y privacidad:</strong> la arquitectura local garantiza que ningún dato
+      de la empresa sale de la red interna. Cumplimiento por diseño, sin procedimientos adicionales.
+    </li>
+  </ul>
+
+  <hr class="sep">
+
+  <!-- COMPENSACIÓN -->
+  <h2>Propuesta de Compensación</h2>
+
+  <p>
+    El desarrollo, la gestión y la evolución de esta plataforma representan un trabajo de alta
+    cualificación técnica, sostenido en el tiempo y de alto impacto para la empresa. Los resultados
+    ya son medibles desde la fase piloto, y el potencial documentado en este informe es considerable.
+  </p>
+
+  <p>
+    El rol asumido —multidisciplinar, estratégico y de responsabilidad continua— justifica una
+    compensación acorde a su envergadura real, diferenciada de la función de soporte técnico general
+    que se venía desempeñando anteriormente.
+  </p>
+
+  <!-- ESPACIO EN BLANCO PARA QUE LUIS COMPLETE ANTES DE IMPRIMIR -->
+  <div style="border: 1.5px dashed #a0a8bf; border-radius: 6px; padding: 32px 28px; margin: 28px 0; min-height: 120px; background: #f9fafc;">
+    <p style="color: #7a8099; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 9.5pt; margin: 0;">
+      [ Propuesta de compensación — completar antes de imprimir ]
+    </p>
+  </div>
+
+  <hr class="sep">
+
+  <!-- CONCLUSIÓN -->
+  <h2>Conclusión</h2>
+
+  <p>
+    Touron S.A. dispone hoy de una plataforma de inteligencia artificial funcional, segura y diseñada
+    específicamente para su negocio. Una plataforma construida con el conocimiento de más de 65 años
+    de empresa, que ya genera ahorros medibles y tiene un roadmap técnico sólido para crecer.
+  </p>
+
+  <p>
+    La inversión real ha sido, hasta ahora, tiempo y conocimiento. La formalización de las condiciones
+    de compensación es el paso natural para garantizar la continuidad y el compromiso a largo plazo
+    de quien la ha construido y la mantiene.
+  </p>
+
+  <div class="destacado">
+    <p>
+      Touron S.A. tiene la oportunidad de convertirse en un referente tecnológico dentro del sector
+      náutico ibérico —no solo como distribuidor, sino como empresa que crea y posee sus propias
+      herramientas de inteligencia artificial. Esa ventaja solo existe si se invierte en mantenerla.
+    </p>
+  </div>
+
+  <!-- PIE -->
+  <div class="doc-footer">
+    <span>Touron S.A. — Confidencial · Uso interno</span>
+    <span>Luis Conde — Técnico de Sistemas · Abril 2026</span>
+  </div>
+
+</div>
+</body>
+</html>

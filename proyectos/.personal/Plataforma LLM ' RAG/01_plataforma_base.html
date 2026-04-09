@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01 — Plataforma Base · Plataforma IA Touron S.A.</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <span class="doc-title">Propuesta Técnica — Plataforma IA · Touron S.A.</span>
+    <span class="doc-ref">02 · Descripción de la Plataforma</span>
+  </div>
+
+  <h2>Descripción de la Plataforma</h2>
+
+  <p>
+    La plataforma recibe internamente el nombre <strong>Shimmer LLM</strong> y constituye el núcleo tecnológico
+    sobre el que se construyen todos los servicios de inteligencia artificial de Touron S.A.
+    Su diseño prioriza la privacidad, la independencia tecnológica y la escalabilidad.
+  </p>
+
+  <h3>Arquitectura general</h3>
+
+  <p>
+    La plataforma combina tres capas bien diferenciadas: el motor de inferencia de modelos de lenguaje,
+    la interfaz de usuario y gestión de conocimiento, y la capa de infraestructura que orquesta todos
+    los servicios.
+  </p>
+
+  <ul>
+    <li>
+      <strong>Motor LLM local (Ollama):</strong> corre directamente en el servidor Windows de la empresa.
+      Gestiona la ejecución de modelos de lenguaje sin enviar ningún dato a servicios externos.
+      Configurado para ejecutar hasta tres modelos en paralelo con tiempo de retención en memoria optimizado.
+    </li>
+    <li>
+      <strong>Interfaz principal (Open WebUI):</strong> plataforma web de gestión que proporciona acceso
+      a los modelos, los sistemas RAG y los agentes especializados. Personalizada con la identidad visual
+      de Touron S.A.
+    </li>
+    <li>
+      <strong>Infraestructura Docker:</strong> todos los servicios —excepto el motor LLM— corren en
+      contenedores Docker aislados, lo que garantiza reproducibilidad, portabilidad y facilidad de
+      mantenimiento. Existen entornos separados para desarrollo y producción.
+    </li>
+    <li>
+      <strong>Modelo híbrido:</strong> aunque el procesamiento es local por defecto, la arquitectura
+      permite conectar modelos premium de terceros vía API para empleados o casos de uso específicos
+      que lo requieran, sin modificar la plataforma.
+    </li>
+  </ul>
+
+  <h3>Stack técnico completo</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Capa</th>
+        <th>Tecnología</th>
+        <th>Función</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Motor LLM</strong></td>
+        <td>Ollama (host Windows)</td>
+        <td>Inferencia de modelos de lenguaje en local. Sin costes por uso, sin envío de datos.</td>
+      </tr>
+      <tr>
+        <td><strong>Interfaz principal</strong></td>
+        <td>Open WebUI v0.8.12</td>
+        <td>Chat, gestión de RAG, agentes especializados, historial de conversaciones.</td>
+      </tr>
+      <tr>
+        <td><strong>Interfaz alternativa</strong></td>
+        <td>AnythingLLM</td>
+        <td>Segundo frontend disponible como redundancia o para casos de uso específicos.</td>
+      </tr>
+      <tr>
+        <td><strong>Orquestación</strong></td>
+        <td>Docker Compose (multi-entorno)</td>
+        <td>Gestión de contenedores en entornos separados: desarrollo, producción, bots y herramientas.</td>
+      </tr>
+      <tr>
+        <td><strong>Acceso a ficheros</strong></td>
+        <td>Filebrowser (inyectable)</td>
+        <td>Acceso puntual a volúmenes internos de los contenedores para mantenimiento y auditoría.</td>
+      </tr>
+      <tr>
+        <td><strong>Bots de mensajería</strong></td>
+        <td>Python + librerías de mensajería</td>
+        <td>Bots conectados a la plataforma para acceso desde Telegram, WhatsApp u otras plataformas.</td>
+      </tr>
+      <tr>
+        <td><strong>Webapp complementaria</strong></td>
+        <td>HTML / CSS / JS + Leaflet</td>
+        <td>Carta náutica interactiva para la red comercial (proyecto adicional).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Entornos de trabajo</h3>
+
+  <div class="cols-2">
+    <div>
+      <h4>Producción</h4>
+      <ul>
+        <li>Open WebUI en puerto 3000</li>
+        <li>AnythingLLM en puerto 3001</li>
+        <li>Stack estable y validado</li>
+        <li>Acceso controlado a empleados</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Desarrollo</h4>
+      <ul>
+        <li>Open WebUI en puerto 4000</li>
+        <li>AnythingLLM en puerto 4001</li>
+        <li>Entorno de pruebas y validación</li>
+        <li>Los cambios se promueven a producción manualmente</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Seguridad y privacidad</h3>
+
+  <p>
+    El diseño de la plataforma parte de un principio fundamental: <strong>los datos de la empresa
+    nunca salen de la red interna</strong>. Los modelos de lenguaje se ejecutan en local, los documentos
+    indexados en el sistema RAG se almacenan en los propios volúmenes Docker del servidor, y ningún
+    servicio de la plataforma envía información a terceros por defecto.
+  </p>
+
+  <p>
+    Esto es especialmente relevante para casos de uso con información sensible: fichas de clientes,
+    datos técnicos de reparaciones, documentación interna de procedimientos o datos del ERP.
+  </p>
+
+  <div class="nota">
+    Las soluciones comerciales de IA en la nube (ChatGPT Enterprise, Microsoft Copilot, etc.) implican
+    cesión de datos a proveedores externos, términos de uso variables y costes mensuales recurrentes
+    por usuario. La plataforma de Touron S.A. elimina estos tres riesgos por diseño.
+  </div>
+
+  <h3>Infraestructura Docker: detalle de los entornos</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Fichero</th>
+        <th>Entorno</th>
+        <th>Descripción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>prod.yml</code></td>
+        <td>Producción</td>
+        <td>Stack principal: Open WebUI + AnythingLLM. Acceso estable para usuarios.</td>
+      </tr>
+      <tr>
+        <td><code>dev.yml</code></td>
+        <td>Desarrollo</td>
+        <td>Réplica del stack de producción para pruebas y validación sin afectar a usuarios.</td>
+      </tr>
+      <tr>
+        <td><code>bots.yml</code></td>
+        <td>Bots</td>
+        <td>Contenedores de bots de mensajería. Independientes del stack principal.</td>
+      </tr>
+      <tr>
+        <td><code>tools.yml</code></td>
+        <td>Herramientas</td>
+        <td>Servicios auxiliares: Filebrowsers temporales para acceso a volúmenes.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- PIE -->
+  <div class="doc-footer">
+    <span>Touron S.A. — Confidencial · Uso interno</span>
+    <span>Luis Conde — Técnico de Sistemas · Abril 2026</span>
+  </div>
+
+</div>
+</body>
+</html>

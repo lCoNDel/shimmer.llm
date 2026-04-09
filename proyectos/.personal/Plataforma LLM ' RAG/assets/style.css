@@ -1,0 +1,313 @@
+/* ============================================================
+   SHIMMER LLM — Propuesta Técnica Touron S.A.
+   Estilos compartidos — Abril 2026
+   ============================================================ */
+
+/* --- Reset y base --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 11pt;
+  line-height: 1.65;
+  color: #1a1a1a;
+  background: #f4f5f7;
+}
+
+.page {
+  max-width: 860px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 60px 72px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.10);
+}
+
+/* --- Paleta principal --- */
+:root {
+  --azul:     #1a2744;
+  --azul-med: #243660;
+  --azul-clr: #3a5898;
+  --gris-clr: #f0f2f5;
+  --gris-brd: #d0d5df;
+  --texto:    #1a1a1a;
+  --texto-sec:#4a4a5a;
+}
+
+/* --- PORTADA --- */
+.portada {
+  background: var(--azul);
+  color: #ffffff;
+  padding: 80px 72px 60px;
+  min-height: 340px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.portada .doc-num {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 9pt;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 24px;
+}
+
+.portada h1 {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 24pt;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+
+.portada .subtitulo {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 13pt;
+  font-weight: 300;
+  opacity: 0.80;
+  margin-bottom: 36px;
+}
+
+.portada .meta {
+  border-top: 1px solid rgba(255,255,255,0.25);
+  padding-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 32px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 9.5pt;
+}
+
+.portada .meta-item label {
+  opacity: 0.55;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 8pt;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.portada .meta-item span {
+  font-weight: 600;
+  opacity: 0.92;
+}
+
+/* --- CABECERA DE SECCIÓN (en páginas interiores) --- */
+.doc-header {
+  border-bottom: 3px solid var(--azul);
+  padding-bottom: 14px;
+  margin-bottom: 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.doc-header .doc-title {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 9pt;
+  color: var(--texto-sec);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.doc-header .doc-ref {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 8pt;
+  color: var(--azul-clr);
+  letter-spacing: 0.04em;
+}
+
+/* --- TITULOS --- */
+h2 {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16pt;
+  font-weight: 700;
+  color: var(--azul);
+  margin-top: 40px;
+  margin-bottom: 14px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--gris-brd);
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 12pt;
+  font-weight: 600;
+  color: var(--azul-med);
+  margin-top: 28px;
+  margin-bottom: 10px;
+}
+
+h4 {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 10.5pt;
+  font-weight: 600;
+  color: var(--texto);
+  margin-top: 20px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- PÁRRAFOS Y LISTAS --- */
+p { margin-bottom: 12px; color: var(--texto); }
+
+ul, ol {
+  padding-left: 20px;
+  margin-bottom: 14px;
+}
+
+li {
+  margin-bottom: 5px;
+  color: var(--texto);
+}
+
+li strong { color: var(--azul-med); }
+
+/* --- TABLAS --- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0 28px;
+  font-size: 10pt;
+}
+
+thead tr {
+  background: var(--azul);
+  color: #ffffff;
+}
+
+thead th {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 600;
+  font-size: 9.5pt;
+  text-align: left;
+  padding: 10px 14px;
+  letter-spacing: 0.04em;
+}
+
+tbody tr:nth-child(even) { background: var(--gris-clr); }
+tbody tr:hover { background: #e8edf5; }
+
+tbody td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--gris-brd);
+  vertical-align: top;
+}
+
+/* --- CAJAS DE NOTA / CITA --- */
+.nota {
+  background: var(--gris-clr);
+  border-left: 4px solid var(--azul-clr);
+  padding: 16px 20px;
+  margin: 20px 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 10.5pt;
+  color: var(--texto-sec);
+  font-style: italic;
+}
+
+.nota strong { color: var(--azul); font-style: normal; }
+
+.callout {
+  background: #eef2fa;
+  border: 1px solid var(--azul-clr);
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+
+.callout p { margin: 0; color: var(--azul-med); font-size: 10.5pt; }
+
+.destacado {
+  background: var(--azul);
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 18px 24px;
+  margin: 24px 0;
+}
+
+.destacado p { margin: 0; color: #ffffff; font-size: 10.5pt; line-height: 1.7; }
+.destacado strong { color: #a8c4f0; }
+
+/* --- BADGE DE ESTADO --- */
+.badge {
+  display: inline-block;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 8pt;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.badge-piloto   { background: #d4edda; color: #155724; }
+.badge-pendiente{ background: #fff3cd; color: #856404; }
+.badge-extra    { background: #d1ecf1; color: #0c5460; }
+
+/* --- PIE DE DOCUMENTO --- */
+.doc-footer {
+  margin-top: 60px;
+  padding-top: 16px;
+  border-top: 1px solid var(--gris-brd);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: 8.5pt;
+  color: var(--texto-sec);
+}
+
+/* --- SEPARADOR VISUAL --- */
+hr.sep {
+  border: none;
+  border-top: 1px solid var(--gris-brd);
+  margin: 32px 0;
+}
+
+/* --- COLUMNAS 2 --- */
+.cols-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 20px 0;
+}
+
+/* ============================================================
+   ESTILOS DE IMPRESIÓN
+   ============================================================ */
+@media print {
+  body { background: white; font-size: 10.5pt; }
+
+  .page {
+    max-width: none;
+    margin: 0;
+    padding: 2cm 2.5cm;
+    box-shadow: none;
+  }
+
+  .portada {
+    padding: 2cm 2.5cm;
+    min-height: auto;
+  }
+
+  /* Salto de página antes de cada sección h2 (excepto la primera) */
+  h2 { page-break-before: always; }
+  h2:first-of-type { page-break-before: avoid; }
+
+  /* Evitar que tablas y notas se partan */
+  table { page-break-inside: avoid; }
+  .nota, .callout, .destacado { page-break-inside: avoid; }
+  tr { page-break-inside: avoid; }
+
+  /* Evitar viudas y huérfanas */
+  p { orphans: 3; widows: 3; }
+
+  /* Mantener títulos con su contenido */
+  h2, h3, h4 { page-break-after: avoid; }
+
+  .doc-footer { position: fixed; bottom: 1cm; left: 2.5cm; right: 2.5cm; }
+}
