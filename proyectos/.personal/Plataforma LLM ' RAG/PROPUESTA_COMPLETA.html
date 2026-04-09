@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Propuesta Técnica — Plataforma IA · Touron S.A.</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+
+    /* ── Estructura combinada ── */
+    body { background: #f4f5f7; }
+
+    .doc-section {
+      max-width: 860px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 60px 72px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.10);
+    }
+
+    /* Carta */
+    .carta-body { max-width: 640px; margin: 60px auto 0; }
+    .carta-body p { font-size: 11.5pt; line-height: 1.85; margin-bottom: 18px; }
+    .carta-firma { margin-top: 48px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10pt; color: #4a4a5a; }
+    .carta-firma strong { display: block; font-size: 11pt; color: #1a2744; margin-bottom: 2px; }
+
+    /* Ocultar pies individuales en pantalla (el @page los reemplaza al imprimir) */
+    .doc-footer { display: none; }
+
+    /* ── Impresión ── */
+    @page {
+      size: A4;
+      margin: 2.5cm;
+      @bottom-left {
+        content: "Touron S.A. \2014  Confidencial \00B7  Uso interno";
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-size: 8pt;
+        color: #7a8099;
+      }
+      @bottom-right {
+        content: "Página " counter(page) " de " counter(pages);
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-size: 8pt;
+        color: #7a8099;
+      }
+    }
+
+    @page :first {
+      @bottom-left  { content: ""; }
+      @bottom-right { content: ""; }
+    }
+
+    @media print {
+      body { background: white; }
+
+      .doc-section {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        page-break-before: always;
+      }
+
+      .doc-section:first-child { page-break-before: avoid; }
+
+      /* Portada: sin header/footer de página */
+      .portada-section { page-break-before: avoid; }
+
+      .carta-body { margin-top: 40px; }
+
+      /* Forzar salto antes de cada h2 dentro de una sección larga */
+      .forzar-salto { page-break-before: always; }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     PORTADA
+═══════════════════════════════════════════ -->
+<section class="doc-section portada-section">
+  <div class="portada">
+    <div class="doc-num">Abril 2026 &nbsp;·&nbsp; Versión 1.0 &nbsp;·&nbsp; Confidencial</div>
+    <h1>Plataforma de Inteligencia Artificial</h1>
+    <div class="subtitulo">Propuesta Técnica — Desarrollo Full-Stack: LLMs, RAG y Servicios Asociados</div>
+    <div class="meta">
+      <div class="meta-item">
+        <label>Empresa</label>
+        <span>Touron S.A.</span>
+      </div>
+      <div class="meta-item">
+        <label>Autor</label>
+        <span>Luis Conde — Técnico de Sistemas</span>
+      </div>
+      <div class="meta-item">
+        <label>Ámbito</label>
+        <span>Plataforma interna de IA (Shimmer LLM)</span>
+      </div>
+      <div class="meta-item">
+        <label>Fase actual</label>
+        <span>Piloto activo · Producción pendiente</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     00 — CARTA DE PRESENTACIÓN
+═══════════════════════════════════════════ -->
+<section class="doc-section">
+
+  <div class="doc-header">
+    <span class="doc-title">Propuesta Técnica — Plataforma IA · Touron S.A.</span>
+    <span class="doc-ref">Carta de Presentación</span>
+  </div>
+
+  <div class="carta-body">
+
+    <p>
+	  Me gustaria comenzar aportando algunos antecedentes sobre mi persona a fin de que podais comprender mejor todo lo que hay detrás de esta propuesta.
+      La tecnología ha sido el hilo conductor de gran parte de mi vida, tanto personal como profesionalmente. Desde la FP de Sistemas Microinformáticos
+      y Redes, pasando por Administración de Sistemas Informáticos y la licenciatura en Ciencias de la
+      Computación. Cada una de estás etapas ha ido construyendo una comprensión más profunda de cómo funcionan
+      los sistemas desde sus cimientos: hardware, redes, arquitecturas, software, modelos teóricos.
+      Años sumando capas de conocimiento, siempre con la misma orientación.
+    </p>
+
+    <p>
+      Cuando la inteligencia artificial empezó a dejar de ser un campo académico para convertirse
+      en algo tangible, fue inevitable que captara toda mi atención, no como una moda, sino como
+      la culminación lógica de todo lo que había estudiado, por primera vez podía convertir años
+      de base teórica en soluciones reales sin necesitar un equipo de desarrollo
+      ni presupuestos descomunales. Es la razón por la que llevo años siguiendo su evolución de cerca, sin
+      abandonar mi especialidad como técnico de sistemas, toda lo contrario, más bien complementándola de manera perfecta.
+    </p>
+
+    <p>
+      Cuando los modelos de lenguaje alcanzaron la madurez suficiente para construir algo real,
+      lo natural fue aplicarlo en mi día a día, y como consecuencia directa de esto, tambien en el trabajo. Partí de la convicción de que esta tecnología podía aportar
+      valor real a Touron y simplemente me puse con ello. El resultado es lo que encontraréis en
+      las páginas siguientes: una plataforma desarrollada internamente, sin coste externo, con el
+      contexto, las marcas y el día a día de Touron como punto de partida.
+    </p>
+
+    <p>
+      He comprendido que el valor de hacerlo de forma interna no es solo técnico, sino estratégico:
+      el objetivo es transformar el saber hacer de más de 65 años de Touron en un activo digital
+      exclusivo, con el ADN de la empresa y del mundo náutico. nos posicionaría
+      no solo como un distribuidor, sino como un creador tecnológico, elevando el prestigio de
+      la marca ante nuestros clientes y proveedores.
+    </p>
+
+    <p>
+      Lo que sigue a continuación es la documentación técnica de ese trabajo.
+      Si algún concepto técnico resulta poco familiar, al final de este documento encontraréis
+      un glosario de terminología con explicaciones con un lenguaje más simple y directo.
+    </p>
+
+    <div class="carta-firma">
+      <strong>Luis Conde</strong>
+      Técnico de Sistemas · Touron S.A.<br>
+      Abril 2026
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     01 — RESUMEN DEL PROYECTO
+═══════════════════════════════════════════ -->
+<section class="doc-section">
+
+  <div class="doc-header">
+    <span class="doc-title">Propuesta Técnica — Plataforma IA · Touron S.A.</span>
+    <span class="doc-ref">01 · Resumen del Proyecto</span>
+  </div>
+
+  <h2>Resumen del Proyecto</h2>
+
+  <p>
+    He desarrollado una plataforma propia de inteligencia artificial para Touron S.A., operativa
+    desde el primer trimestre de 2026. Permite a los empleados consultar información técnica,
+    obtener asistencia especializada y acceder al conocimiento interno de la empresa de forma
+    inmediata, sin depender de proveedores externos ni incurrir en costes recurrentes por uso.
+  </p>
+
+  <hr class="sep">
+
+  <!-- NÚCLEO -->
+  <h3>La Plataforma Base — Open WebUI</h3>
+
+  <p>
+    El núcleo de la plataforma es <strong>Open WebUI</strong>: una interfaz completa de inteligencia
+    artificial, comparable en funcionalidad a ChatGPT, que funciona íntegramente dentro de la red
+    de Touron S.A. Los modelos de IA se ejecutan en nuestros propios servidores —
+    <strong>ningún dato sale al exterior</strong>. Esto garantiza privacidad total y elimina los
+    costes de suscripción que implican las soluciones comerciales como ChatGPT o Microsoft Copilot.
+  </p>
+
+  <p>
+    La plataforma es accesible desde cualquier navegador, sin instalaciones ni configuración por
+    parte del usuario. Funciona tanto en ordenador como en móvil y tablet.
+  </p>
+
+  <hr class="sep">
+
+  <!-- AGENTES -->
+  <h3>Agentes Especializados</h3>
+
+  <p>
+    Sobre la base de Open WebUI he configurado <strong>9 agentes especializados</strong>, cada uno
+    diseñado para un área concreta de Touron S.A. A diferencia de una IA genérica, cada agente
+    tiene instrucciones precisas: conoce el contexto de la empresa, las marcas que representamos
+    y cómo debe responder según su función.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Agente</th>
+        <th>Para quién</th>
+        <th>Qué hace</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Asistente Touron</strong></td>
+        <td>Clientes y red comercial</td>
+        <td>Responde consultas sobre productos Mercury, Quicksilver, Bayliner, Simrad y Lowrance</td>
+      </tr>
+      <tr>
+        <td><strong>Diagnóstico de Motores</strong></td>
+        <td>Departamento de Servicio</td>
+        <td>Guía el diagnóstico técnico de motores Mercury y MerCruiser de forma estructurada</td>
+      </tr>
+      <tr>
+        <td><strong>Asesor Náutico</strong></td>
+        <td>Dirección comercial</td>
+        <td>Analiza el mercado náutico ibérico, matriculaciones y competencia</td>
+      </tr>
+      <tr>
+        <td><strong>AI Engineer</strong></td>
+        <td>Desarrollo interno</td>
+        <td>Asiste en el diseño y evolución de la propia plataforma</td>
+      </tr>
+      <tr>
+        <td><strong>Docker Expert</strong></td>
+        <td>Administración de sistemas</td>
+        <td>Gestión de la infraestructura de contenedores de la plataforma</td>
+      </tr>
+      <tr>
+        <td><strong>MK Asesor 360</strong></td>
+        <td>Marketing</td>
+        <td>Auditoría de marketing digital, SEO, CRO y branding</td>
+      </tr>
+      <tr>
+        <td><strong>BLAST Pilot</strong></td>
+        <td>Operaciones</td>
+        <td>Automatización de procesos mediante protocolo estructurado</td>
+      </tr>
+      <tr>
+        <td><strong>Docker Backup</strong></td>
+        <td>Administración de sistemas</td>
+        <td>Procedimientos de respaldo de la infraestructura</td>
+      </tr>
+      <tr>
+        <td><strong>OpenWebUI Rebrand</strong></td>
+        <td>Desarrollo interno</td>
+        <td>Personalización de la interfaz con identidad visual corporativa</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="sep">
+
+  <!-- RAG -->
+  <h3>Bases de Conocimiento (RAG)</h3>
+
+  <p>
+    Los agentes pueden conectarse a <strong>bases de conocimiento</strong> formadas por documentación
+    real de la empresa: manuales técnicos, procedimientos, fichas de producto. Cuando el empleado
+    hace una consulta, el sistema busca primero en esos documentos la información más relevante y
+    se la entrega a la IA para que elabore la respuesta. El resultado es preciso y trazable —
+    no una respuesta inventada.
+  </p>
+
+  <p>
+    El diseño técnico para conectar esta base de conocimiento directamente con <strong>SharePoint</strong>
+    está completado y listo para activarse en cuanto dispongamos del servidor dedicado.
+  </p>
+
+  <hr class="sep">
+
+  <!-- BOTS -->
+  <h3>Bots de Mensajería</h3>
+
+  <p>
+    Existe un desarrollo completo para conectar los Agentes IA diseñados en la plataforma para ser usados en —
+    <strong>Telegram, Whatsapp, Discord, etc</strong> — para que los empleados puedan hacer consultas
+    directamente desde el móvil, sin necesidad de abrir el navegador. El bot actúa como
+    intermediario: recibe la pregunta y devuelve la respuesta de la plataforma al instante. Créditos a JALCALÁ por la idea inicial.
+  </p>
+
+  <p>
+    El caso de uso principal son los <strong>técnicos de servicio, taller y comerciales</strong>:
+    acceso a consultas técnicas y de producto mientras están de viaje.
+  </p>
+
+  <hr class="sep">
+
+  <!-- EXTRA -->
+  <h3>OpenSea — Carta Náutica Interactiva <span class="badge badge-extra">Extra</span></h3>
+
+  <p>
+    OpenSea nace como un reto técnico personal, simplemente quería poner a prueba en un mismo entorno
+    distintas capacidades técnicas, bases de datos locales, funciones matemáticas, conexiones con API's
+    externas, diseño web y comprobar que todo funcionara de forma estable sin romperse. La idea era
+    modesta, pero se me fué un poco de las manos.
+  </p>
+
+  <p>
+    Lo que empezó como un campo de pruebas acabó convirtiéndose en una aplicación web funcional en fase de demo:
+    una carta náutica interactiva que cuenta actualmente con 32 distribuidores de Touron indexados en base de datos local, meteorología marina,
+    GPS en tiempo real, radar de lluvia, tráfico marítimo, radio y herramientas de navegación entre otras funcionalidades.
+  </p>
+
+  <p>
+    La incluyo aquí como muestra de lo que puede surgir cuando se combina un perfil con mi experiencia con la IA, lo que os comentaba durante la carta de presentación.
+  </p>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     02 — DESCRIPCIÓN DE LA PLATAFORMA
+═══════════════════════════════════════════ -->
+<section class="doc-section">
+
+  <div class="doc-header">
+    <span class="doc-title">Propuesta Técnica — Plataforma IA · Touron S.A.</span>
+    <span class="doc-ref">02 · Descripción de la Plataforma</span>
+  </div>
+
+  <h2>Descripción de la Plataforma</h2>
+
+  <p>
+    He bautizado a esta plataforma como <strong>Shimmer Platform</strong>. Constituye el núcleo tecnológico
+    sobre el que he construido todos los servicios de inteligencia artificial para Touron.
+    Su diseño prioriza la privacidad, la independencia tecnológica y la escalabilidad.
+  </p>
+
+  <h3>Arquitectura general</h3>
+
+  <p>
+    He estructurado la plataforma en tres capas bien diferenciadas: el motor de inferencia de modelos
+    de lenguaje, la interfaz de usuario y gestión de conocimiento, y la capa de infraestructura que
+    orquesta todos los servicios.
+  </p>
+
+  <ul>
+    <li>
+      <strong>Motor LLM local (Ollama):</strong> corre directamente en el servidor Windows o Linux de la empresa.
+      Gestiona la ejecución de modelos de lenguaje sin enviar ningún dato a servicios externos.
+      Lo he configurado para ejecutar hasta tres modelos en paralelo con tiempo de retención en
+      memoria optimizado.
+    </li>
+    <li>
+      <strong>Interfaz principal (Open WebUI):</strong> plataforma web que proporciona acceso a los
+      modelos, los sistemas RAG y los agentes especializados. La he personalizado con la identidad
+      visual de Touron S.A.
+    </li>
+    <li>
+      <strong>Infraestructura Docker:</strong> todos los servicios —excepto el motor LLM— corren en
+      contenedores Docker aislados (usando una máquina virtual de linux), lo que garantiza, portabilidad y facilidad de
+      mantenimiento. He creado entornos separados para desarrollo y producción.
+    </li>
+    <li>
+      <strong>Modelo híbrido:</strong> aunque el procesamiento es local por defecto, he diseñado la
+      arquitectura para permitir conectar modelos premium de terceros vía API cuando sea necesario,
+      sin modificar la plataforma base (Chat GPT, Claude, Gemini, QWen, lo que queramos)
+    </li>
+  </ul>
+
+  <h3>Stack técnico completo</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Capa</th>
+        <th>Tecnología</th>
+        <th>Función</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Motor LLM</strong></td>
+        <td>Ollama (host Windows)</td>
+        <td>Inferencia de modelos de lenguaje en local. Sin costes por uso, sin envío de datos.</td>
+      </tr>
+      <tr>
+        <td><strong>Interfaz principal</strong></td>
+        <td>Open WebUI v0.8.12</td>
+        <td>Chat, gestión de RAG, agentes especializados, historial de conversaciones.</td>
+      </tr>
+      <tr>
+        <td><strong>Interfaz alternativa</strong></td>
+        <td>AnythingLLM</td>
+        <td>Segundo frontend disponible como redundancia o para casos de uso específicos.</td>
+      </tr>
+      <tr>
+        <td><strong>Orquestación</strong></td>
+        <td>Docker Compose (multi-entorno)</td>
+        <td>Gestión de contenedores en entornos separados: desarrollo, producción, bots y herramientas.</td>
+      </tr>
+      <tr>
+        <td><strong>Acceso a ficheros</strong></td>
+        <td>Filebrowser (inyectable)</td>
+        <td>Acceso puntual a volúmenes internos de los contenedores para mantenimiento y auditoría.</td>
+      </tr>
+      <tr>
+        <td><strong>Bots de mensajería</strong></td>
+        <td>Python + librerías de mensajería</td>
+        <td>Bots conectados a la plataforma para acceso desde Telegram, WhatsApp u otras plataformas.</td>
+      </tr>
+      <tr>
+        <td><strong>Webapp complementaria</strong></td>
+        <td>HTML / CSS / JS + Leaflet</td>
+        <td>Carta náutica interactiva para la red comercial (proyecto adicional).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Infraestructura Docker: entornos</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Fichero</th>
+        <th>Entorno</th>
+        <th>Descripción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>prod.yml</code></td>
+        <td>Producción</td>
+        <td>Stack principal: Open WebUI + AnythingLLM. Acceso estable para usuarios.</td>
+      </tr>
+      <tr>
+        <td><code>dev.yml</code></td>
+        <td>Desarrollo</td>
+        <td>Réplica del stack de producción para pruebas y validación sin afectar a usuarios.</td>
+      </tr>
+      <tr>
+        <td><code>bots.yml</code></td>
+        <td>Bots</td>
+        <td>Contenedores de bots de mensajería. Independientes del stack principal.</td>
+      </tr>
+      <tr>
+        <td><code>tools.yml</code></td>
+        <td>Herramientas</td>
+        <td>Servicios auxiliares: Filebrowsers temporales para acceso a volúmenes.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     03 — AGENTES Y SOFTWARE
+═══════════════════════════════════════════ -->
+<section class="doc-section">
+
+  <div class="doc-header">
+    <span class="doc-title">Propuesta Técnica — Plataforma IA · Touron S.A.</span>
+    <span class="doc-ref">03 · Agentes, Servicios y Software Desarrollado</span>
+  </div>
+
+  <h2>Inventario de Componentes Desarrollados</h2>
+
+  <p>
+    Además de la infraestructura base, he desarrollado un conjunto de componentes funcionales a medida
+    para las necesidades específicas de Touron S.A.: agentes especializados, bots de mensajería y
+    documentación técnica exhaustiva.
+  </p>
+
+  <h3>Agentes Especializados</h3>
+
+  <p>
+    He configurado y documentado <strong>9 agentes de inteligencia artificial</strong>, cada uno
+    diseñado para un perfil de usuario o caso de uso concreto dentro de la empresa.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:30%">Agente</th>
+        <th>Función y usuario objetivo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Asistente Náutico Touron</strong></td>
+        <td>
+          Orientado a clientes y red comercial. Responde consultas sobre productos y servicios
+          de Touron S.A.: gama Mercury, Quicksilver, Bayliner, Navan, Simrad y Lowrance.
+          <span class="badge badge-piloto">Activo</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Asesor Náutico Estratégico</strong></td>
+        <td>
+          Analiza el mercado náutico ibérico, matriculaciones, benchmarking competitivo y tendencias.
+          Orientado a dirección comercial y estrategia.
+          <span class="badge badge-piloto">Activo</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Diagnóstico de Motores</strong></td>
+        <td>
+          Protocolo estructurado de 5 pasos para diagnóstico técnico de motores V8/V6 Mercury
+          Outboards y MerCruiser.
+          <span class="badge badge-piloto">Activo</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>AI Engineer</strong></td>
+        <td>
+          Experto en sistemas LLM/RAG de producción. Lo utilizo como apoyo en el propio desarrollo
+          y evolución de la plataforma.
+          <span class="badge badge-piloto">Activo</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Docker Expert</strong></td>
+        <td>
+          Especialista en containerización Docker. Apoya el mantenimiento y evolución de la
+          infraestructura de la plataforma.
+          <span class="badge badge-piloto">Activo</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Docker Backup</strong></td>
+        <td>
+          Procedimientos guiados para respaldo manual de volúmenes, configuraciones y datos
+          de los contenedores.
+          <span class="badge badge-piloto">Activo</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>BLAST Pilot</strong></td>
+        <td>
+          Automatización determinista basada en el protocolo B.L.A.S.T. Para tareas fiables
+          y reproducibles.
+          <span class="badge badge-piloto">Activo</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>MK Asesor 360</strong></td>
+        <td>
+          Analista de marketing digital. Audita presencia online, SEO, redes sociales y reputación
+          de marca.
+          <span class="badge badge-piloto">Activo</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>OpenWebUI Rebrand</strong></td>
+        <td>
+          Personalización de la interfaz Open WebUI con identidad corporativa de Touron S.A.
+          Sin modificar el código fuente.
+          <span class="badge badge-piloto">Activo</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Bots de Mensajería</h3>
+
+  <p>
+    He desarrollado bots de mensajería que actúan como canal de acceso móvil a los agentes y
+    RAGs desde cualquier dispositivo. Especialmente útiles para empleados en campo.
+  </p>
+
+  <ul>
+    <li>
+      <strong>Técnicos de Servicio y Taller en desplazamiento:</strong> consultas a manuales Mercury,
+      fichas de reparación y procedimientos internos desde el móvil, en tiempo real.
+    </li>
+    <li>
+      <strong>Comerciales en visitas:</strong> acceso rápido a información de producto,
+      especificaciones técnicas y argumentario comercial sin llamar a la oficina.
+    </li>
+  </ul>
+
+  <div class="callout">
+    <p>
+      He preparado la arquitectura para desplegar múltiples bots en paralelo —por plataforma
+      (Telegram, WhatsApp) o por perfil de usuario— en contenedores independientes,
+      sin impacto en el resto de los servicios.
+    </p>
+  </div>
+
+  <h3>OpenSea — Carta Náutica Interactiva <span class="badge badge-extra" style="font-size:8pt;vertical-align:middle;">Proyecto adicional</span></h3>
+
+  <p>
+    OpenSea nació como un reto técnico personal: quería probar en un mismo entorno distintas
+    capacidades —bases de datos locales, funciones matemáticas, conexiones con APIs externas—
+    y ver si era posible mantenerlo todo estable y funcional sin que se rompiera. La idea era
+    modesta. El resultado, no tanto: acabó derivando en una aplicación náutica completa.
+  </p>
+
+  <p>
+    La presento como muestra de capacidades técnicas, no como parte de la oferta principal
+    de esta propuesta.
+  </p>
+
+  <ul>
+    <li>~3.800 líneas de código, sin backend propio</li>
+    <li>32 distribuidores Touron en España y Portugal con ficha completa de contacto</li>
+    <li>GPS en tiempo real, meteorología marina, radar de lluvia, tráfico marítimo en vivo</li>
+    <li>Hombre al agua, alarma de fondeo, regla náutica, calculadora Sol/Luna</li>
+    <li>Diseño responsive completo: escritorio, tablet y móvil</li>
+  </ul>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     04 — RESULTADOS Y ROADMAP
+═══════════════════════════════════════════ -->
+<section class="doc-section">
+
+  <div class="doc-header">
+    <span class="doc-title">Propuesta Técnica — Plataforma IA · Touron S.A.</span>
+    <span class="doc-ref">04 · Resultados de la Fase Piloto y Potencial de Escalabilidad</span>
+  </div>
+
+  <h2>Resultados Medidos — Fase Piloto</h2>
+
+  <p>
+    La plataforma lleva operativa en fase piloto limitada desde el primer trimestre de 2026,
+    con acceso restringido al departamento de Servicio. Los datos de ahorro son reales y medidos;
+    no son proyecciones ni estimaciones teóricas.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Perfil</th>
+        <th>Ahorro mensual medido</th>
+        <th>Tipo de tarea</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>2 empleados — Dpto. de Servicio</strong></td>
+        <td><strong>~15 horas / mes</strong></td>
+        <td>Consultas técnicas, soporte y búsqueda de información en manuales</td>
+      </tr>
+      <tr>
+        <td><strong>Director de Servicio</strong></td>
+        <td><strong>~2-3 horas / mes</strong></td>
+        <td>Revisión, supervisión y resolución de consultas escaladas</td>
+      </tr>
+      <tr>
+        <td style="background:#eef2fa;"><strong>Total fase piloto</strong></td>
+        <td style="background:#eef2fa;"><strong>~17-18 horas / mes</strong></td>
+        <td style="background:#eef2fa;"><strong>Solo en el Departamento de Servicio</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="nota">
+    Estos datos corresponden exclusivamente al piloto en Servicio, con infraestructura no dedicada
+    y en condiciones de uso controlado. El ahorro real en producción plena será considerablemente mayor.
+  </div>
+
+  <h3>Proyección de escalabilidad</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Departamento</th>
+        <th>Caso de uso principal</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Servicio</strong></td>
+        <td>Consultas técnicas, soporte, diagnóstico asistido</td>
+        <td><span class="badge badge-piloto">Piloto activo</span></td>
+      </tr>
+      <tr>
+        <td><strong>Taller</strong></td>
+        <td>Diagnóstico con software G3 (Mercury Marine), fichas de reparación, manuales técnicos</td>
+        <td><span class="badge badge-pendiente">En exploración</span></td>
+      </tr>
+      <tr>
+        <td><strong>Comercial</strong></td>
+        <td>Consultas de producto, argumentario, información técnica para clientes</td>
+        <td><span class="badge badge-pendiente">Pendiente</span></td>
+      </tr>
+      <tr>
+        <td><strong>Administración</strong></td>
+        <td>Consultas de procedimientos internos, documentación SharePoint, ERP Libra</td>
+        <td><span class="badge badge-pendiente">Pendiente</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="destacado">
+    <p>
+      <strong>Ahorro proyectado total:</strong> entre 50 y 80 horas mensuales en el conjunto
+      de la empresa, una vez completado el roadmap. Estimación extrapolada a partir de los
+      resultados reales del piloto — solo el Departamento de Servicio ha sido evaluado hasta la fecha.
+    </p>
+  </div>
+
+  <h2 class="forzar-salto">Potencial de Escalabilidad y Roadmap</h2>
+
+  <p>
+    He planificado una hoja de ruta de proyectos, algunos con arquitectura técnica completa lista
+    para implementar en cuanto dispongamos de infraestructura de producción.
+  </p>
+
+  <h3>Inmediatos — bloqueados solo por infraestructura</h3>
+  <ul>
+    <li>
+      <strong>Despliegue en servidor dedicado:</strong> paso previo necesario para llevar la
+      plataforma a producción real.
+    </li>
+    <li>
+      <strong>RAG SharePoint Online:</strong> he diseñado un sistema de sincronización automática
+      del contenido de SharePoint con la base de conocimiento de la plataforma.
+      El diseño técnico está completo: Docker + Python + Microsoft Graph API.
+      Solo requiere credenciales Azure y servidor dedicado para activarse.
+    </li>
+  </ul>
+
+  <h3>Corto plazo</h3>
+  <ul>
+    <li>
+      <strong>Integración ERP Libra (Oracle):</strong> acceso inteligente a los datos del ERP.
+      Consultas automatizadas y cruce de datos históricos. En coordinación con José Sanz.
+    </li>
+    <li>
+      <strong>Asistente G3 — Departamento de Servicio:</strong> asistencia para interpretar los datos
+      de telemetría de motores Mercury G3, cruzarlos con manuales vía RAG y guiar hipótesis de fallo.
+      <em>Ahorro de horas pendiente de medir.</em>
+    </li>
+    <li>
+      <strong>Asistente de taller:</strong> agente con argot técnico específico y acceso a fichas
+      de reparación vía RAG.
+    </li>
+  </ul>
+
+  <h3>Medio plazo</h3>
+  <ul>
+    <li><strong>Dashboard analítico de uso:</strong> seguimiento del impacto por departamento.</li>
+    <li><strong>Fine-tuning con datos propios de Touron:</strong> modelos ajustados al vocabulario y contexto de la empresa.</li>
+    <li><strong>Extensión OpenSea:</strong> velocidad SOG, waypoints guardados, SOS integrado, modo nocturno.</li>
+  </ul>
+
+  <div class="callout">
+    <p>
+      He diseñado la plataforma para crecer de forma modular. El coste marginal de añadir un nuevo
+      agente, una base de conocimiento RAG o un bot es mínimo una vez que la infraestructura base
+      está en producción.
+    </p>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     05 — RESPONSABILIDADES
+═══════════════════════════════════════════ -->
+<section class="doc-section">
+
+  <div class="doc-header">
+    <span class="doc-title">Propuesta Técnica — Plataforma IA · Touron S.A.</span>
+    <span class="doc-ref">05 · Responsabilidades, Compromisos y Compensación</span>
+  </div>
+
+  <h2>Implicaciones Técnicas y Responsabilidades</h2>
+
+  <p>
+    El trabajo que he asumido va significativamente más allá del perfil de soporte técnico habitual.
+    A continuación detallo el alcance real de lo que cubro y lo que implica para la empresa.
+  </p>
+
+  <h3>Responsabilidades de desarrollo</h3>
+  <ul>
+    <li><strong>Diseño de arquitectura de IA:</strong> selección de modelos, estrategia de embeddings, configuración del sistema RAG y decisiones de escalabilidad.</li>
+    <li><strong>Desarrollo full-stack:</strong> backend (Docker, APIs REST, Python), frontend (aplicaciones web responsive), infraestructura y orquestación multi-entorno.</li>
+    <li><strong>Diseño de sistemas RAG:</strong> estructuración de bases de conocimiento, integración de fuentes documentales (SharePoint, manuales, ERP).</li>
+    <li><strong>Creación de agentes especializados:</strong> diseño, configuración mediante prompt engineering avanzado y validación de los 9 agentes.</li>
+    <li><strong>Integración de APIs y servicios externos:</strong> meteorología marina, cartografía, radar de lluvia, tráfico marítimo, geocodificación, radio.</li>
+    <li><strong>Gestión de entornos y versiones:</strong> entornos de desarrollo y producción separados, control de versiones con Git, documentación técnica completa.</li>
+    <li><strong>Usabilidad sin formación técnica:</strong> todas las herramientas están diseñadas para ser utilizadas por cualquier empleado, absorbiendo yo la complejidad en el diseño.</li>
+  </ul>
+
+  <h3>Responsabilidades de gestión continua</h3>
+  <ul>
+    <li><strong>Administración del servidor dedicado:</strong> sistema operativo, actualizaciones de seguridad, hardware, mantenimiento preventivo.</li>
+    <li><strong>Gestión del stack de software:</strong> Docker, Open WebUI, Ollama, modelos LLM — actualizaciones, versiones, compatibilidad.</li>
+    <li><strong>Monitorización y disponibilidad:</strong> seguimiento del rendimiento y estado de todos los servicios.</li>
+    <li><strong>Gestión de copias de seguridad:</strong> respaldo periódico de contenedores, volúmenes, bases de conocimiento y configuraciones.</li>
+    <li><strong>Resolución de incidencias:</strong> atención a fallos técnicos de la plataforma, la red o los servicios asociados.</li>
+    <li><strong>Evolución tecnológica:</strong> evaluación continua de nuevos modelos y herramientas de IA para mantener la plataforma competitiva.</li>
+  </ul>
+
+  <div class="nota">
+    En un contrato con consultora externa, la gestión de plataforma se factura por separado como
+    servicio de mantenimiento recurrente, con costes típicos de 500 a 1.500 € mensuales,
+    independientemente del coste inicial de desarrollo.
+  </div>
+
+  <h3>Un rol multidisciplinar</h3>
+
+  <p>El conjunto de responsabilidades que asumo cubre funciones que en una organización de tamaño
+  medio recaerían sobre varios perfiles especializados:</p>
+
+  <div class="cols-2">
+    <ul>
+      <li>Arquitecto de soluciones</li>
+      <li>Desarrollador full-stack</li>
+      <li>Administrador de sistemas</li>
+    </ul>
+    <ul>
+      <li>Especialista en sistemas RAG e IA</li>
+      <li>Diseñador de agentes conversacionales</li>
+      <li>Responsable de mantenimiento y operaciones</li>
+    </ul>
+  </div>
+
+  <div class="callout">
+    <p>
+      Disponen de todos estos perfiles en una única persona, con conocimiento profundo del negocio,
+      las marcas y el contexto sectorial de Touron S.A. Es una combinación difícilmente replicable
+      desde el exterior.
+    </p>
+  </div>
+
+  <hr class="sep">
+
+  <h2>Condiciones y Compromisos</h2>
+  <ul>
+    <li><strong>Propiedad intelectual:</strong> todo el desarrollo —código, agentes, documentación y bases de conocimiento— pertenece íntegramente a Touron S.A.</li>
+    <li><strong>Continuidad:</strong> me comprometo a mantener y evolucionar la plataforma mientras forme parte de la empresa.</li>
+    <li><strong>Disponibilidad:</strong> gestiono la plataforma dentro del horario laboral habitual, con atención a incidencias críticas cuando la situación lo requiera.</li>
+    <li><strong>Costes de software:</strong> la plataforma se basa en software de código abierto —sin costes de licencia para los servicios desplegados—. Sin embargo, para un desarrollo de esta envergadura necesito herramientas especializadas —entorno de desarrollo (VS Code) y asistencia de IA avanzada (Claude Code)— que solicito que sean asumidas por la empresa como equipamiento técnico del rol. Los costes de infraestructura se detallan en el documento adjunto.</li>
+    <li><strong>Confidencialidad y privacidad:</strong> he diseñado la arquitectura para que ningún dato de la empresa salga de la red interna. Cumplimiento por diseño, sin procedimientos adicionales.</li>
+  </ul>
+
+  <hr class="sep">
+
+  <h2>Conclusión</h2>
+
+  <p>
+    He construido para Touron S.A. una plataforma de inteligencia artificial funcional, segura y
+    diseñada específicamente para su negocio. Una plataforma que nace del conocimiento de más de
+    65 años de empresa, que ya genera ahorros medibles y tiene un roadmap técnico sólido para crecer.
+  </p>
+
+  <p>
+    La inversión real ha sido, hasta ahora, mi tiempo y conocimiento. Considero que formalizar las
+    condiciones de colaboración es el paso natural para garantizar la continuidad y el compromiso a
+    largo plazo de este proyecto.
+  </p>
+
+  <div class="destacado">
+    <p>
+      Touron S.A. tiene la oportunidad de convertirse en referente tecnológico dentro del sector
+      náutico ibérico —no solo como distribuidor, sino como empresa que crea y posee sus propias
+      herramientas de inteligencia artificial. Esa ventaja solo existe si se invierte en mantenerla.
+    </p>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     06 — TERMINOLOGÍA TÉCNICA
+═══════════════════════════════════════════ -->
+<section class="doc-section">
+
+  <div class="doc-header">
+    <span class="doc-title">Propuesta Técnica — Plataforma IA · Touron S.A.</span>
+    <span class="doc-ref">06 · Terminología Técnica</span>
+  </div>
+
+  <h2>Terminología Técnica</h2>
+
+  <p>
+    Este apartado explica en lenguaje sencillo los términos técnicos que aparecen a lo largo de
+    esta propuesta. No es necesario entenderlos en profundidad para valorar el proyecto; están aquí
+    simplemente para que cualquier lector pueda situar cada concepto con facilidad.
+  </p>
+
+  <hr class="sep">
+
+  <h3>Inteligencia Artificial y Modelos de Lenguaje</h3>
+  <table>
+    <thead><tr><th style="width:28%">Término</th><th>Qué significa en la práctica</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Inteligencia Artificial (IA)</strong></td><td>Tecnología que permite a los ordenadores realizar tareas que normalmente requieren inteligencia humana: entender preguntas escritas, redactar textos, analizar información o dar recomendaciones. En esta plataforma, la IA es el motor que responde a los empleados.</td></tr>
+      <tr><td><strong>LLM</strong><br><em>(Large Language Model)</em></td><td>Literalmente, "modelo de lenguaje grande". El tipo de IA que hay detrás de herramientas como ChatGPT. Entiende preguntas en lenguaje natural y responde de forma coherente. En nuestra plataforma corre dentro de nuestros propios servidores, sin enviar nada al exterior.</td></tr>
+      <tr><td><strong>Modelo de IA</strong></td><td>El "cerebro" entrenado que realiza las respuestas. Hay modelos de distintos tamaños y capacidades. En la plataforma se pueden tener varios instalados a la vez.</td></tr>
+      <tr><td><strong>Prompt / Prompt Engineering</strong></td><td>Un <em>prompt</em> es la instrucción que se le da a la IA. <em>Prompt engineering</em> es el arte de diseñar esas instrucciones de forma precisa para que la IA se comporte exactamente como se necesita. Es la base de cómo están construidos los agentes.</td></tr>
+      <tr><td><strong>Fine-tuning</strong></td><td>Proceso de "afinar" un modelo de IA con datos propios de la empresa para que aprenda el vocabulario, los productos y el contexto específico de Touron S.A.</td></tr>
+      <tr><td><strong>Embedding</strong></td><td>Representación matemática del significado de un texto. Permite buscar en documentos por significado, no solo por palabras exactas. Es lo que hace posible que la IA "entienda" los documentos en lugar de simplemente buscar palabras.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>RAG — Conocimiento Propio de la Empresa</h3>
+  <table>
+    <thead><tr><th style="width:28%">Término</th><th>Qué significa en la práctica</th></tr></thead>
+    <tbody>
+      <tr><td><strong>RAG</strong><br><em>(Retrieval-Augmented Generation)</em></td><td>Tecnología que permite a la IA responder usando documentos reales de la empresa —manuales, procedimientos, fichas de producto— en lugar de inventar respuestas. El sistema busca primero en los documentos internos la información más relevante y la entrega a la IA para que redacte la respuesta. Se puede resumir como: <em>"la IA, pero con los documentos de Touron".</em></td></tr>
+      <tr><td><strong>Base de conocimiento</strong></td><td>La colección de documentos que la plataforma tiene indexados: manuales técnicos, procedimientos internos, catálogos, políticas. Cuantos más y mejores documentos, más precisas serán las respuestas.</td></tr>
+      <tr><td><strong>Indexar un documento</strong></td><td>Preparar un documento para que la IA pueda consultarlo. Similar a añadir un libro a una biblioteca con su ficha de catálogo.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Infraestructura y Tecnología</h3>
+  <table>
+    <thead><tr><th style="width:28%">Término</th><th>Qué significa en la práctica</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Servidor dedicado</strong></td><td>Un ordenador de alta potencia destinado exclusivamente a ejecutar la plataforma. Diseñado para funcionar las 24 horas del día con alta fiabilidad.</td></tr>
+      <tr><td><strong>Docker / Contenedor</strong></td><td>Tecnología que aísla cada programa dentro de su propia "caja" independiente en el servidor. Si un servicio falla o se actualiza, no afecta al resto.</td></tr>
+      <tr><td><strong>Docker Compose</strong></td><td>Herramienta que arranca y coordina varios contenedores a la vez. Como un director de orquesta que pone en marcha todos los servicios en el orden correcto.</td></tr>
+      <tr><td><strong>Ollama</strong></td><td>El programa que gestiona y ejecuta los modelos de IA dentro del servidor. Es el motor real que procesa las preguntas y genera las respuestas, sin enviar nada a internet.</td></tr>
+      <tr><td><strong>Open WebUI</strong></td><td>La interfaz web que ven los empleados al acceder a la plataforma: donde se escribe la pregunta, se selecciona el agente y aparece la respuesta.</td></tr>
+      <tr><td><strong>API</strong><br><em>(Application Programming Interface)</em></td><td>Una "puerta de acceso" que permite a dos programas comunicarse. Por ejemplo, cuando la plataforma consulta el tiempo en el mar lo hace a través de la API de un servicio meteorológico.</td></tr>
+      <tr><td><strong>Open Source</strong></td><td>Software cuyo código es público y gratuito. La mayor parte de los componentes de esta plataforma son open source: sin costes de licencia y sin dependencia de ningún proveedor.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Desarrollo de Software</h3>
+  <table>
+    <thead><tr><th style="width:28%">Término</th><th>Qué significa en la práctica</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Full-stack</strong></td><td>Capacidad de desarrollar tanto la parte visible de una aplicación como la parte que funciona por debajo —servidor, lógica, datos—. Un desarrollador full-stack cubre todo el proceso de principio a fin.</td></tr>
+      <tr><td><strong>Frontend</strong></td><td>La parte que ve y usa directamente el usuario: botones, pantallas, menús. En esta plataforma, el frontend es la interfaz web Open WebUI y la carta náutica OpenSea.</td></tr>
+      <tr><td><strong>Backend</strong></td><td>La parte que funciona entre bastidores: el servidor, la lógica que procesa las peticiones. El usuario no la ve, pero sin ella el frontend no funciona.</td></tr>
+      <tr><td><strong>Responsive</strong></td><td>Diseño que se adapta automáticamente a cualquier tamaño de pantalla: ordenador, tablet o móvil.</td></tr>
+      <tr><td><strong>Git / Control de versiones</strong></td><td>Sistema que registra cada cambio realizado en el código. Permite saber qué se cambió, cuándo y por qué, y revertir cualquier cambio si algo sale mal.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Agentes y Bots</h3>
+  <table>
+    <thead><tr><th style="width:28%">Término</th><th>Qué significa en la práctica</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Agente de IA</strong></td><td>Asistente virtual especializado en un área concreta, con instrucciones precisas sobre cómo comportarse y qué conoce. En la plataforma hay 9 agentes, cada uno pensado para un departamento o tarea específica.</td></tr>
+      <tr><td><strong>Bot de mensajería</strong></td><td>Programa que actúa como intermediario dentro de Telegram o WhatsApp y conecta al empleado con la plataforma desde el móvil. El empleado escribe su pregunta como si fuera un mensaje y recibe la respuesta al instante.</td></tr>
+    </tbody>
+  </table>
+
+</section>
+
+</body>
+</html>

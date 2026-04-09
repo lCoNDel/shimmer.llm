@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>01 — Resumen del Proyecto · Plataforma IA Touron S.A.</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div class="page">
+
+  <div class="doc-header">
+    <span class="doc-title">Propuesta Técnica — Plataforma IA · Touron S.A.</span>
+    <span class="doc-ref">01 · Resumen del Proyecto</span>
+  </div>
+
+  <h2>Resumen del Proyecto</h2>
+
+  <p>
+    He desarrollado una plataforma propia de inteligencia artificial para Touron S.A., operativa
+    desde el primer trimestre de 2026. Permite a los empleados consultar información técnica,
+    obtener asistencia especializada y acceder al conocimiento interno de la empresa de forma
+    inmediata, sin depender de proveedores externos ni incurrir en costes recurrentes por uso.
+  </p>
+
+  <hr class="sep">
+
+  <!-- NÚCLEO -->
+  <h3>La Plataforma Base — Open WebUI</h3>
+
+  <p>
+    El núcleo de la plataforma es <strong>Open WebUI</strong>: una interfaz completa de inteligencia
+    artificial, comparable en funcionalidad a ChatGPT, que funciona íntegramente dentro de la red
+    de Touron S.A. Los modelos de IA se ejecutan en nuestros propios servidores —
+    <strong>ningún dato sale al exterior</strong>. Esto garantiza privacidad total y elimina los
+    costes de suscripción que implican las soluciones comerciales como ChatGPT o Microsoft Copilot.
+  </p>
+
+  <p>
+    La plataforma es accesible desde cualquier navegador, sin instalaciones ni configuración por
+    parte del usuario. Funciona tanto en ordenador como en móvil y tablet.
+  </p>
+
+  <hr class="sep">
+
+  <!-- AGENTES -->
+  <h3>Agentes Especializados</h3>
+
+  <p>
+    Sobre la base de Open WebUI he configurado <strong>9 agentes especializados</strong>, cada uno
+    diseñado para un área concreta de Touron S.A. A diferencia de una IA genérica, cada agente
+    tiene instrucciones precisas: conoce el contexto de la empresa, las marcas que representamos
+    y cómo debe responder según su función.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Agente</th>
+        <th>Para quién</th>
+        <th>Qué hace</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Asistente Touron</strong></td>
+        <td>Clientes y red comercial</td>
+        <td>Responde consultas sobre productos Mercury, Quicksilver, Bayliner, Simrad y Lowrance</td>
+      </tr>
+      <tr>
+        <td><strong>Diagnóstico de Motores</strong></td>
+        <td>Departamento de Servicio</td>
+        <td>Guía el diagnóstico técnico de motores Mercury y MerCruiser de forma estructurada</td>
+      </tr>
+      <tr>
+        <td><strong>Asesor Náutico</strong></td>
+        <td>Dirección comercial</td>
+        <td>Analiza el mercado náutico ibérico, matriculaciones y competencia</td>
+      </tr>
+      <tr>
+        <td><strong>AI Engineer</strong></td>
+        <td>Desarrollo interno</td>
+        <td>Asiste en el diseño y evolución de la propia plataforma</td>
+      </tr>
+      <tr>
+        <td><strong>Docker Expert</strong></td>
+        <td>Administración de sistemas</td>
+        <td>Gestión de la infraestructura de contenedores de la plataforma</td>
+      </tr>
+      <tr>
+        <td><strong>MK Asesor 360</strong></td>
+        <td>Marketing</td>
+        <td>Auditoría de marketing digital, SEO, CRO y branding</td>
+      </tr>
+      <tr>
+        <td><strong>BLAST Pilot</strong></td>
+        <td>Operaciones</td>
+        <td>Automatización de procesos mediante protocolo estructurado</td>
+      </tr>
+      <tr>
+        <td><strong>Docker Backup</strong></td>
+        <td>Administración de sistemas</td>
+        <td>Procedimientos de respaldo de la infraestructura</td>
+      </tr>
+      <tr>
+        <td><strong>OpenWebUI Rebrand</strong></td>
+        <td>Desarrollo interno</td>
+        <td>Personalización de la interfaz con identidad visual corporativa</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr class="sep">
+
+  <!-- RAG -->
+  <h3>Bases de Conocimiento (RAG)</h3>
+
+  <p>
+    Los agentes pueden conectarse a <strong>bases de conocimiento</strong> formadas por documentación
+    real de la empresa: manuales técnicos, procedimientos, fichas de producto. Cuando el empleado
+    hace una consulta, el sistema busca primero en esos documentos la información más relevante y
+    se la entrega a la IA para que elabore la respuesta. El resultado es preciso y trazable —
+    no una respuesta inventada.
+  </p>
+
+  <p>
+    El diseño técnico para conectar esta base de conocimiento directamente con <strong>SharePoint</strong>
+    está completado y listo para activarse en cuanto dispongamos del servidor dedicado.
+  </p>
+
+  <hr class="sep">
+
+  <!-- BOTS -->
+  <h3>Bots de Mensajería</h3>
+
+  <p>
+    He desarrollado bots que conectan la plataforma con aplicaciones de mensajería —
+    <strong>Telegram y WhatsApp</strong> — para que los empleados puedan hacer consultas
+    directamente desde el móvil, sin necesidad de abrir el navegador. El bot actúa como
+    intermediario: recibe la pregunta y devuelve la respuesta de la plataforma al instante.
+  </p>
+
+  <p>
+    El caso de uso principal son los <strong>técnicos de Servicio y comerciales en campo</strong>:
+    acceso a consultas técnicas y de producto mientras están en desplazamiento, sin
+    interrumpir el flujo de trabajo.
+  </p>
+
+  <hr class="sep">
+
+  <!-- EXTRA -->
+  <h3>OpenSea — Carta Náutica Interactiva <span class="badge badge-extra">Extra</span></h3>
+
+  <p>
+    OpenSea nació como un reto técnico personal: quería poner a prueba en un mismo entorno
+    distintas capacidades —bases de datos locales, funciones matemáticas, conexiones con APIs
+    externas— y comprobar que todo funcionara de forma estable sin romperse. La idea era
+    modesta; el resultado, no tanto.
+  </p>
+
+  <p>
+    Lo que empezó como un campo de pruebas acabó convirtiéndose en una aplicación web funcional:
+    una carta náutica interactiva con los 32 distribuidores de Touron S.A., meteorología marina,
+    GPS en tiempo real, radar de lluvia, tráfico marítimo, radio y herramientas de navegación.
+  </p>
+
+  <p>
+    La incluyo aquí como muestra de lo que puede surgir cuando se combina curiosidad técnica
+    con un contexto de negocio concreto. No es un entregable comprometido dentro de esta propuesta.
+  </p>
+
+  <!-- PIE -->
+  <div class="doc-footer">
+    <span>Touron S.A. — Confidencial · Uso interno</span>
+    <span>Luis Conde — Técnico de Sistemas · Abril 2026</span>
+  </div>
+
+</div>
+</body>
+</html>

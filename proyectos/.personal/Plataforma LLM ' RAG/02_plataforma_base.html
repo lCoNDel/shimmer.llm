@@ -17,39 +17,40 @@
   <h2>Descripción de la Plataforma</h2>
 
   <p>
-    La plataforma recibe internamente el nombre <strong>Shimmer LLM</strong> y constituye el núcleo tecnológico
-    sobre el que se construyen todos los servicios de inteligencia artificial de Touron S.A.
+    He llamado a esta plataforma <strong>Shimmer LLM</strong>. Constituye el núcleo tecnológico
+    sobre el que he construido todos los servicios de inteligencia artificial para Touron S.A.
     Su diseño prioriza la privacidad, la independencia tecnológica y la escalabilidad.
   </p>
 
   <h3>Arquitectura general</h3>
 
   <p>
-    La plataforma combina tres capas bien diferenciadas: el motor de inferencia de modelos de lenguaje,
-    la interfaz de usuario y gestión de conocimiento, y la capa de infraestructura que orquesta todos
-    los servicios.
+    He estructurado la plataforma en tres capas bien diferenciadas: el motor de inferencia de modelos
+    de lenguaje, la interfaz de usuario y gestión de conocimiento, y la capa de infraestructura que
+    orquesta todos los servicios.
   </p>
 
   <ul>
     <li>
       <strong>Motor LLM local (Ollama):</strong> corre directamente en el servidor Windows de la empresa.
       Gestiona la ejecución de modelos de lenguaje sin enviar ningún dato a servicios externos.
-      Configurado para ejecutar hasta tres modelos en paralelo con tiempo de retención en memoria optimizado.
+      Lo he configurado para ejecutar hasta tres modelos en paralelo con tiempo de retención en
+      memoria optimizado.
     </li>
     <li>
-      <strong>Interfaz principal (Open WebUI):</strong> plataforma web de gestión que proporciona acceso
-      a los modelos, los sistemas RAG y los agentes especializados. Personalizada con la identidad visual
-      de Touron S.A.
+      <strong>Interfaz principal (Open WebUI):</strong> plataforma web que proporciona acceso a los
+      modelos, los sistemas RAG y los agentes especializados. La he personalizado con la identidad
+      visual de Touron S.A.
     </li>
     <li>
       <strong>Infraestructura Docker:</strong> todos los servicios —excepto el motor LLM— corren en
       contenedores Docker aislados, lo que garantiza reproducibilidad, portabilidad y facilidad de
-      mantenimiento. Existen entornos separados para desarrollo y producción.
+      mantenimiento. He creado entornos separados para desarrollo y producción.
     </li>
     <li>
-      <strong>Modelo híbrido:</strong> aunque el procesamiento es local por defecto, la arquitectura
-      permite conectar modelos premium de terceros vía API para empleados o casos de uso específicos
-      que lo requieran, sin modificar la plataforma.
+      <strong>Modelo híbrido:</strong> aunque el procesamiento es local por defecto, he diseñado la
+      arquitectura para permitir conectar modelos premium de terceros vía API cuando sea necesario,
+      sin modificar la plataforma base.
     </li>
   </ul>
 
@@ -128,10 +129,10 @@
   <h3>Seguridad y privacidad</h3>
 
   <p>
-    El diseño de la plataforma parte de un principio fundamental: <strong>los datos de la empresa
+    He diseñado la plataforma sobre un principio fundamental: <strong>los datos de la empresa
     nunca salen de la red interna</strong>. Los modelos de lenguaje se ejecutan en local, los documentos
     indexados en el sistema RAG se almacenan en los propios volúmenes Docker del servidor, y ningún
-    servicio de la plataforma envía información a terceros por defecto.
+    servicio envía información a terceros por defecto.
   </p>
 
   <p>
@@ -142,7 +143,7 @@
   <div class="nota">
     Las soluciones comerciales de IA en la nube (ChatGPT Enterprise, Microsoft Copilot, etc.) implican
     cesión de datos a proveedores externos, términos de uso variables y costes mensuales recurrentes
-    por usuario. La plataforma de Touron S.A. elimina estos tres riesgos por diseño.
+    por usuario. Con esta plataforma, esos tres riesgos quedan eliminados por diseño.
   </div>
 
   <h3>Infraestructura Docker: detalle de los entornos</h3>
