@@ -4,52 +4,53 @@
 
 ---
 
-## Qué se ha construido en esta sesión
+## Archivo de trabajo principal
 
-Se han creado los documentos de propuesta técnica en:
+Todo el contenido ha sido consolidado en un único archivo:
+
 ```
-proyectos/.personal/Plataforma LLM ' RAG/
-├── assets/style.css
-├── 00_propuesta_ejecutiva.html
-├── 01_plataforma_base.html
-├── 02_agentes_y_software.html
-├── 03_resultados_y_roadmap.html
-└── 04_responsabilidades.html
+proyectos/.personal/Plataforma LLM ' RAG/PROPUESTA_COMPLETA.html
 ```
 
-Son archivos HTML con CSS compartido, diseñados para abrirse en Chrome/Edge y exportar a PDF con `Ctrl+P → Guardar como PDF`. Sin dependencias externas.
+Es un HTML autónomo (CSS inline, sin dependencias externas) que contiene todas las secciones en un único documento paginado. Se abre en Chrome/Edge y se exporta a PDF con `Ctrl+P → Guardar como PDF` (activar "Gráficos de fondo").
+
+Los archivos HTML individuales por sección siguen existiendo pero **el documento de trabajo es PROPUESTA_COMPLETA.html**.
 
 ---
 
 ## Propósito del documento
 
-Luis Conde trabaja en Touron S.A. como Técnico de Sistemas. Ha desarrollado internamente la plataforma de IA **Shimmer LLM** y necesita presentarla formalmente a dirección para justificar una compensación adecuada. El tono es de propuesta de consultora externa, dejando que el valor de la plataforma hable por sí solo (sin mencionar explícitamente el salario — eso queda implícito en la envergadura del trabajo).
+Luis Conde trabaja en Touron S.A. como Técnico de Sistemas (8 años en la empresa). Ha desarrollado internamente la plataforma de IA **Shimmer LLM** y necesita presentarla formalmente a dirección para justificar una compensación adecuada. El tono es de propuesta profesional, dejando que el valor de la plataforma hable por sí solo — sin mencionar explícitamente cifras salariales.
 
 ---
 
-## Estructura de los documentos (5 PDFs independientes)
+## Estructura del documento (secciones en PROPUESTA_COMPLETA.html)
 
-| Archivo | Contenido |
+| Sección | Contenido |
 |---------|-----------|
-| `00_propuesta_ejecutiva.html` | Portada + Resumen Ejecutivo + Contexto y Motivación |
-| `01_plataforma_base.html` | Arquitectura, Stack técnico, Docker |
-| `02_agentes_y_software.html` | 9 Agentes IA + Bots de mensajería + OpenSea (extra) |
-| `03_resultados_y_roadmap.html` | Resultados fase piloto + Roadmap |
-| `04_responsabilidades.html` | Responsabilidades + Condiciones + Compensación (en blanco) + Conclusión |
+| Portada | Título "Plataforma LLM & RAG", metadatos |
+| Carta de Presentación | Trayectoria personal de Luis (FP → ASIR → CC), motivación para la IA |
+| 01 · Shimmer Platform — Servicios Disponibles | Open WebUI como núcleo, 9 agentes, RAG, bots, OpenSea (extra) |
+| 02 · Descripción de la Plataforma | Arquitectura técnica, stack, entornos Docker |
+| 03 · Resultados y Roadmap | Fase piloto, proyección, roadmap inmediato + corto/medio/largo plazo |
+| 04 · Implicaciones Técnicas y Responsabilidades | Responsabilidades desarrollo y gestión, rol multidisciplinar, Compromisos y Ruegos, Conclusión |
+| 05 · Terminología Técnica | Glosario para audiencia no técnica |
 
 ---
 
 ## Decisiones de diseño tomadas
 
-- **OpenSea** se presenta como "proyecto adicional / muestra de capacidades", NO como entregable comprometido
-- **Sin cifras de consultora externa** — se eliminaron a petición del usuario
-- **Sección de compensación** (04_responsabilidades.html) tiene un bloque en blanco con línea discontinua para que Luis lo complete a mano antes de imprimir
-- El objetivo es que la dirección vea el valor y llegue sola a la conclusión, sin que Luis diga explícitamente "págame más"
-- **Arquitectura híbrida** destacada: IA local por defecto + opción de conectar modelos premium externos vía API
-- **Bots** descritos como canal de acceso móvil para técnicos en campo y comerciales en visitas
-- **G3 (Mercury Marine)** mencionado como caso de uso en exploración en el Dpto. de Servicio (no en taller), ahorro pendiente de medir
-- **Costes de herramientas** (VS Code + Claude Code) mencionados como equipamiento técnico que debe cubrir la empresa
-- **Documento de costes de plataforma** — existe por separado, ya lo tiene Luis; en el HTML solo se referencia como "documento adjunto"
+- **OpenSea** se presenta como "proyecto adicional / muestra de capacidades", NO como entregable comprometido. Nació como campo de pruebas técnico y derivó en app náutica completa.
+- **Sin cifras de consultora externa** — eliminadas a petición del usuario
+- **Sin sección de compensación explícita** — el valor queda implícito en la envergadura del trabajo
+- **Arquitectura híbrida**: IA local por defecto + opción de conectar modelos premium externos vía API
+- **Bots** descritos como canal de acceso móvil para técnicos y comerciales en campo (Telegram, WhatsApp, Discord)
+- **G3 (Mercury Marine)** incluido dentro del RAG local de Servicio y Taller (van de la mano)
+- **Costes de herramientas** (VS Code + Aplicativo CLI): 100-280€/mes, mencionados como equipamiento técnico
+- **"65 años de conocimiento"** eliminado — Luis lleva 8 años en la empresa; se usa en su lugar "ocho años de contexto"
+- **Sección renombrada**: "Condiciones y Compromisos" → "Compromisos y Ruegos" (tono propositivo, no impositivo)
+- **Numeración de páginas**: CSS `@page counter(page)/counter(pages)` — funciona en Chrome print dialog
+- **Guiones dobles** (—texto—) sustituidos por paréntesis en todo el documento
 
 ---
 
@@ -65,18 +66,42 @@ Proyección total empresa si se escala: 50-80 h/mes (estimación extrapolada, no
 
 ---
 
-## Nota personal de Luis (incluida en el doc 00)
+## Compromisos y Ruegos (sección final de responsabilidades)
 
-> "He comprendido que el valor fundamental de desarrollar un proyecto como este de forma interna no es solo técnico, sino estratégico: se trata de transformar el saber hacer de más de 65 años de Touron en un activo digital exclusivo. Al ser una iniciativa propia, la herramienta nace con el ADN de Touron y el mundo náutico, lo que permite una integración mucho más orgánica con las marcas representadas y una defensa más sólida de la propiedad intelectual. Una decisión así nos posicionaría no solo como un distribuidor, sino como un creador tecnológico, elevando el prestigio de la marca ante nuestros clientes y proveedores."
+1. **Documentación continua** — workflow diseñado con dos ramas: técnico/arquitecto + rama para IA (fine-tuning futuro con todo el historial)
+2. **Propiedad intelectual** — todo pertenece a Touron S.A.
+3. **Costes de software** — open source para la plataforma; herramientas especializadas (VS Code + Aplicativo CLI) 100-280€/mes
+4. **Reconocimiento del rol** — compensación proporcional al alcance, revisable al crecer
+5. **Infraestructura** — servidor dedicado como paso previo para producción real
+6. **Escalado externo** — cualquier extensión a terceros de mutuo acuerdo
+7. **Colaboración interna** — RAGs se nutren de documentación de los departamentos
+8. **Formación en prompting** — Luis se compromete a impartirla
 
 ---
 
-## Posibles continuaciones / pendientes
+## Roadmap — Inmediatos (con servidor dedicado)
 
-1. **Completar la sección de compensación** en `04_responsabilidades.html` antes de imprimir (bloque con línea discontinua)
-2. **Revisión de contenido** — puede que Luis quiera ajustar cifras, redacción o añadir más contexto tras releer los documentos
-3. **Posible doc adicional de costes** — Luis ya tiene un documento de costes por separado que se referencia como adjunto; podría integrarse o diseñarse en el mismo estilo HTML
-4. **Ajustes de estilo** — si algo no queda bien en el PDF (saltos de página, tablas partidas), se puede ajustar en `assets/style.css`
+- Plataforma completa en producción (sustituye el uso de ChatGPT personal de los empleados)
+- 9 agentes especializados disponibles desde el primer día
+- RAG local para Servicio y Taller (manuales Mercury, fichas, procedimientos + asistente G3)
+- Bots de mensajería (Telegram/WhatsApp)
+- RAG SharePoint Online (diseño técnico completo, solo necesita credenciales Azure)
+
+## Roadmap — Corto, medio y largo plazo
+
+- Integración ERP Libra (usuario de lectura dedicado para el agente)
+- RAG vía SharePoint sincronizado
+- Personalización por departamento (Comercial, Marketing, Administración, Finanzas)
+- Escalado a clientes externos (náuticas, astilleros, talleres colaboradores) — de mutuo acuerdo
+
+---
+
+## Terminología (secciones del glosario)
+
+- IA y Modelos de Lenguaje: IA, LLM, Modelo de IA, Prompt/Prompt Engineering, Skill/Workflow, Fine-tuning
+- RAG: RAG, Embedding
+- Infraestructura: Servidor dedicado, Docker/Contenedor, Docker Compose, Ollama, Open WebUI, API, Lock-in, Open Source
+- Desarrollo de Software: Full-stack, Frontend, Backend, Git/Control de versiones, Aplicativo CLI
 
 ---
 
@@ -85,5 +110,5 @@ Proyección total empresa si se escala: 50-80 h/mes (estimación extrapolada, no
 - **Touron S.A.** — Distribuidor oficial Mercury/Brunswick (~50 empleados, Madrid + Cascais Portugal)
 - **Productos:** Mercury, Quicksilver, Bayliner, Navan, Simrad, Lowrance. Taller propio.
 - **ERP:** Libra (Oracle). Microsoft 365 + SharePoint Online.
-- **Luis Conde:** Técnico de Sistemas. Compañeros IT: José Sanz (Oracle), Tomás Ruiz-Roso (Big Data), Viviana Franco (Microsoft).
-- **Stack Shimmer:** Open WebUI v0.8.12 + Ollama (host Windows) + Docker. 9 agentes. Bot Telegram. Webapp OpenSea.
+- **Luis Conde:** Técnico de Sistemas. 8 años en la empresa. Compañeros IT: José Sanz (Oracle), Tomás Ruiz-Roso (Big Data), Viviana Franco (Microsoft).
+- **Stack Shimmer:** Open WebUI v0.8.12 + Ollama (host Windows) + Docker. 9 agentes. Bots Telegram/WhatsApp. Webapp OpenSea (~3.800 líneas).
