@@ -9,7 +9,7 @@ Esta skill proporciona indicaciones para gestionar el servidor web local del pro
 
 ## Funciones
 
-1.  **Iniciar Servidor**: Inicia un servidor web estático usando `npx http-server` en el puerto 5050.
+1.  **Iniciar Servidor**: Inicia un servidor web estático usando `npx http-server` en el puerto 5050.hj 
 2.  **Detener Servidor**: Busca y finaliza el proceso que está escuchando en el puerto 5050.
 
 ## Instrucciones de Uso
@@ -17,13 +17,13 @@ Esta skill proporciona indicaciones para gestionar el servidor web local del pro
 Para usar esta skill, puedes ejecutar los scripts correspondientes desde la terminal:
 
 ### Iniciar el servicio
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File ./runtime/start.ps1
+```bash
+bash ./runtime/start.sh
 ```
 
 ### Detener el servicio
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File ./runtime/stop.ps1
+```bash
+bash ./runtime/stop.sh
 ```
 
 > [!NOTE]

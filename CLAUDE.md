@@ -121,13 +121,13 @@ Proyectos que surgen del ecosistema Shimmer pero son independientes de la plataf
 ```
 .webapps/
 ├── prod/
-│   └── opensea/    # Producción (puerto 5050 local)
+│   └── tsamaps/    # Producción (puerto 5050 local)
 ├── dev/
-│   └── opensea/    # Desarrollo
+│   └── tsamaps/    # Desarrollo
 └── antiguos/       # Proyectos archivados — excluidos de git (.gitignore)
 ```
 
-#### opensea
+#### tsamaps
 App web estática (HTML/CSS/JS) — carta náutica interactiva orientada a la red comercial de Touron S.A.
 
 **Stack**: HTML + CSS + JS vanilla, Leaflet 1.9.4, OpenSeaMap (tiles náuticos), CartoDB (mapa base). Sin backend propio.
@@ -149,7 +149,7 @@ Sirve en local con `npx http-server` en el puerto 5050.
 - **Búsqueda global** — geocodificación con autosugerencias vía Nominatim (OSM)
 - **Responsive completo** — drawers deslizables en mobile, swipe-to-close, buscador flotante, lógica exclusiva de herramientas
 
-**Changelogs**: `prod/opensea/logs/` — cada entrada incluye una sección "Contexto técnico para agentes" con referencias exactas a funciones, archivos y variables. Leer antes de modificar la app.
+**Changelogs**: `prod/tsamaps/logs/` — cada entrada incluye una sección "Contexto técnico para agentes" con referencias exactas a funciones, archivos y variables. Leer antes de modificar la app.
 
 ---
 

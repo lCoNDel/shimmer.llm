@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx http-server:*)"
+      "Bash(npx http-server:*)",
+      "Bash(bash ./runtime/start.sh)",
+      "Bash(bash ./runtime/stop.sh)",
+      "Bash(netstat:*)",
+      "Bash(taskkill.exe:*)",
+      "Bash(git:*)",
+      "Bash(bash \"c:/Users/luisc/Documents/GitHub/shimmer.llm/proyectos/.webapps/dev/tsamaps/runtime/start.sh\")",
+      "Bash(bash \"c:/Users/luisc/Documents/GitHub/shimmer.llm/proyectos/.webapps/dev/tsamaps/runtime/stop.sh\")"
     ]
   }
 }

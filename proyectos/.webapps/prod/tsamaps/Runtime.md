@@ -17,13 +17,13 @@ Esta skill proporciona indicaciones para gestionar el servidor web local del pro
 Para usar esta skill, puedes ejecutar los scripts correspondientes desde la terminal:
 
 ### Iniciar el servicio
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File ./runtime/start.ps1
+```bash
+bash ./runtime/start.sh
 ```
 
 ### Detener el servicio
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File ./runtime/stop.ps1
+```bash
+bash ./runtime/stop.sh
 ```
 
 > [!NOTE]

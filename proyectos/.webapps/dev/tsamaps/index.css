@@ -264,41 +264,30 @@ body {
     color: var(--brand-primary);
 }
 
-/* GPS Shortcut Button */
-#gpsShortcutBtn {
-    display: flex;
+/* GPS Floating Button */
+.floating-gps-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid var(--brand-accent);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    display: none;
     align-items: center;
-    gap: 4px;
-    font-size: 0.75rem;
-    margin-left: 0.75rem;
-    transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--brand-text);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
-#gpsShortcutBtn #gpsShortcutLabel {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-}
-
-#gpsShortcutBtn.gps-searching {
-    color: var(--brand-primary);
-    border-color: var(--brand-primary);
-}
-
-#gpsShortcutBtn.gps-searching svg {
-    animation: gpsPulse 1s ease-in-out infinite;
-}
-
-#gpsShortcutBtn.gps-active {
+.floating-gps-btn:hover {
     background: var(--brand-primary);
     color: #fff;
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 10px rgba(0, 118, 214, 0.4);
-}
-
-@keyframes gpsPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.4; transform: scale(0.85); }
+    box-shadow: 0 2px 14px rgba(0, 118, 214, 0.4);
 }
 
 /* Main Container */

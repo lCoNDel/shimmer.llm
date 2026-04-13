@@ -747,25 +747,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // 6. lógica de geolocalización
-    const gpsShortcutBtn   = document.getElementById('gpsShortcutBtn');
-    const gpsShortcutLabel = document.getElementById('gpsShortcutLabel');
-
-    function syncGpsShortcut(state) {
-        if (!gpsShortcutBtn) return;
-        gpsShortcutBtn.classList.remove('gps-searching', 'gps-active');
-        if (state === 'searching') {
-            gpsShortcutBtn.classList.add('gps-searching');
-            gpsShortcutLabel.textContent = '...';
-        } else if (state === 'active') {
-            gpsShortcutBtn.classList.add('gps-active');
-            gpsShortcutLabel.textContent = 'ON';
-        } else {
-            gpsShortcutLabel.textContent = 'OFF';
-        }
-    }
+    const gpsShortcutBtn = document.getElementById('gpsShortcutBtn');
 
     if (gpsShortcutBtn) {
-        gpsShortcutBtn.addEventListener('click', () => geoBtn.click());
+        gpsShortcutBtn.addEventListener('click', () => weatherPanel.classList.remove('closed'));
     }
 
     geoBtn.addEventListener('click', () => {
@@ -786,7 +771,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 gpsMarineRefreshId = null;
             }
             geoBtn.classList.remove('active');
-            syncGpsShortcut('off');
             document.getElementById('gpsLockMsg').classList.add('hidden');
             geoBtn.innerHTML = `
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -801,7 +785,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             isTrackingActive = true;
             geoBtn.classList.add('active');
-            syncGpsShortcut('searching');
             gpsMarineRefreshId = setInterval(async () => {
                 if (lastGpsLat !== null && lastGpsLng !== null) {
                     try { await fetchMarineWeatherAnalysis(lastGpsLat, lastGpsLng); } catch (_) {}
@@ -826,7 +809,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             BLOQUEO GPS ACTIVO
                         `;
                         document.getElementById('gpsLockMsg').classList.remove('hidden');
-                        syncGpsShortcut('active');
                     }
 
                     updateBoatMarker(latlng);
@@ -850,8 +832,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     isTrackingActive = false;
                     geoBtn.classList.remove('active');
-                    syncGpsShortcut('off');
-                    geoBtn.innerHTML = originalHTML;
+                            geoBtn.innerHTML = originalHTML;
                     if (trackingWatchId !== null) {
                         navigator.geolocation.clearWatch(trackingWatchId);
                         trackingWatchId = null;
