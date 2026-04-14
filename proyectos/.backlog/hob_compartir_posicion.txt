@@ -1,0 +1,43 @@
+HOB — Compartir posición de emergencia
+=======================================
+
+## Problema
+
+Un bot de Telegram tiene demasiada fricción para ser útil como alerta primaria de Hombre al Agua:
+abrir la app, encontrar el bot, escribir /hob, compartir ubicación = 10-15 segundos mínimo
+en un momento de máxima adrenalina. No es el flujo correcto para los primeros 30 segundos.
+
+## Idea principal: botón WhatsApp en tsamaps
+
+tsamaps ya tiene una herramienta HOB activa (función en app.js que marca posición y calcula
+distancia en tiempo real). Cuando el HOB está activo, añadir un botón visible que genere un
+deep link de WhatsApp con las coordenadas preformateadas:
+
+    https://wa.me/?text=🚨+HOMBRE+AL+AGUA%0A📍+{lat},{lon}%0A🗺️+https://maps.google.com/?q={lat},{lon}
+
+Un solo tap → se abre WhatsApp con el mensaje listo → el usuario elige a quién mandarlo.
+Sin backend, sin bot, sin cuentas adicionales.
+
+Casos de uso válidos:
+- Notificar a marina, familia o capitanía
+- Coordinar con otros barcos del convoy
+- La persona en el agua (tiene más tiempo, puede compartir su posición GPS actualizada)
+
+## Idea secundaria: bot Telegram para flotillas
+
+El bot de Telegram sí tiene sentido como herramienta secundaria o para uso en flotilla:
+- Grupo de varios barcos coordinados por Telegram
+- La persona en el agua envía /hob con su posición GPS (tiene el móvil, está flotando)
+- Post-estabilización: tripulación notifica a otros barcos con posición exacta
+
+Ver plan de implementación técnica (no priorizado):
+- Handler /hob en .bots/telegram/asistente_nautico.py
+- Estado waiting_for_hob (set) para gestionar flujo de conversación
+- Envío al grupo configurado en HOB_GROUP_CHAT_ID
+
+## Referencias
+
+- tsamaps: .webapps/prod/tsamaps/app.js (buscar función HOB / "hombre al agua")
+- Backlog original: .backlog/hombre_al_agua.txt
+- Bot de Telegram: .bots/telegram/asistente_nautico.py
+- Funciones OpenSea: .backlog/funciones_opensea.txt (también menciona compartir posición)
