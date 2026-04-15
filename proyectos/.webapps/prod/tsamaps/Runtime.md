@@ -11,6 +11,7 @@ Esta skill proporciona indicaciones para gestionar el servidor web local del pro
 
 1.  **Iniciar Servidor**: Inicia un servidor web estático usando `npx http-server` en el puerto 5050.
 2.  **Detener Servidor**: Busca y finaliza el proceso que está escuchando en el puerto 5050.
+3.  **Exponer a internet**: Lanza un túnel para hacer accesible el servicio desde fuera de la red local.
 
 ## Instrucciones de Uso
 
@@ -26,5 +27,17 @@ bash ./runtime/start.sh
 bash ./runtime/stop.sh
 ```
 
+### Exponer a internet (túnel)
+Ejecutar el script de Windows:
+```
+C:\Users\luisc\Desktop\Shimmer\Túnel\Cartógrafo.bat
+```
+
 > [!NOTE]
 > El servidor se inicia en segundo plano. Los logs se pueden ver en la terminal donde se ejecutó el script de inicio.
+
+## Comportamiento esperado del agente
+
+- Al iniciar el servicio, ejecutar el script y nada más. **No verificar** el estado HTTP con curl ni comprobar que responde — se asume que el script funciona correctamente.
+- El túnel es opcional. Solo lanzarlo si el usuario lo pide explícitamente — por defecto, únicamente se inicia el servidor local.
+- Al detener el servicio, cerrar siempre también el túnel ngrok si estaba activo.
