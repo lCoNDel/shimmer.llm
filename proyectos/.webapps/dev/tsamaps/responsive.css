@@ -270,7 +270,8 @@
         width: 96vw;
         max-width: 96vw;
         max-height: 88vh;
-        padding: 1.2rem 1.2rem 2rem;
+        max-height: 88dvh;
+        padding: 1.2rem 1.2rem calc(2rem + env(safe-area-inset-bottom));
         border-radius: 16px;
         overflow-y: auto;
     }

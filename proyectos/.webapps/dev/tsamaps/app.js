@@ -5,7 +5,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             name: "Touron S.A. (Sede Central)", lat: 40.4746, lng: -3.4332, location: "Torrejón de Ardoz, Madrid",
             address: "Calle Mario Vargas Llosa, 20, 28850 Torrejón de Ardoz, Madrid",
             phone: "+34 916 57 27 73", email: "touron@touronsa.es", web: "www.touronsa.es",
-            description: "Sede central — distribución de motores fueraborda, embarcaciones y accesorios náuticos"
+            description: "Sede central — distribución de motores fueraborda, embarcaciones y accesorios náuticos",
+            headquarters: true
+        },
+        {
+            name: "Touron Portugal (Sucursal)", lat: 38.6968, lng: -9.4206, location: "Cascais, Portugal",
+            address: "R/C Sala B Rotunda das Palmeiras, 2645-091 Alcabideche, Portugal",
+            phone: "+351 21 460 7690", email: "geral@touronsa.pt",
+            description: "Sucursal Portugal — distribución de motores y embarcaciones",
+            headquarters: true
         },
         // Galicia & Asturias
         {
@@ -172,12 +180,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         },
         // Portugal
         {
-            name: "Touron Portugal (Sucursal)", lat: 38.6968, lng: -9.4206, location: "Cascais, Portugal",
-            address: "R/C Sala B Rotunda das Palmeiras, 2645-091 Alcabideche, Portugal",
-            phone: "+351 21 460 7690", email: "geral@touronsa.pt",
-            description: "Sucursal Portugal — distribución de motores y embarcaciones"
-        },
-        {
             name: "Lisnave", lat: 38.6534, lng: -9.0494, location: "Setúbal, Portugal",
             address: "Mitrena, P.O.Box 135, 2901-901 Setúbal, Portugal",
             phone: "+351 265 799 207", email: "comercial@lisnave.pt", web: "www.lisnave.pt",
@@ -194,6 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 1. inicialización del mapa (vista inicial: mediterráneo español)
     const map = L.map('map', {
         zoomControl: false, // se mueve al panel inferior derecho
+        attributionControl: false,
         maxBounds: [[-90, -180], [90, 180]],
         maxBoundsViscosity: 1.0,
         minZoom: 4
@@ -609,8 +612,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         filteredDealers.forEach((dealer) => {
             const card = document.createElement('div');
-            card.className = 'dealer-card';
-            let cardHtml = `<div class="dealer-name">${dealer.name}</div>
+            card.className = dealer.headquarters ? 'dealer-card headquarters' : 'dealer-card';
+            let cardHtml = `<div class="dealer-name">${dealer.name}${dealer.headquarters ? ' <span class="hq-badge">Sede</span>' : ''}</div>
                 <div class="dealer-location">${dealer.location}</div>`;
             if (dealer.phone) cardHtml += `<div class="dealer-phone">📞 ${dealer.phone}</div>`;
             if (dealer.description) cardHtml += `<div class="dealer-desc">${dealer.description}</div>`;
@@ -1004,9 +1007,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isOpen = !sunMoonPanel.classList.contains('closed');
         if (isOpen) {
             sunMoonPanel.classList.add('closed');
+            sunMoonBtn.classList.remove('active');
+            sunMoonBtn.blur();
             return;
         }
         sunMoonPanel.classList.remove('closed');
+        sunMoonBtn.classList.add('active');
         // coordenadas en orden de prioridad
         const lat = lastGpsLat ?? window.lastRequestedLat ?? map.getCenter().lat;
         const lng = lastGpsLng ?? window.lastRequestedLng ?? map.getCenter().lng;
@@ -1019,6 +1025,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     closeSunMoonBtn.addEventListener('click', () => {
         sunMoonPanel.classList.add('closed');
+        sunMoonBtn.classList.remove('active');
+        sunMoonBtn.blur();
     });
 
     // 9. sistema de radio (radio browser api)

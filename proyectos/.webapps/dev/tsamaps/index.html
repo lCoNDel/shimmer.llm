@@ -290,11 +290,8 @@
         <button class="floating-radio-btn" id="radioBtn" aria-label="Radio Global" title="Radio Global">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/>
-                <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/>
-                <circle cx="12" cy="12" r="2"/>
-                <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/>
-                <path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
             </svg>
         </button>
 
@@ -480,7 +477,7 @@
     <!-- Guía de Uso Modal -->
     <!-- Manual de Uso / Guía de usuario / Use Guide -->
     <div class="info-modal-overlay hidden" id="guideModal">
-        <div class="info-modal-content" style="max-width: 750px; max-height: 85vh; overflow-y: auto;">
+        <div class="info-modal-content" style="max-width: 750px; overflow-y: auto;">
             <button class="close-btn" id="closeGuideBtn" aria-label="Cerrar">&times;</button>
             <h2 style="display: flex; align-items: center; gap: 0.5rem;">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -488,11 +485,8 @@
                     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                 </svg>
-                Manual de Uso — CARTÓGRAFO Marino
+                Manual de Uso
             </h2>
-            <p style="font-size: 0.95rem; color: var(--brand-text-muted); margin-bottom: 2rem;">
-                Referencia rápida de todas las funciones disponibles.
-            </p>
 
             <div style="display: flex; flex-direction: column; gap: 1rem;">
 
@@ -617,6 +611,23 @@
                 </div>
 
             </div>
+
+            <!-- Créditos -->
+            <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--brand-accent); font-size: 0.78rem; color: var(--brand-text-muted); line-height: 2;">
+                <strong style="color: var(--brand-text);">Créditos</strong><br>
+                <a href="https://leafletjs.com" target="_blank" style="color:var(--brand-primary);">Leaflet</a> — motor de mapas interactivos ·
+                <a href="https://carto.com/attributions" target="_blank" style="color:var(--brand-primary);">CARTO</a> — mapa base ·
+                <a href="https://www.openstreetmap.org/copyright" target="_blank" style="color:var(--brand-primary);">OpenStreetMap</a> — datos geográficos ·
+                <a href="http://www.openseamap.org" target="_blank" style="color:var(--brand-primary);">OpenSeaMap</a> — carta náutica (boyas, luces, marcas) ·
+                <a href="https://open-meteo.com" target="_blank" style="color:var(--brand-primary);">Open-Meteo</a> — meteorología marina ·
+                <a href="https://www.rainviewer.com/api.html" target="_blank" style="color:var(--brand-primary);">RainViewer</a> — radar de lluvia ·
+                <a href="https://github.com/danwild/leaflet-velocity" target="_blank" style="color:var(--brand-primary);">Leaflet-Velocity</a> — capa de viento animada ·
+                <a href="https://www.vesselfinder.com" target="_blank" style="color:var(--brand-primary);">VesselFinder</a> — tráfico marítimo AIS ·
+                <a href="https://nominatim.org" target="_blank" style="color:var(--brand-primary);">Nominatim</a> — geocodificación y búsqueda ·
+                <a href="https://www.radio-browser.info" target="_blank" style="color:var(--brand-primary);">RadioBrowser</a> — directorio de emisoras ·
+                <a href="https://github.com/mourner/suncalc" target="_blank" style="color:var(--brand-primary);">SunCalc</a> — cálculo de sol y luna
+            </div>
+
         </div>
     </div>
 

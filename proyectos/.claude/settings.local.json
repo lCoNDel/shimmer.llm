@@ -32,7 +32,12 @@
       "Bash(powershell -Command \"Stop-Process -Name ngrok -Force -ErrorAction SilentlyContinue; Get-Process -Name 'ngrok.exe' -ErrorAction SilentlyContinue | Stop-Process -Force\")",
       "Bash(npm --version)",
       "Bash(npm install *)",
-      "Bash(claude --version)"
+      "Bash(claude --version)",
+      "Bash(npx http-server *)",
+      "Bash(echo \"PID http-server: $!\")",
+      "Bash(curl -s http://localhost:5050)",
+      "Bash(\"/c/Users/luisc/Documents/NGROK/ngrok.exe\" http *)",
+      "Bash(echo \"PID ngrok: $!\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\luisc\\Desktop\\Shimmer\\Túnel"
