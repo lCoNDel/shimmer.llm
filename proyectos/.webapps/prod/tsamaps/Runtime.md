@@ -28,10 +28,12 @@ bash ./runtime/stop.sh
 ```
 
 ### Exponer a internet (túnel)
-Ejecutar el script de Windows:
+```bash
+powershell -File ./runtime/tunnel.ps1
 ```
-C:\Users\luisc\Desktop\Shimmer\Túnel\Cartógrafo.bat
-```
+
+### Detener el túnel
+`stop.sh` cierra ngrok automáticamente. El usuario también puede cerrar la ventana manualmente.
 
 > [!NOTE]
 > El servidor se inicia en segundo plano. Los logs se pueden ver en la terminal donde se ejecutó el script de inicio.
@@ -40,4 +42,5 @@ C:\Users\luisc\Desktop\Shimmer\Túnel\Cartógrafo.bat
 
 - Al iniciar el servicio, ejecutar el script y nada más. **No verificar** el estado HTTP con curl ni comprobar que responde — se asume que el script funciona correctamente.
 - El túnel es opcional. Solo lanzarlo si el usuario lo pide explícitamente — por defecto, únicamente se inicia el servidor local.
-- Al detener el servicio, cerrar siempre también el túnel ngrok si estaba activo.
+- Para el túnel: ejecutar `powershell -File ./runtime/tunnel.ps1` y nada más. El script gestiona todo internamente.
+- Al detener el servicio, `stop.sh` cierra siempre también ngrok, esté activo o no.

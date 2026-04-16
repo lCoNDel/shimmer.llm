@@ -37,7 +37,14 @@
       "Bash(echo \"PID http-server: $!\")",
       "Bash(curl -s http://localhost:5050)",
       "Bash(\"/c/Users/luisc/Documents/NGROK/ngrok.exe\" http *)",
-      "Bash(echo \"PID ngrok: $!\")"
+      "Bash(echo \"PID ngrok: $!\")",
+      "Bash(powershell -Command \"Get-Process ngrok -ErrorAction SilentlyContinue | Select-Object Id, Name, MainWindowTitle\")",
+      "Bash(powershell -Command \"Stop-Process -Name ngrok -Force -ErrorAction SilentlyContinue\")",
+      "Bash(powershell -File \"c:/Users/luisc/Documents/GitHub/shimmer.llm/proyectos/.webapps/dev/tsamaps/runtime/tunnel.ps1\")",
+      "Bash(powershell -Command \"Test-Path 'C:\\\\Users\\\\luisc\\\\Desktop\\\\Shimmer\\\\Túnel\\\\Cartógrafo.bat'\")",
+      "Bash(powershell -Command \"Start-Process -FilePath 'C:\\\\Users\\\\luisc\\\\Desktop\\\\Shimmer\\\\T\\\\u00fannel\\\\Cart\\\\u00f3grafo.bat'\")",
+      "Bash(cmd /c \"start \\\\\"\\\\\" \\\\\"C:\\\\Users\\\\luisc\\\\Desktop\\\\Shimmer\\\\Túnel\\\\Cartógrafo.bat\\\\\"\")",
+      "Bash(powershell -Command \"Get-Process ngrok -ErrorAction SilentlyContinue | Select-Object Id, Name\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\luisc\\Desktop\\Shimmer\\Túnel"

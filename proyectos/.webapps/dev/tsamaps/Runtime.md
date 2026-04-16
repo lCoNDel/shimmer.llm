@@ -29,17 +29,11 @@ bash ./runtime/stop.sh
 
 ### Exponer a internet (túnel)
 ```bash
-# 1. Parar ngrok si ya está corriendo
-powershell -Command "Stop-Process -Name ngrok -Force"
-
-# 2. Abrir el bat en ventana visible
-start "" "C:\Users\luisc\Desktop\Shimmer\Túnel\Cartógrafo.bat"
+powershell -File ./runtime/tunnel.ps1
 ```
 
-> Usar siempre `powershell Stop-Process` para matar ngrok — `/F` no funciona en bash (se interpreta como ruta).
-
 ### Detener el túnel
-El cierre del túnel **lo hace el usuario manualmente** cerrando la ventana del bat. El agente no puede cerrar ventanas de cmd abiertas con `start`.
+`stop.sh` cierra ngrok automáticamente. El usuario también puede cerrar la ventana manualmente.
 
 > [!NOTE]
 > El servidor se inicia en segundo plano. Los logs se pueden ver en la terminal donde se ejecutó el script de inicio.
@@ -48,4 +42,5 @@ El cierre del túnel **lo hace el usuario manualmente** cerrando la ventana del 
 
 - Al iniciar el servicio, ejecutar el script y nada más. **No verificar** el estado HTTP con curl ni comprobar que responde — se asume que el script funciona correctamente.
 - El túnel es opcional. Solo lanzarlo si el usuario lo pide explícitamente — por defecto, únicamente se inicia el servidor local.
-- **Cerrar el túnel**: el agente no puede cerrar la ventana de cmd. Indicar al usuario que la cierre manualmente.
+- Para el túnel: ejecutar `powershell -File ./runtime/tunnel.ps1` y nada más. El script gestiona todo internamente.
+- **Cerrar el túnel**: `stop.sh` lo cierra siempre. El agente no necesita hacer nada extra.
