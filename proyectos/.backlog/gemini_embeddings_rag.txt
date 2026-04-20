@@ -1,0 +1,16 @@
+Evaluar Gemini 2 (text-embedding-004 o modelos de la familia Gemini 2.x) como proveedor de embeddings para el sistema RAG de Shimmer.
+
+Contexto:
+- Los modelos candidatos actuales son nomic-embed-text y mxbai-embed-large (locales vía Ollama)
+- Gemini 2 ofrece embeddings vía API (Google AI / Vertex AI) con alta dimensionalidad y soporte multilingüe
+- Relevante especialmente para RAG sobre documentos en español (SharePoint, ERP Libra, manuales técnicos)
+
+Puntos a evaluar:
+- Calidad de embeddings en español frente a alternativas locales
+- Coste por token de la API de Google AI
+- Latencia en indexación y consulta vs. embeddings locales (Ollama)
+- Privacidad: los documentos de Touron S.A. saldrían a servicios externos — valorar si es aceptable
+- Compatibilidad con Open WebUI y el pipeline RAG existente
+- Modo híbrido: embeddings remotos en indexación, consulta en local
+
+Referencia: ver .backlog/rag_sharepoint/ para el diseño del RAG sobre SharePoint (principal caso de uso)
