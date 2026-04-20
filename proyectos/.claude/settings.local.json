@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash ./runtime/start.sh)",
+      "Bash(powershell -File ./runtime/tunnel.ps1)",
+      "Bash(bash ./runtime/stop.sh)"
+    ]
+  }
+}
