@@ -1,6 +1,11 @@
 name: bots
 
+# bots de telegram — cada uno instala sus deps al arrancar y ejecuta su script
+# scripts y credenciales viven en .bots/telegram/, fuera del contenedor
+
 services:
+
+  # asistente náutico para clientes de touron
   asistente_nautico:
     image: python:3.11-slim
     container_name: asistente_nautico
@@ -9,3 +14,13 @@ services:
       - ../../.bots/telegram:/app
     working_dir: /app
     command: sh -c "pip install -r requirements.txt && python asistente_nautico.py"
+
+  # asistente rag para servicio y taller
+  asistente_servicio:
+    image: python:3.11-slim
+    container_name: asistente_servicio
+    restart: "no"
+    volumes:
+      - ../../.bots/telegram/asistente_servicio:/app
+    working_dir: /app
+    command: sh -c "pip install -r requirements.txt && python asistente_servicio.py"

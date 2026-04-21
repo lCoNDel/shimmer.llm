@@ -1,6 +1,11 @@
 name: produccion
 
+# stack principal — open webui y anything llm
+# ollama corre en el host windows, no en docker
+
 services:
+
+  # interfaz principal de shimmer
   open-webui:
     image: ghcr.io/open-webui/open-webui:v0.8.12
     container_name: open-webui
@@ -13,7 +18,8 @@ services:
     environment:
       - PORT=3000
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
-  
+
+  # alternativa a open webui
   anything-llm:
     image: mintplexlabs/anythingllm
     container_name: anything-llm

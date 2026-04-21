@@ -1,4 +1,6 @@
 services:
+
+  # contenedor vacío de placeholder — sustituir cuando haya servicios de dev reales
   placeholder_dev:
     image: alpine
     container_name: placeholder_dev

@@ -1,4 +1,6 @@
 services:
+
+  # filebrowser — se lanza puntualmente para explorar volúmenes, no corre permanente
   filebrowser:
     image: filebrowser/filebrowser:latest
     container_name: filebrowser
