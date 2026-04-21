@@ -86,14 +86,18 @@
         display: none;
     }
 
+    /* Mostrar botón GPS flotante solo en mobile */
+    .floating-gps-btn {
+        display: flex;
+    }
+
     /* Comprimir título */
     .app-title {
         display: none;
     }
 
     .brand-company-name {
-        font-size: 0.85rem;
-        white-space: nowrap;
+        display: none;
     }
 
     /* Alarma de fondeo: oculta en mobile (el móvil se mueve con el usuario) */
@@ -115,8 +119,8 @@
         display: flex;
         position: fixed;
         top: 56px;
-        left: 12px;
-        right: 12px;
+        left: 62px;
+        right: 62px;
         width: auto;
         z-index: 1100;
         background: white;
@@ -263,9 +267,13 @@
 
     /* -- Modales -- */
     .info-modal-content {
-        width: 95vw;
-        max-height: 90vh;
-        padding: 1.5rem;
+        width: 96vw;
+        max-width: 96vw;
+        max-height: 88vh;
+        max-height: 88dvh;
+        padding: 1.2rem 1.2rem calc(2rem + env(safe-area-inset-bottom));
+        border-radius: 16px;
+        overflow-y: auto;
     }
 
     /* -- Banner de permisos -- */
@@ -304,12 +312,20 @@
         display: block;
     }
 
-    /* Botón radio flotante: se queda visible en mobile */
-    .floating-radio-btn {
+    /* Botones flotantes radio y GPS: mismo tamaño y alineación en mobile */
+    .floating-radio-btn,
+    .floating-gps-btn {
         top: 12px;
-        left: 12px;
         width: 38px;
         height: 38px;
+    }
+
+    .floating-radio-btn {
+        left: 12px;
+    }
+
+    .floating-gps-btn {
+        right: 12px;
     }
 
     /* Panel Sol/Luna en mobile: centrado y más ancho */

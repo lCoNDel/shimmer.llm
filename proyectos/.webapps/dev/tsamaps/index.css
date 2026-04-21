@@ -1327,6 +1327,22 @@ body {
     to { opacity: 0; transform: translateY(-8px); }
 }
 
+.toast--centered {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    animation: toastInCentered 0.25s ease forwards, toastOutCentered 0.3s ease 2.7s forwards;
+}
+
+@keyframes toastInCentered {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+    to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@keyframes toastOutCentered {
+    to { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+}
+
 /* ── Anchor countdown badge ───────────────────────────────────────── */
 #anchorCountdown {
     display: inline-block;

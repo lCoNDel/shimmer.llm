@@ -40,7 +40,7 @@ powershell -File ./runtime/tunnel.ps1
 
 ## Comportamiento esperado del agente
 
-- Al iniciar el servicio, ejecutar el script y nada más. **No verificar** el estado HTTP con curl ni comprobar que responde — se asume que el script funciona correctamente.
+- Al iniciar el servicio, ejecutar el script **en segundo plano** (`run_in_background: true`) para evitar que bloquee el terminal. No verificar el estado HTTP con curl ni comprobar que responde — se asume que el script funciona correctamente.
 - El túnel es opcional. Solo lanzarlo si el usuario lo pide explícitamente — por defecto, únicamente se inicia el servidor local.
 - Para el túnel: ejecutar `powershell -File ./runtime/tunnel.ps1` y nada más. El script gestiona todo internamente.
 - **Cerrar el túnel**: `stop.sh` lo cierra siempre. El agente no necesita hacer nada extra.

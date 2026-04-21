@@ -5,7 +5,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             name: "Touron S.A. (Sede Central)", lat: 40.4746, lng: -3.4332, location: "Torrejón de Ardoz, Madrid",
             address: "Calle Mario Vargas Llosa, 20, 28850 Torrejón de Ardoz, Madrid",
             phone: "+34 916 57 27 73", email: "touron@touronsa.es", web: "www.touronsa.es",
-            description: "Sede central — distribución de motores fueraborda, embarcaciones y accesorios náuticos"
+            description: "Sede central — distribución de motores fueraborda, embarcaciones y accesorios náuticos",
+            headquarters: true
+        },
+        {
+            name: "Touron Portugal (Sucursal)", lat: 38.6968, lng: -9.4206, location: "Cascais, Portugal",
+            address: "R/C Sala B Rotunda das Palmeiras, 2645-091 Alcabideche, Portugal",
+            phone: "+351 21 460 7690", email: "geral@touronsa.pt",
+            description: "Sucursal Portugal — distribución de motores y embarcaciones",
+            headquarters: true
         },
         // Galicia & Asturias
         {
@@ -172,12 +180,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         },
         // Portugal
         {
-            name: "Touron Portugal (Sucursal)", lat: 38.6968, lng: -9.4206, location: "Cascais, Portugal",
-            address: "R/C Sala B Rotunda das Palmeiras, 2645-091 Alcabideche, Portugal",
-            phone: "+351 21 460 7690", email: "geral@touronsa.pt",
-            description: "Sucursal Portugal — distribución de motores y embarcaciones"
-        },
-        {
             name: "Lisnave", lat: 38.6534, lng: -9.0494, location: "Setúbal, Portugal",
             address: "Mitrena, P.O.Box 135, 2901-901 Setúbal, Portugal",
             phone: "+351 265 799 207", email: "comercial@lisnave.pt", web: "www.lisnave.pt",
@@ -194,6 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 1. inicialización del mapa (vista inicial: mediterráneo español)
     const map = L.map('map', {
         zoomControl: false, // se mueve al panel inferior derecho
+        attributionControl: false,
         maxBounds: [[-90, -180], [90, 180]],
         maxBoundsViscosity: 1.0,
         minZoom: 4
@@ -609,8 +612,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         filteredDealers.forEach((dealer) => {
             const card = document.createElement('div');
-            card.className = 'dealer-card';
-            let cardHtml = `<div class="dealer-name">${dealer.name}</div>
+            card.className = dealer.headquarters ? 'dealer-card headquarters' : 'dealer-card';
+            let cardHtml = `<div class="dealer-name">${dealer.name}${dealer.headquarters ? ' <span class="hq-badge">Sede</span>' : ''}</div>
                 <div class="dealer-location">${dealer.location}</div>`;
             if (dealer.phone) cardHtml += `<div class="dealer-phone">📞 ${dealer.phone}</div>`;
             if (dealer.description) cardHtml += `<div class="dealer-desc">${dealer.description}</div>`;
@@ -747,25 +750,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // 6. lógica de geolocalización
-    const gpsShortcutBtn   = document.getElementById('gpsShortcutBtn');
-    const gpsShortcutLabel = document.getElementById('gpsShortcutLabel');
-
-    function syncGpsShortcut(state) {
-        if (!gpsShortcutBtn) return;
-        gpsShortcutBtn.classList.remove('gps-searching', 'gps-active');
-        if (state === 'searching') {
-            gpsShortcutBtn.classList.add('gps-searching');
-            gpsShortcutLabel.textContent = '...';
-        } else if (state === 'active') {
-            gpsShortcutBtn.classList.add('gps-active');
-            gpsShortcutLabel.textContent = 'ON';
-        } else {
-            gpsShortcutLabel.textContent = 'OFF';
-        }
-    }
+    const gpsShortcutBtn = document.getElementById('gpsShortcutBtn');
 
     if (gpsShortcutBtn) {
-        gpsShortcutBtn.addEventListener('click', () => geoBtn.click());
+        gpsShortcutBtn.addEventListener('click', () => weatherPanel.classList.remove('closed'));
     }
 
     geoBtn.addEventListener('click', () => {
@@ -786,7 +774,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 gpsMarineRefreshId = null;
             }
             geoBtn.classList.remove('active');
-            syncGpsShortcut('off');
             document.getElementById('gpsLockMsg').classList.add('hidden');
             geoBtn.innerHTML = `
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -801,7 +788,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             isTrackingActive = true;
             geoBtn.classList.add('active');
-            syncGpsShortcut('searching');
             gpsMarineRefreshId = setInterval(async () => {
                 if (lastGpsLat !== null && lastGpsLng !== null) {
                     try { await fetchMarineWeatherAnalysis(lastGpsLat, lastGpsLng); } catch (_) {}
@@ -826,7 +812,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             BLOQUEO GPS ACTIVO
                         `;
                         document.getElementById('gpsLockMsg').classList.remove('hidden');
-                        syncGpsShortcut('active');
                     }
 
                     updateBoatMarker(latlng);
@@ -850,8 +835,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     isTrackingActive = false;
                     geoBtn.classList.remove('active');
-                    syncGpsShortcut('off');
-                    geoBtn.innerHTML = originalHTML;
+                            geoBtn.innerHTML = originalHTML;
                     if (trackingWatchId !== null) {
                         navigator.geolocation.clearWatch(trackingWatchId);
                         trackingWatchId = null;
@@ -1023,9 +1007,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isOpen = !sunMoonPanel.classList.contains('closed');
         if (isOpen) {
             sunMoonPanel.classList.add('closed');
+            sunMoonBtn.classList.remove('active');
+            sunMoonBtn.blur();
             return;
         }
         sunMoonPanel.classList.remove('closed');
+        sunMoonBtn.classList.add('active');
         // coordenadas en orden de prioridad
         const lat = lastGpsLat ?? window.lastRequestedLat ?? map.getCenter().lat;
         const lng = lastGpsLng ?? window.lastRequestedLng ?? map.getCenter().lng;
@@ -1038,6 +1025,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     closeSunMoonBtn.addEventListener('click', () => {
         sunMoonPanel.classList.add('closed');
+        sunMoonBtn.classList.remove('active');
+        sunMoonBtn.blur();
     });
 
     // 9. sistema de radio (radio browser api)
@@ -1315,8 +1304,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     let radarFrames = [];
     let radarAnimIndex = 0;
     let radarAnimInterval = null;
+    let radarRefreshInterval = null;
     let radarAnimPlaying = true;
     const RADAR_MAX_ZOOM = 7;
+    const RADAR_REFRESH_MS = 5 * 60 * 1000;
 
     // obtiene todos los frames disponibles (pasado + nowcast)
     async function getRainViewerFrames() {
@@ -1387,17 +1378,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    async function radarRefreshFrames() {
+        if (!isRadarActive) return;
+        const frames = await getRainViewerFrames();
+        if (!frames || !isRadarActive) return;
+        radarFrames = frames;
+        radarAnimIndex = Math.min(radarAnimIndex, radarFrames.length - 1);
+    }
+
     function radarStartAnim() {
+        clearInterval(radarAnimInterval);
+        clearInterval(radarRefreshInterval);
         radarAnimInterval = setInterval(() => {
             if (!radarAnimPlaying) return;
             radarAnimIndex = (radarAnimIndex + 1) % radarFrames.length;
             radarShowFrame(radarAnimIndex);
-        }, 1000);
+        }, 1500);
+        radarRefreshInterval = setInterval(radarRefreshFrames, RADAR_REFRESH_MS);
     }
 
     function radarStopAnim() {
         clearInterval(radarAnimInterval);
         radarAnimInterval = null;
+        clearInterval(radarRefreshInterval);
+        radarRefreshInterval = null;
         if (radarLayerPrev) { map.removeLayer(radarLayerPrev); radarLayerPrev = null; }
         if (radarLayer) { map.removeLayer(radarLayer); radarLayer = null; }
     }
@@ -1411,6 +1415,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 owmLayerBtn.blur();
                 isRadarActive = false;
                 radarFrames = [];
+                map.setMinZoom(4);
                 map.setMaxZoom(18);
                 document.getElementById('radarHud').classList.add('hidden');
             } else {
@@ -1433,9 +1438,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
 
+                if (!isRadarActive) return;
+
                 radarFrames = frames;
                 radarAnimIndex = radarFrames.filter(f => f.type === 'past').length - 1;
                 radarAnimPlaying = true;
+
+                const needsZoomOut = map.getZoom() > RADAR_MAX_ZOOM;
+                map.setMinZoom(RADAR_MAX_ZOOM);
+                map.setMaxZoom(RADAR_MAX_ZOOM);
+                if (needsZoomOut) map.setZoom(RADAR_MAX_ZOOM);
 
                 radarShowFrame(radarAnimIndex);
                 radarStartAnim();
@@ -1443,9 +1455,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('radarPlayPauseBtn').textContent = '⏸';
                 document.getElementById('radarHud').classList.remove('hidden');
 
-                map.setMaxZoom(RADAR_MAX_ZOOM);
-                if (map.getZoom() > RADAR_MAX_ZOOM) {
-                    map.setZoom(RADAR_MAX_ZOOM, { animate: true });
+                if (needsZoomOut) {
                     showToast('Radar activo — ajustando zoom automáticamente');
                 } else {
                     showToast('Radar de lluvia activo');
@@ -1474,9 +1484,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('radarPlayPauseBtn').textContent = radarAnimPlaying ? '⏸' : '▶';
     });
 
-    // restaura el zoom máximo al desactivar el radar
+    // restaura zoom al desactivar el radar
     map.on('zoomend', () => {
-        if (!isRadarActive) map.setMaxZoom(18);
+        if (!isRadarActive) { map.setMinZoom(4); map.setMaxZoom(18); }
     });
 
     // 10. regla náutica

@@ -271,10 +271,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // muestra una notificación toast
-    function showToast(message) {
+    function showToast(message, extraClass = '') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
-        toast.className = 'toast';
+        toast.className = 'toast' + (extraClass ? ' ' + extraClass : '');
         toast.textContent = message;
         container.appendChild(toast);
         setTimeout(() => toast.remove(), 3100);
@@ -467,8 +467,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // cerrar al tocar fuera del buscador
+        // cerrar al tocar fuera del buscador (solo clicks reales del usuario)
         document.addEventListener('click', (e) => {
+            if (!e.isTrusted) return;
             if (!document.body.classList.contains('mobile-search-active')) return;
             if (globalSearchContainer && globalSearchContainer.contains(e.target)) return;
             closeMobileSearch();
@@ -1237,6 +1238,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function enterTrafficMode() {
         mapControlsBottomLeft.classList.add('hidden');
         sosBtnContainer.classList.add('hidden');
+        document.getElementById('radioBtn').classList.add('hidden');
+        document.getElementById('gpsShortcutBtn').classList.add('hidden');
         vesselCloseBar.classList.remove('hidden');
         weatherPanel.classList.add('hidden');
         searchPanel.classList.add('closed');
@@ -1245,6 +1248,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function exitTrafficMode() {
         mapControlsBottomLeft.classList.remove('hidden');
         sosBtnContainer.classList.remove('hidden');
+        document.getElementById('radioBtn').classList.remove('hidden');
+        document.getElementById('gpsShortcutBtn').classList.remove('hidden');
         vesselCloseBar.classList.add('hidden');
         weatherPanel.classList.remove('hidden');
     }
@@ -1304,8 +1309,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     let radarFrames = [];
     let radarAnimIndex = 0;
     let radarAnimInterval = null;
+    let radarRefreshInterval = null;
     let radarAnimPlaying = true;
     const RADAR_MAX_ZOOM = 7;
+    const RADAR_REFRESH_MS = 5 * 60 * 1000;
 
     // obtiene todos los frames disponibles (pasado + nowcast)
     async function getRainViewerFrames() {
@@ -1376,17 +1383,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    async function radarRefreshFrames() {
+        if (!isRadarActive) return;
+        const frames = await getRainViewerFrames();
+        if (!frames || !isRadarActive) return;
+        radarFrames = frames;
+        radarAnimIndex = Math.min(radarAnimIndex, radarFrames.length - 1);
+    }
+
     function radarStartAnim() {
+        clearInterval(radarAnimInterval);
+        clearInterval(radarRefreshInterval);
         radarAnimInterval = setInterval(() => {
             if (!radarAnimPlaying) return;
             radarAnimIndex = (radarAnimIndex + 1) % radarFrames.length;
             radarShowFrame(radarAnimIndex);
-        }, 1000);
+        }, 1500);
+        radarRefreshInterval = setInterval(radarRefreshFrames, RADAR_REFRESH_MS);
     }
 
     function radarStopAnim() {
         clearInterval(radarAnimInterval);
         radarAnimInterval = null;
+        clearInterval(radarRefreshInterval);
+        radarRefreshInterval = null;
         if (radarLayerPrev) { map.removeLayer(radarLayerPrev); radarLayerPrev = null; }
         if (radarLayer) { map.removeLayer(radarLayer); radarLayer = null; }
     }
@@ -1400,6 +1420,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 owmLayerBtn.blur();
                 isRadarActive = false;
                 radarFrames = [];
+                map.setMinZoom(4);
                 map.setMaxZoom(18);
                 document.getElementById('radarHud').classList.add('hidden');
             } else {
@@ -1422,9 +1443,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
 
+                if (!isRadarActive) return;
+
                 radarFrames = frames;
                 radarAnimIndex = radarFrames.filter(f => f.type === 'past').length - 1;
                 radarAnimPlaying = true;
+
+                const needsZoomOut = map.getZoom() > RADAR_MAX_ZOOM;
+                map.setMinZoom(RADAR_MAX_ZOOM);
+                map.setMaxZoom(RADAR_MAX_ZOOM);
+                if (needsZoomOut) map.setZoom(RADAR_MAX_ZOOM);
 
                 radarShowFrame(radarAnimIndex);
                 radarStartAnim();
@@ -1432,9 +1460,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('radarPlayPauseBtn').textContent = '⏸';
                 document.getElementById('radarHud').classList.remove('hidden');
 
-                map.setMaxZoom(RADAR_MAX_ZOOM);
-                if (map.getZoom() > RADAR_MAX_ZOOM) {
-                    map.setZoom(RADAR_MAX_ZOOM, { animate: true });
+                if (needsZoomOut) {
                     showToast('Radar activo — ajustando zoom automáticamente');
                 } else {
                     showToast('Radar de lluvia activo');
@@ -1463,10 +1489,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('radarPlayPauseBtn').textContent = radarAnimPlaying ? '⏸' : '▶';
     });
 
-    // restaura el zoom máximo al desactivar el radar
+    // restaura zoom al desactivar el radar
     map.on('zoomend', () => {
-        if (!isRadarActive) map.setMaxZoom(18);
+        if (!isRadarActive) { map.setMinZoom(4); map.setMaxZoom(18); }
     });
+
+    // aviso de zoom bloqueado mientras el radar está activo
+    let radarZoomWarnCooldown = false;
+    function warnRadarZoomLocked() {
+        if (!isRadarActive || radarZoomWarnCooldown) return;
+        radarZoomWarnCooldown = true;
+        showToast('Zoom Bloqueado — Desactiva Rainviewer', 'toast--centered');
+        setTimeout(() => { radarZoomWarnCooldown = false; }, 3000);
+    }
+    map.getContainer().addEventListener('wheel', warnRadarZoomLocked, { passive: true });
+    map.getContainer().addEventListener('touchstart', (e) => {
+        if (e.touches.length >= 2) warnRadarZoomLocked();
+    }, { passive: true });
+    document.querySelector('.leaflet-control-zoom-in')?.addEventListener('click', warnRadarZoomLocked);
+    document.querySelector('.leaflet-control-zoom-out')?.addEventListener('click', warnRadarZoomLocked);
 
     // 10. regla náutica
 

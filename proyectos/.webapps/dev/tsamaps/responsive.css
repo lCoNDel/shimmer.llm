@@ -250,7 +250,7 @@
 
     /* -- Radar HUD -- */
     .radar-hud {
-        top: 65px;
+        top: 120px;
         min-width: auto;
         width: calc(100% - 32px);
         padding: 8px 12px;

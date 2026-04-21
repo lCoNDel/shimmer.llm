@@ -1,9 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(bash ./runtime/start.sh)",
-      "Bash(powershell -File ./runtime/tunnel.ps1)",
-      "Bash(bash ./runtime/stop.sh)"
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(bash .webapps/dev/tsamaps/runtime/start.sh)",
+      "Bash(bash .webapps/prod/tsamaps/runtime/start.sh)",
+      "Bash(bash .webapps/dev/tsamaps/runtime/stop.sh)",
+      "Bash(bash .webapps/prod/tsamaps/runtime/stop.sh)",
+      "Bash(powershell -File .webapps/dev/tsamaps/runtime/tunnel.ps1)",
+      "Bash(powershell -File .webapps/prod/tsamaps/runtime/tunnel.ps1)"
     ]
   }
 }
