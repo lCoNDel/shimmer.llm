@@ -8,7 +8,17 @@
       "Bash(bash .webapps/dev/tsamaps/runtime/stop.sh)",
       "Bash(bash .webapps/prod/tsamaps/runtime/stop.sh)",
       "Bash(powershell -File .webapps/dev/tsamaps/runtime/tunnel.ps1)",
-      "Bash(powershell -File .webapps/prod/tsamaps/runtime/tunnel.ps1)"
+      "Bash(powershell -File .webapps/prod/tsamaps/runtime/tunnel.ps1)",
+      "Bash(cd * && bash .webapps/dev/tsamaps/runtime/start.sh)",
+      "Bash(cd * && bash .webapps/prod/tsamaps/runtime/start.sh)",
+      "Bash(cd * && bash .webapps/dev/tsamaps/runtime/stop.sh)",
+      "Bash(cd * && bash .webapps/prod/tsamaps/runtime/stop.sh)",
+      "Bash(cd * && powershell -File .webapps/dev/tsamaps/runtime/tunnel.ps1)",
+      "Bash(cd * && powershell -File .webapps/prod/tsamaps/runtime/tunnel.ps1)",
+      "Bash(docker compose -f proyectos/.docker/compose/prod.yml pull open-webui)",
+      "Bash(docker compose -f proyectos/.docker/compose/prod.yml up -d --force-recreate open-webui)",
+      "Bash(docker logs open-webui --tail *)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
