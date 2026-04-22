@@ -1,45 +1,173 @@
-# Shimmer LLM — proyectos/
+# Shimmer LLM — Contexto del Proyecto
 
-> El contexto completo del proyecto está en [../CLAUDE.md](../CLAUDE.md).
-> Este archivo añade instrucciones específicas para el working directory `proyectos/`.
+## Qué es Shimmer
 
-## Working Directory
+Plataforma de IA local en fase de **demo y testing**, con objetivo de despliegue en servidor dedicado (pendiente). Desarrollada por **Luis Conde**, Técnico de Sistemas en **Touron S.A.** (distribuidor oficial Mercury/Brunswick, ~50 empleados, Madrid).
+
+Núcleo: **Open WebUI + Docker + Ollama**. Ollama corre en el host Windows; el resto de servicios en contenedores Docker.
+
+**Idioma de trabajo**: español. El código y commits pueden estar en inglés.
+
+---
+
+## Stack Técnico
+
+| Servicio | Tecnología | Puerto |
+|---|---|---|
+| Interfaz principal | Open WebUI v0.8.12 | 3000 (prod) / 4000 (dev) |
+| Alternativa | AnythingLLM | 3001 (prod) / 4001 (dev) |
+| LLM local | Ollama (host Windows) | 11434 |
+| Acceso a archivos | Filebrowser | 8000–8002 |
+| Bots | Python — Long Polling | Sin puerto |
+
+Esquema de puertos — consultarlo siempre antes de añadir un nuevo servicio:
+
+| Puerto | Servicio |
+|---|---|
+| 3000 | Open WebUI (Producción) |
+| 3001 | AnythingLLM (Producción) |
+| 3002–3099 | Reservado (LibreChat, Flowise, etc.) |
+| 4000 | Open WebUI (Dev) |
+| 4001 | AnythingLLM (Dev) |
+| 4002–4099 | Reservado para futuros contenedores experimentales |
+| 5000–5099 | APIs nativas, webhooks, microservicios, puentes de IA |
+| 8000 | Filebrowser Global (acceso raíz a todo el árbol) |
+| 8001 | Filebrowser Inyectable → Open WebUI |
+| 8002 | Filebrowser Inyectable → AnythingLLM |
+| 8003–8099 | Reservado (Grafana, Portainer, etc.) |
+| 11434 | Ollama (Host Windows) |
+| 5432 / 5433 | PostgreSQL |
+| 6379 | Redis |
+
+Los bots Long Polling (Telegram, WhatsApp, Discord) no requieren exponer puertos, salvo arquitectura de webhooks (usaría el bloque 5000).
+
+## Ollama en Windows + Docker
+
+Ollama corre **directamente en el host Windows** (no en Docker). Los contenedores se conectan mediante `host.docker.internal`, que Docker Desktop resuelve automáticamente a la IP del host.
+
+| Variable | Valor | Descripción |
+|---|---|---|
+| `OLLAMA_HOST` | `127.0.0.1:11434` | Interfaz y puerto donde escucha Ollama |
+| `OLLAMA_KEEP_ALIVE` | `600` | Segundos que un modelo permanece cargado sin actividad |
+| `OLLAMA_MAX_LOADED_MODELS` | `3` | Máximo de modelos simultáneamente en memoria |
+| `OLLAMA_NUM_PARALLEL` | `4` | Peticiones paralelas que puede procesar |
+
+En los Docker Compose se usa:
+```yaml
+environment:
+  - OLLAMA_BASE_URL=http://host.docker.internal:11434
+```
+
+`OLLAMA_HOST=127.0.0.1` normalmente bloquearía el acceso desde contenedores, pero Docker Desktop en Windows enruta `host.docker.internal` de forma que sí alcanza el loopback del host. Si la conexión falla, cambiar a `OLLAMA_HOST=0.0.0.0:11434` (requiere reiniciar el servicio Ollama desde Variables de Entorno del sistema Windows).
+
+Verificar conectividad desde un contenedor:
+```bash
+docker exec -it open-webui curl http://host.docker.internal:11434/api/tags
+```
+
+---
+
+## Estructura de `proyectos/`
 
 ```
 proyectos/
-├── .backlog/   # Ideas y proyectos futuros (ACTIVO — no ignorar)
-├── .bots/      # Bots de mensajería (Telegram, WhatsApp...)
-├── .docker/    # Docker Compose, Filebrowser inyectable, scripts de backup
-├── .docs/      # Documentación de servicios (Open WebUI, etc.)
-├── .agents/    # Skills y Workflows
-└── .webapps/   # Proyectos web paralelos
+├── .backlog/   # Ideas y proyectos futuros (ACTIVO — consultar al planificar)
+├── .claude/    # Configuración Claude Code (no editar)
+├── .docker/    # Infraestructura Docker, bots y workflows
+├── .docs/      # Documentación de servicios
+├── .agents/    # Skills y agentes
+├── .tunnel/    # Accesos rápidos ngrok para exponer servicios
+└── .webapps/   # Proyectos web del ecosistema Shimmer
 ```
+
+---
+
+## Detalle de Carpetas
+
+### `.backlog/`
+Backlog activo. Prefijo `OK` = ya implementado. Leer antes de planificar trabajo nuevo.
+
+### `.docker/`
+```
+.docker/
+├── .bots/telegram/         # Bots de Telegram (todos los .py van aquí, sin subcarpetas)
+│   ├── asistente_nautico.py
+│   ├── asistente_servicio.py
+│   └── requirements.txt    # Compartido por todos los bots de Telegram
+├── compose/
+│   ├── prod.yml            # Stack producción — Open WebUI + AnythingLLM
+│   ├── dev.yml
+│   ├── bots.yml
+│   └── tools.yml
+├── backup/                 # Scripts de backup de volúmenes
+├── filebrowser/            # Filebrowser inyectable (lanzamiento puntual, no permanente)
+└── openweb/                # Workflows de operación de Open WebUI
+```
+Nuevas plataformas de bots → nueva subcarpeta en `.bots/` (ej. `whatsapp/`). Los `.py` van siempre planos dentro de su carpeta de plataforma.
+
+### `.agents/`
+Skills en `.agents/skills/[nombre]/SKILL.md`. Formato y convenciones: ver `.agents/god/SKILL.md`.
+Al crear o modificar una skill, seguir ese estándar.
+
+### `.tunnel/`
+```
+.tunnel/
+├── ngrok/          # Accesos directos a app y config de ngrok
+└── openweb.bat     # Expone Open WebUI vía ngrok
+```
+
+### `.webapps/`
+```
+.webapps/
+├── prod/tsamaps/   # Carta náutica interactiva — puerto 5050
+├── dev/tsamaps/    # Desarrollo
+└── antiguos/       # Archivados — excluidos de git
+```
+
+**tsamaps** — app estática (HTML/CSS/JS vanilla, Leaflet, OpenSeaMap, CartoDB). Sin backend.
+Archivos principales: `app.js`, `index.html`, `index.css`, `responsive.css`.
+Todo el JS en un único `DOMContentLoaded`. Servidor local: `npx http-server` puerto 5050.
+**Changelogs en `.webapps/prod/tsamaps/logs/`** — incluyen contexto técnico exacto para agentes. Leer antes de modificar la app.
+
+---
 
 ## Reglas por zona
 
 ### `.webapps/dev/`
-Zona de trabajo activo. Los cambios aquí son libres y no requieren autorización especial.
-Los cambios de dev se sincronizan manualmente a prod una vez validados.
+Trabajo activo. Cambios libres. Se sincronizan manualmente a prod una vez validados.
 
 ### `.webapps/prod/`
-Zona de producción. Contiene la versión publicada o lista para publicar.
-
-**ADVERTENCIA: Doble autorización requerida antes de cualquier cambio:**
-1. Describir exactamente qué archivo se va a modificar y qué cambio se hará.
-2. Esperar confirmación explícita del usuario.
-3. No proceder aunque el cambio sea idéntico a uno ya aplicado en `dev/`.
-
-Una autorización previa en `dev/` **no implica autorización en `prod/`**.
+**ADVERTENCIA — Doble autorización antes de cualquier cambio:**
+1. Describir exactamente qué archivo y qué cambio.
+2. Esperar confirmación explícita.
+3. Una autorización en `dev/` **no implica autorización en `prod/`**.
 
 ### `.webapps/antiguos/`
-Archivo de versiones anteriores. No se modifican.
+No se modifican.
 
 ---
 
 ## Convenciones
 
-- **Idioma**: Responder siempre en español salvo que el código o contexto técnico lo requiera en inglés.
-- **Skills**: Al crear o modificar una skill, respetar el formato definido en `.agents/god/SKILL.md`.
-- **Docker**: El stack de producción parte de `.docker/compose/prod.yml`. No modificar sin confirmar.
-- **Backlog**: `.backlog/` es el backlog activo — tenerlo en cuenta al planificar trabajo.
-- **Puertos**: Respetar el esquema definido en [.docker/puertos.md](.docker/puertos.md).
+- **Idioma**: español siempre, salvo código o contexto técnico.
+- **Skills**: respetar formato de `.agents/god/SKILL.md`.
+- **Docker prod**: `.docker/compose/prod.yml` — no modificar sin confirmar.
+- **Backlog**: consultar `.backlog/` al planificar.
+- **Puertos**: respetar esquema en la sección "Stack Técnico" de este CLAUDE.md.
+
+---
+
+## Contexto Empresarial: Touron S.A.
+
+Distribuidor oficial Mercury, Quicksilver, Bayliner, Simrad. ~50 empleados. Sede: Torrejón de Ardoz; sucursal: Cascais (Portugal). ERP: Libra (Oracle). Microsoft 365 + SharePoint Online.
+IT: Luis Conde (Sistemas), José Sanz (Oracle), Tomás Ruiz-Roso (Big Data), Viviana Franco (Microsoft).
+La skill `asistente-nautico-touron` contiene datos reales — tratar con discreción.
+
+---
+
+## Estado del Proyecto
+
+- **Fase**: Demo y testing en local (Windows)
+- **Próximo paso**: Despliegue en servidor dedicado (pendiente de máquina)
+- **RAG SharePoint**: diseñado, pendiente → `.backlog/rag_sharepoint/`
+- **Modelo de embeddings**: por decidir (`nomic-embed-text` o `mxbai-embed-large`)

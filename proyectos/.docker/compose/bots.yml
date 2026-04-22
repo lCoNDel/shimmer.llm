@@ -11,7 +11,7 @@ services:
     container_name: asistente_nautico
     restart: "no"
     volumes:
-      - ../../.bots/telegram:/app
+      - ../.bots/telegram:/app
     working_dir: /app
     command: sh -c "pip install -r requirements.txt && python asistente_nautico.py"
 
@@ -21,6 +21,6 @@ services:
     container_name: asistente_servicio
     restart: "no"
     volumes:
-      - ../../.bots/telegram/asistente_servicio:/app
+      - ../.bots/telegram:/app
     working_dir: /app
     command: sh -c "pip install -r requirements.txt && python asistente_servicio.py"
