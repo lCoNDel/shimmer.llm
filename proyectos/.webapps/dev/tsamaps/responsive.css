@@ -342,4 +342,9 @@
         pointer-events: none;
     }
 
+    /* VesselFinder close button: subir para no solapar el HUD de coordenadas del iframe */
+    #vesselCloseBar {
+        bottom: 70px !important;
+    }
+
 }

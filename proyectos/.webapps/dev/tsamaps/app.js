@@ -726,6 +726,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             currentMarker = L.marker(e.latlng, { icon: customIcon }).addTo(map);
         }
 
+        // en móvil, no abrir condiciones si Sol/Luna está abierto
+        if (window.innerWidth <= 768 && !sunMoonPanel.classList.contains('closed')) return;
+
         // abre el panel meteorológico con el cargador
         weatherPanel.classList.remove('closed');
         latlonDisplay.textContent = `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? 'N' : 'S'}, ${Math.abs(lng).toFixed(4)}° ${lng >= 0 ? 'E' : 'W'}`;
