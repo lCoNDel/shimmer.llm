@@ -1,15 +1,10 @@
 #!/bin/bash
-# Detener cualquier proceso en el puerto 5050
-PORT=5050
-PID=$(netstat -ano | grep "TCP.*:${PORT}.*LISTENING" | awk '{print $5}' | head -1)
+COMPOSE_FILE="$(dirname "$0")/../../../../.docker/compose/proxy.yml"
 
-if [ -n "$PID" ]; then
-    echo "Deteniendo proceso $PID en el puerto $PORT..."
-    taskkill.exe //PID "$PID" //F
-    echo "Servidor detenido."
-else
-    echo "No hay ningún proceso escuchando en el puerto $PORT."
-fi
+# Detener contenedor tsamaps_server
+echo "Deteniendo tsamaps_server..."
+docker compose -f "$COMPOSE_FILE" stop tsamaps_server
+echo "Servidor detenido."
 
 # Cerrar ngrok si está corriendo
 powershell.exe -Command "Stop-Process -Name ngrok -Force -ErrorAction SilentlyContinue"

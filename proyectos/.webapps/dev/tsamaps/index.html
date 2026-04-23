@@ -230,7 +230,7 @@
                     <line x1="4.93" y1="19.07" x2="9.17" y2="14.83"></line>
                 </svg>
                 <span
-                    style="font-size: 0.65rem; font-weight: 800; display: block; line-height: 1; margin-top: 2px;">SOS</span>
+                    style="font-size: 0.65rem; font-weight: 800; display: block; line-height: 1; margin-top: 2px;">MOB</span>
             </button>
         </div>
 
@@ -282,6 +282,19 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+        </button>
+
+        <!-- Botón flotante Chat IA (centrado entre radio y GPS) -->
+        <button class="floating-chat-btn" id="chatBtn" aria-label="Asistente Náutico IA" title="Asistente Náutico IA">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 8V4H8"/>
+                <rect width="16" height="12" x="4" y="8" rx="2"/>
+                <path d="M2 14h2"/>
+                <path d="M20 14h2"/>
+                <path d="M15 13v2"/>
+                <path d="M9 13v2"/>
             </svg>
         </button>
 
@@ -627,6 +640,35 @@
                 <a href="https://github.com/mourner/suncalc" target="_blank" style="color:var(--brand-primary);">SunCalc</a> — cálculo de sol y luna
             </div>
 
+        </div>
+    </div>
+
+    <!-- Panel Asistente IA -->
+    <div class="chat-panel closed" id="chatPanel">
+        <div class="panel-header">
+            <h2 style="font-size: 1.05rem; display:flex; align-items:center; gap:0.4rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Asistente Náutico
+            </h2>
+            <button class="close-btn" id="closeChatBtn" aria-label="Cerrar chat">&times;</button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+        </div>
+        <div class="chat-input-row">
+            <input type="text" id="chatInput" class="search-input"
+                placeholder="Escribe tu pregunta..." autocomplete="off"
+                style="flex:1; padding:0.5rem 0.8rem; font-size:0.85rem; border-radius:20px; border:1px solid rgba(0,118,214,0.2);">
+            <button id="chatSendBtn" class="btn btn-primary"
+                style="padding:0.5rem 0.9rem; border-radius:20px; font-size:0.85rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
         </div>
     </div>
 

@@ -485,6 +485,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isOpen = !radioPanel.classList.contains('closed');
         radioPanel.classList.toggle('closed');
         radioBtn.classList.toggle('active', !isOpen);
+        if (!isOpen) { document.getElementById('chatPanel')?.classList.add('closed'); document.getElementById('chatBtn')?.classList.remove('active'); }
     });
 
     closeRadioBtn.addEventListener('click', () => {
@@ -524,6 +525,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchPanel.classList.remove('closed');
         searchInput.focus();
         map.invalidateSize({ animate: true });
+        document.getElementById('chatPanel')?.classList.add('closed'); document.getElementById('chatBtn')?.classList.remove('active');
     });
 
     closeSearchBtn.addEventListener('click', () => {
@@ -757,7 +759,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const gpsShortcutBtn = document.getElementById('gpsShortcutBtn');
 
     if (gpsShortcutBtn) {
-        gpsShortcutBtn.addEventListener('click', () => weatherPanel.classList.remove('closed'));
+        gpsShortcutBtn.addEventListener('click', () => {
+            const isOpen = !weatherPanel.classList.contains('closed');
+            weatherPanel.classList.toggle('closed');
+            gpsShortcutBtn.classList.toggle('active', !isOpen);
+        });
     }
 
     geoBtn.addEventListener('click', () => {
@@ -1017,6 +1023,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         sunMoonPanel.classList.remove('closed');
         sunMoonBtn.classList.add('active');
+        document.getElementById('chatPanel')?.classList.add('closed'); document.getElementById('chatBtn')?.classList.remove('active');
         // coordenadas en orden de prioridad
         const lat = lastGpsLat ?? window.lastRequestedLat ?? map.getCenter().lat;
         const lng = lastGpsLng ?? window.lastRequestedLng ?? map.getCenter().lng;
@@ -2275,5 +2282,96 @@ document.addEventListener('DOMContentLoaded', async () => {
             localStorage.setItem('permissionsBannerSeen', '1');
         }
     }
+
+    // ── Asistente IA (chat panel) ────────────────────────────
+    const PROXY_URL      = ''; // URL relativa — funciona en local y vía ngrok sin cambios
+    const CHAT_TIMEOUT   = 10 * 60 * 1000;         // 10 min sin actividad → reset historial
+
+    const chatBtn        = document.getElementById('chatBtn');
+    const chatPanel      = document.getElementById('chatPanel');
+    const closeChatBtn   = document.getElementById('closeChatBtn');
+    const chatMessages   = document.getElementById('chatMessages');
+    const chatInput      = document.getElementById('chatInput');
+    const chatSendBtn    = document.getElementById('chatSendBtn');
+
+    let chatHistory      = [];
+    let chatLastActivity = Date.now();
+
+    function openChatPanel() {
+        radioPanel.classList.add('closed'); radioBtn.classList.remove('active');
+        searchPanel.classList.add('closed');
+        weatherPanel.classList.add('closed');
+        sunMoonPanel.classList.add('closed'); sunMoonBtn.classList.remove('active');
+        chatPanel.classList.remove('closed');
+        chatBtn.classList.add('active');
+        chatInput.focus();
+        if (chatHistory.length === 0) {
+            chatInput.value = 'Hola!';
+            sendMessage();
+        }
+    }
+    function closeChatPanel() {
+        chatPanel.classList.add('closed');
+        chatBtn.classList.remove('active');
+        chatInput.blur();
+    }
+
+    chatBtn.addEventListener('click', () => {
+        if (chatPanel.classList.contains('closed')) openChatPanel();
+        else closeChatPanel();
+    });
+    closeChatBtn.addEventListener('click', closeChatPanel);
+
+    function appendBubble(role, text) {
+        const div = document.createElement('div');
+        div.className = `chat-bubble chat-bubble--${role}`;
+        div.textContent = text;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return div;
+    }
+
+    async function sendMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        const now = Date.now();
+        if (now - chatLastActivity > CHAT_TIMEOUT) {
+            chatHistory = [];
+            appendBubble('assistant', '⏳ Sesión reiniciada por inactividad. ¿En qué puedo ayudarte?');
+        }
+        chatLastActivity = now;
+
+        chatInput.value = '';
+        chatSendBtn.disabled = true;
+        appendBubble('user', text);
+        chatHistory.push({ role: 'user', content: text });
+
+        const typingBubble = appendBubble('assistant', 'Escribiendo...');
+        typingBubble.classList.add('chat-bubble--typing');
+
+        try {
+            const res = await fetch(`${PROXY_URL}/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: chatHistory })
+            });
+            if (!res.ok) throw new Error(`Error ${res.status}`);
+            const data = await res.json();
+            typingBubble.textContent = data.response;
+            typingBubble.classList.remove('chat-bubble--typing');
+            chatHistory.push({ role: 'assistant', content: data.response });
+        } catch (err) {
+            typingBubble.textContent = 'Error al conectar con el asistente. Inténtalo de nuevo.';
+            typingBubble.classList.remove('chat-bubble--typing');
+            chatHistory.pop();
+        } finally {
+            chatSendBtn.disabled = false;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    }
+
+    chatSendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 
 });

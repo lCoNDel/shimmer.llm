@@ -1,0 +1,17 @@
+name: proxy
+
+services:
+
+  # servidor web tsamaps + proxy hacia open webui (sin auth para el usuario final)
+  tsamaps_server:
+    image: python:3.11-slim
+    container_name: tsamaps_server
+    restart: "no"
+    ports:
+      - "5050:5050"
+    volumes:
+      - ../../.webapps/dev/tsamaps:/app
+    working_dir: /app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: sh -c "pip install fastapi uvicorn httpx -q && uvicorn server:app --host 0.0.0.0 --port 5050"
