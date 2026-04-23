@@ -76,6 +76,7 @@ proyectos/
 ├── .docker/    # Infraestructura Docker, bots y workflows
 ├── .docs/      # Documentación de servicios
 ├── .agents/    # Skills y agentes
+├── .log/       # Changelogs de sesión por proyecto (ACTIVO — leer antes de modificar)
 ├── .tunnel/    # Accesos rápidos ngrok para exponer servicios
 └── .webapps/   # Proyectos web del ecosistema Shimmer
 ```
@@ -109,6 +110,14 @@ Nuevas plataformas de bots → nueva subcarpeta en `.bots/` (ej. `whatsapp/`). L
 Skills en `.agents/skills/[nombre]/SKILL.md`. Formato y convenciones: ver `.agents/god/SKILL.md`.
 Al crear o modificar una skill, seguir ese estándar.
 
+### `.log/`
+Changelogs de sesión. Generados automáticamente con la skill `fin-sesion` al cerrar cada sesión de trabajo.
+```
+.log/
+└── changelog_YYYY-MM-DD.md
+```
+Un único archivo por día. Si en la sesión se trabajó en varios proyectos, el changelog los agrupa en secciones. Leer el del día anterior antes de empezar — contiene contexto técnico exacto, decisiones de diseño y estado de variables.
+
 ### `.tunnel/`
 ```
 .tunnel/
@@ -124,10 +133,10 @@ Al crear o modificar una skill, seguir ese estándar.
 └── antiguos/       # Archivados — excluidos de git
 ```
 
-**tsamaps** — app estática (HTML/CSS/JS vanilla, Leaflet, OpenSeaMap, CartoDB). Sin backend.
-Archivos principales: `app.js`, `index.html`, `index.css`, `responsive.css`.
-Todo el JS en un único `DOMContentLoaded`. Servidor local: `npx http-server` puerto 5050.
-**Changelogs en `.webapps/prod/tsamaps/logs/`** — incluyen contexto técnico exacto para agentes. Leer antes de modificar la app.
+**tsamaps** — app web (HTML/CSS/JS vanilla, Leaflet, OpenSeaMap, CartoDB) con servidor FastAPI consolidado en el puerto 5050 (estáticos + proxy `/chat` hacia Open WebUI).
+Archivos principales: `app.js`, `index.html`, `index.css`, `responsive.css`, `server.py`.
+Todo el JS en un único `DOMContentLoaded`. Arrancado vía `docker compose` con `proxy.yml`.
+**Changelogs en `.log/`** — incluyen contexto técnico exacto para agentes. Leer antes de modificar la app.
 
 ---
 
@@ -154,6 +163,7 @@ No se modifican.
 - **Docker prod**: `.docker/compose/prod.yml` — no modificar sin confirmar.
 - **Backlog**: consultar `.backlog/` al planificar.
 - **Puertos**: respetar esquema en la sección "Stack Técnico" de este CLAUDE.md.
+- **Logs**: los changelogs van en `.log/changelog_YYYY-MM-DD.md`, un archivo por día con secciones por proyecto. Leer antes de empezar. Generar con la skill `fin-sesion` al cerrar sesión.
 
 ---
 

@@ -131,3 +131,23 @@ services:
 └── compose/
     └── proxy.yml           ← nuevo (name: proxy → tsamaps_server)
 ```
+
+---
+
+## Infraestructura de logs y skill fin-sesion
+
+### Nueva carpeta `.log/`
+- Los changelogs de sesión se centralizan en `.log/` en la raíz de `proyectos/` — un único archivo por día (`changelog_YYYY-MM-DD.md`) con secciones por proyecto si aplica
+- Reemplaza la antigua ubicación `.webapps/prod/tsamaps/logs/` — los changelogs históricos de tsamaps se han migrado a `.log/`
+- Estructura plana: no hay subcarpetas por proyecto, todo convive en el mismo nivel
+
+### Skill `fin-sesion`
+- Nueva skill en `.agents/skills/fin-sesion/SKILL.md`
+- Flujo: revisar `git status` + `git diff` → crear/actualizar changelog del día → proponer mensaje de commit → ejecutar commit tras confirmación del usuario
+- No hace push — solo commit local
+- Sigue el formato de changelogs existentes (título, secciones ##/###, sección de contexto técnico al final)
+
+### CLAUDE.md actualizado
+- Nueva entrada `.log/` en el árbol de carpetas y en la sección de detalle
+- Referencia a tsamaps actualizada: ya no es app estática sino servidor FastAPI consolidado en Docker
+- Convención de logs añadida a la sección de convenciones
