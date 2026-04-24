@@ -202,8 +202,10 @@ body {
 
 .brand-logo-img {
     height: 28px;
-    width: auto;
-    object-fit: contain;
+    width: 28px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
 }
 
 .brand-company-name {

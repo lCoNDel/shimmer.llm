@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose -f * up -d *)",
+      "Bash(docker compose -f * stop *)",
+      "Bash(docker compose -f * down*)",
+      "Bash(docker stop *)",
+      "Bash(docker start *)",
+      "Bash(docker ps *)",
+      "Bash(docker logs *)",
+      "Bash(bash ./runtime/start.sh)",
+      "Bash(bash ./runtime/stop.sh)",
+      "Bash(cp *)",
+      "PowerShell(*)"
+    ]
+  }
+}

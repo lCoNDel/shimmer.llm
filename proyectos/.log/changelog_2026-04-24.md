@@ -177,3 +177,61 @@ El contenedor padre `map-controls-bottom-left` tiene `position: absolute; left: 
     /* resto sin cambios */
 }
 ```
+
+---
+
+## tsamaps — Favicon, logo y permisos Claude Code (tercera sesión)
+
+### Favicon (index.html)
+- Añadido `<link rel="icon">` en el `<head>` apuntando a la imagen del logo de Touron (Google CDN)
+- Elimina el 404 en `/favicon.ico` que registraba ngrok en cada visita
+- La imagen cuadrada no se puede redondear desde CSS en el favicon (limitación del navegador) — se dejó así
+
+### Logo en el header — redondeado (index.css)
+- `.brand-logo-img` actualizado: `width: 28px`, `object-fit: cover`, `border-radius: 50%`, `display: block`
+- `display: block` elimina el espacio de baseline implícito de los elementos `<img>` inline
+- El logo queda recortado en círculo en la web
+
+### Sincronización dev → prod
+- Sincronizados a prod: `index.html`, `index.css`, `responsive.css`, `Runtime.md`, `runtime/start.sh`, `runtime/stop.sh`
+- `runtime/start.sh` y `runtime/stop.sh` de prod estaban desactualizados (versión antigua con `http-server`); ahora usan Docker compose
+
+### Permisos Claude Code (.claude/settings.json)
+- Creado `.claude/settings.json` con allowlist de permisos para la secuencia completa del servicio web:
+  - `docker compose -f * up -d *`, `docker compose -f * stop *`, `docker compose -f * down*`
+  - `docker stop *`, `docker start *`, `docker ps *`, `docker logs *`
+  - `bash ./runtime/start.sh`, `bash ./runtime/stop.sh`
+  - `cp *`
+  - `PowerShell(*)` — autoriza cualquier comando PowerShell en el proyecto (necesario para `tunnel.ps1`)
+- Eliminado `settings.local.json` (reemplazado por `settings.json`)
+
+### System prompt asistente — sección TSA Maps
+- Propuesta de ampliación del system prompt del modelo `asistente-touron` en Open WebUI
+- Nueva sección `## TSA Maps` con descripción de todas las funcionalidades de la plataforma
+- Pendiente de aplicar manualmente en Open WebUI por el usuario
+
+---
+
+## Contexto técnico para agentes (tercera sesión)
+
+> Archivos modificados: `index.css`, `index.html` (dev y prod), `Runtime.md`, `runtime/start.sh`, `runtime/stop.sh` (prod), `.claude/settings.json` (nuevo)
+
+### .brand-logo-img — estado actual
+```css
+.brand-logo-img {
+    height: 28px;
+    width: 28px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+```
+
+### Favicon — estado actual (index.html head)
+```html
+<link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwP6ECO812KN688mb1LhBvRawScR7tbavVCg&s" type="image/png">
+```
+
+### Runtime prod — ahora usa Docker compose
+`start.sh` lanza `docker compose -f ../../../../.docker/compose/proxy.yml up -d tsamaps_server`
+`stop.sh` para el contenedor y cierra ngrok vía `powershell.exe`
