@@ -287,3 +287,111 @@ services:
 El agente ejecuta siempre dos pasos:
 1. `bash ./runtime/start.sh` en background → levanta el contenedor Docker
 2. `powershell -File ./runtime/tunnel.ps1` → abre ngrok en ventana visible
+
+---
+
+## tsamaps + bots — Búsqueda web DuckDuckGo, spotlight bienvenida, iconos manual, ajustes chat (quinta sesión)
+
+### Búsqueda web con /web — bot Telegram y tsamaps dev
+- Integrada la librería `duckduckgo-search` (sin API key, gratuita)
+- Comando `/web <consulta>` disponible en Telegram y en el chat web de tsamaps
+- Al detectar `/web`, se buscan los 5 primeros resultados y se inyectan como mensaje `system` antes de llamar a Open WebUI
+- El historial de conversación se mantiene para iterar sobre las respuestas
+- `requirements.txt` actualizado con `duckduckgo-search`
+- `proxy.yml` actualizado: `duckduckgo-search` añadido al `pip install` del comando de arranque de `tsamaps_server_dev`
+- Archivos: `.docker/.bots/telegram/asistente_nautico.py`, `.docker/.bots/telegram/requirements.txt`, `.docker/compose/proxy.yml`, `.webapps/dev/tsamaps/server.py`
+
+### Spotlight de bienvenida (tsamaps dev)
+- Al cerrar el banner de permisos de primera visita, aparece un overlay oscuro que destaca el botón `?` del Manual
+- Texto: "¿Primera vez? / Pulsa este botón para abrir el Manual de Uso"
+- Se cierra con botón "Entendido", pulsando el `?`, o haciendo clic en el overlay
+- Controlado por `localStorage.getItem('guideTipSeen')` — solo aparece una vez
+- Archivos: `.webapps/dev/tsamaps/index.html`, `.webapps/dev/tsamaps/index.css`, `.webapps/dev/tsamaps/app.js`
+
+### Iconos en el Manual de Uso
+- Cada entrada del manual ahora muestra el SVG del botón correspondiente en el color de su sección
+- Archivos: `.webapps/dev/tsamaps/index.html`
+
+### Chat panel — ajustes de tamaño y alineación
+- Ancho: 410px, alto de mensajes: 438px
+- `.close-btn` dentro de `.panel-header` sobreescrito con `position: static; font-size: 1.5rem` para corregir desalineación de la X
+- Segunda definición de `.close-btn` (modales) añadidos `display: flex; align-items: center`
+- Mensaje de bienvenida automático ("Hola!") eliminado — sustituido por burbuja prefijada visible solo para el usuario que describe el agente y el comando `/web`
+- Archivos: `.webapps/dev/tsamaps/index.css`, `.webapps/dev/tsamaps/app.js`
+
+---
+
+## Contexto técnico para agentes (quinta sesión)
+
+> Archivos modificados: `.docker/.bots/telegram/asistente_nautico.py`, `.docker/.bots/telegram/requirements.txt`, `.docker/compose/proxy.yml`, `.webapps/dev/tsamaps/server.py`, `.webapps/dev/tsamaps/app.js`, `.webapps/dev/tsamaps/index.css`, `.webapps/dev/tsamaps/index.html`
+
+### Flujo /web en server.py (dev)
+```python
+# Detecta el prefijo en el último mensaje del usuario
+# Llama a search_web(query, max_results=5)
+# Inyecta resultados como {"role": "system", "content": search_results}
+# al inicio del array de mensajes antes de llamar a Open WebUI
+```
+
+### Flujo /web en asistente_nautico.py
+- Handler dedicado `@bot.message_handler(commands=['web'])` — necesario porque Telegram trata `/web` como comando, no como texto libre
+- Los resultados de búsqueda NO se guardan en el historial — solo se inyectan en esa llamada
+
+### guide-spotlight — estado actual
+- HTML: `<div id="guideTip" class="guide-spotlight hidden">` — fuera del header, justo antes de `<main>`
+- JS: `showGuideTip()` calcula posición de `openGuideBtn` con `getBoundingClientRect()` en tiempo de ejecución
+- Se activa desde `requestPermissions()` y desde el listener de `permissionsDismissBtn`
+- Clave localStorage: `guideTipSeen`
+
+---
+
+## tsamaps + bots — Fix búsqueda web /web y migración a ddgs (sexta sesión)
+
+### Problema raíz: librería duckduckgo-search deprecada
+- `duckduckgo-search` v8 devolvía resultados vacíos para consultas en español
+- La librería fue renombrada oficialmente a `ddgs` — el paquete antiguo lanza `RuntimeWarning` al importar
+- Migración completa a `ddgs` en todos los archivos
+
+### Cambios en asistente_nautico.py
+- Import cambiado: `from duckduckgo_search import DDGS` → `from ddgs import DDGS`
+- Inyección de resultados corregida: de `{"role": "system", "content": search_results}` a mensaje de usuario enriquecido:
+  ```
+  Usa los siguientes resultados de búsqueda web para responder:\n\n{search_results}\n\nPregunta: {query}
+  ```
+  Motivo: Open WebUI ignora mensajes `system` inyectados externamente cuando el modelo tiene su propio system prompt configurado
+- Mismo patrón aplicado en `handle_web_command()` y en el fallback de `handle_message()`
+
+### Cambios en server.py (dev)
+- Import cambiado: `from duckduckgo_search import DDGS` → `from ddgs import DDGS`
+- Misma corrección de inyección como mensaje de usuario enriquecido
+
+### Cambios en requirements.txt
+- `duckduckgo-search` → `ddgs`
+
+### Cambios en proxy.yml
+- Comando de arranque de `tsamaps_server_dev`: `duckduckgo-search` → `ddgs`
+
+---
+
+## Contexto técnico para agentes (sexta sesión)
+
+> Archivos modificados: `.docker/.bots/telegram/asistente_nautico.py`, `.docker/.bots/telegram/requirements.txt`, `.docker/compose/proxy.yml`, `.webapps/dev/tsamaps/server.py`
+
+### Flujo /web corregido — inyección como mensaje de usuario
+```python
+enriched_content = f"Usa los siguientes resultados de búsqueda web para responder:\n\n{search_results}\n\nPregunta: {query}"
+user_history[user_id]["messages"].append({"role": "user", "content": enriched_content})
+# NO se inyecta {"role": "system"} — Open WebUI lo ignora si el modelo tiene system prompt propio
+```
+
+### ddgs — uso correcto
+```python
+from ddgs import DDGS
+with DDGS() as ddgs:
+    results = list(ddgs.text(query, max_results=5))
+# Devuelve lista de dicts: {"title": ..., "body": ..., "href": ...}
+```
+
+### Estado del log de búsqueda en asistente_nautico.py
+- Línea de log: `logging.info(f"Búsqueda web para '{query}': {len(search_results)} chars de resultados\n{search_results}")`
+- Incluye el contenido bruto de DuckDuckGo — útil para depuración, puede eliminarse en producción

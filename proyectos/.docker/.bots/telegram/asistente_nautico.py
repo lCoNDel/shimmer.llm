@@ -4,6 +4,7 @@ import json
 import logging
 import time
 import base64
+from ddgs import DDGS
 
 # Configuración básica de logs
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -15,6 +16,21 @@ OPENWEBUI_URL = "http://host.docker.internal:3000/api/chat/completions"
 MODEL_ID = "asistente-touron"
 
 ALLOWED_USERS = [216529295]
+WEB_PREFIX = "/web "
+
+def search_web(query: str, max_results: int = 5) -> str:
+    try:
+        with DDGS() as ddgs:
+            results = list(ddgs.text(query, max_results=max_results))
+        if not results:
+            return f"No se encontraron resultados web para: \"{query}\""
+        lines = [f"Resultados de búsqueda web para: \"{query}\"\n"]
+        for i, r in enumerate(results, 1):
+            lines.append(f"{i}. {r['title']}\n   {r['body']}\n   Fuente: {r['href']}")
+        return "\n".join(lines)
+    except Exception as e:
+        logging.error(f"Error en búsqueda web: {e}")
+        return f"Error al realizar la búsqueda web: {e}"
 
 UNAUTHORIZED_MESSAGES = [
     "Lo lamento pero no está usted autorizado para utilizar el agente, puede solicitar acceso a @CBLuiSo.",
@@ -35,6 +51,66 @@ TIMEOUT_MINUTES = 10
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     pass
+
+@bot.message_handler(commands=['web'])
+def handle_web_command(message):
+    if message.from_user.id not in ALLOWED_USERS:
+        uid = message.from_user.id
+        attempt = unauthorized_attempts.get(uid, 0)
+        unauthorized_attempts[uid] = attempt + 1
+        if attempt < len(UNAUTHORIZED_MESSAGES):
+            bot.reply_to(message, UNAUTHORIZED_MESSAGES[attempt])
+        return
+
+    parts = message.text.split(maxsplit=1)
+    if len(parts) < 2 or not parts[1].strip():
+        bot.reply_to(message, "Uso: /web <consulta>\nEjemplo: /web últimas noticias Mercury Marine")
+        return
+
+    query = parts[1].strip()
+    user_id = message.from_user.id
+    current_time = time.time()
+
+    if user_id not in user_history:
+        user_history[user_id] = {"timestamp": current_time, "messages": []}
+    else:
+        if (current_time - user_history[user_id]["timestamp"]) > (TIMEOUT_MINUTES * 60):
+            user_history[user_id] = {"timestamp": current_time, "messages": []}
+    user_history[user_id]["timestamp"] = current_time
+
+    bot.send_chat_action(message.chat.id, 'typing')
+    search_results = search_web(query)
+    logging.info(f"Búsqueda web para '{query}': {len(search_results)} chars de resultados\n{search_results}")
+
+    enriched_content = f"Usa los siguientes resultados de búsqueda web para responder:\n\n{search_results}\n\nPregunta: {query}"
+    user_history[user_id]["messages"].append({"role": "user", "content": enriched_content})
+
+    try:
+        headers = {"Authorization": f"Bearer {OPENWEBUI_API_KEY}", "Content-Type": "application/json"}
+        messages = user_history[user_id]["messages"][-10:]
+        payload = {"model": MODEL_ID, "messages": messages, "stream": False}
+        logging.info(f"Enviando /web a Open WebUI con {len(messages)} mensajes")
+
+        response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=120)
+
+        if response.status_code == 200:
+            answer = response.json()['choices'][0]['message']['content']
+            logging.info(f"Respuesta Open WebUI para /web: '{answer[:100]}'")
+            user_history[user_id]["messages"].append({"role": "assistant", "content": answer})
+            if not answer.strip():
+                bot.reply_to(message, "El modelo devolvió una respuesta vacía. Intenta reformular la consulta.")
+                return
+            if len(answer) > 4000:
+                for i in range(0, len(answer), 4000):
+                    bot.send_message(message.chat.id, answer[i:i+4000])
+            else:
+                bot.reply_to(message, answer)
+        else:
+            logging.error(f"Error Open WebUI ({response.status_code}): {response.text}")
+            bot.reply_to(message, "Lo siento, hubo un problema al conectar con Open WebUI.")
+    except Exception as e:
+        logging.exception("Error en /web")
+        bot.reply_to(message, f"Ocurrió un error inesperado: {str(e)}")
 
 @bot.message_handler(commands=['newchat'])
 def reset_history(message):
@@ -145,26 +221,39 @@ def handle_message(message):
     # Actualizar timestamp
     user_history[user_id]["timestamp"] = current_time
 
-    # Añadir mensaje del usuario al historial
-    user_history[user_id]["messages"].append({"role": "user", "content": user_input})
+    # Detectar /web y enriquecer el contexto con búsqueda web
+    extra_system = None
+    if user_input.lower().startswith(WEB_PREFIX):
+        query = user_input[len(WEB_PREFIX):].strip()
+        user_input = query
+        bot.send_chat_action(message.chat.id, 'typing')
+        extra_system = search_web(query)
+
+    # Añadir mensaje del usuario al historial (con resultados web enriquecidos si aplica)
+    if extra_system:
+        enriched_content = f"Usa los siguientes resultados de búsqueda web para responder:\n\n{extra_system}\n\nPregunta: {user_input}"
+        user_history[user_id]["messages"].append({"role": "user", "content": enriched_content})
+    else:
+        user_history[user_id]["messages"].append({"role": "user", "content": user_input})
 
     try:
-        # Mostrar que el bot está "escribiendo"
         bot.send_chat_action(message.chat.id, 'typing')
-        
+
         headers = {
             "Authorization": f"Bearer {OPENWEBUI_API_KEY}",
             "Content-Type": "application/json"
         }
-        
-        # Enviar los últimos 10 mensajes para mantener contexto
+
+        messages = user_history[user_id]["messages"][-10:]
+        model = MODEL_ID
+
         payload = {
-            "model": MODEL_ID,
-            "messages": user_history[user_id]["messages"][-10:],
+            "model": model,
+            "messages": messages,
             "stream": False
         }
-        
-        logging.info(f"Enviando consulta a Open WebUI para el usuario {user_id}...")
+
+        logging.info(f"Enviando consulta a Open WebUI para el usuario {user_id} (modelo: {model})...")
         response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=120)
         
         if response.status_code == 200:

@@ -2252,6 +2252,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     const permissionsBanner     = document.getElementById('permissionsBanner');
     const permissionsGrantBtn   = document.getElementById('permissionsGrantBtn');
     const permissionsDismissBtn = document.getElementById('permissionsDismissBtn');
+    const guideTip              = document.getElementById('guideTip');
+    const guideTipClose         = document.getElementById('guideTipClose');
+
+    function showGuideTip() {
+        if (localStorage.getItem('guideTipSeen')) return;
+        localStorage.setItem('guideTipSeen', '1');
+
+        const hole  = document.getElementById('guideTipHole');
+        const label = document.getElementById('guideTipLabel');
+        const rect  = openGuideBtn.getBoundingClientRect();
+        const pad   = 18;
+        const size  = Math.max(rect.width, rect.height) + pad * 2;
+
+        // centrar el recorte sobre el botón
+        hole.style.width  = size + 'px';
+        hole.style.height = size + 'px';
+        hole.style.top    = (rect.top  + rect.height / 2 - size / 2) + 'px';
+        hole.style.left   = (rect.left + rect.width  / 2 - size / 2) + 'px';
+
+        // colocar la etiqueta debajo del recorte, centrada horizontalmente, sin salirse de pantalla
+        const labelW    = 260;
+        const margin    = 12;
+        const labelLeft = Math.min(
+            Math.max(rect.left + rect.width / 2 - labelW / 2, margin),
+            window.innerWidth - labelW - margin
+        );
+        label.style.top   = (rect.bottom + pad + 20) + 'px';
+        label.style.left  = labelLeft + 'px';
+        label.style.width = labelW + 'px';
+
+        guideTip.classList.remove('hidden');
+
+        const dismiss = () => guideTip.classList.add('hidden');
+        guideTipClose.addEventListener('click', dismiss, { once: true });
+        openGuideBtn.addEventListener('click', dismiss, { once: true });
+        guideTip.addEventListener('click', (e) => { if (e.target === guideTip) dismiss(); }, { once: true });
+    }
 
     async function requestPermissions() {
         permissionsBanner.classList.add('hidden');
@@ -2263,12 +2300,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             navigator.geolocation.getCurrentPosition(() => {}, () => {});
         }
 
+        showGuideTip();
     }
 
     permissionsGrantBtn.addEventListener('click', requestPermissions);
     permissionsDismissBtn.addEventListener('click', () => {
         permissionsBanner.classList.add('hidden');
         localStorage.setItem('permissionsBannerSeen', '1');
+        showGuideTip();
     });
 
     // mostrar solo si no se ha visto antes y faltan permisos
@@ -2278,7 +2317,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (geoState.state === 'prompt') {
             setTimeout(() => permissionsBanner.classList.remove('hidden'), 800);
         } else {
+            // GPS ya concedido: saltamos el banner pero mostramos el tip igualmente
             localStorage.setItem('permissionsBannerSeen', '1');
+            setTimeout(showGuideTip, 800);
         }
     }
 
@@ -2307,8 +2348,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         chatBtn.classList.add('active');
         if (window.innerWidth > 768) chatInput.focus();
         if (chatHistory.length === 0) {
-            chatInput.value = 'Hola!';
-            sendMessage();
+            const welcomeEl = document.createElement('div');
+            welcomeEl.className = 'chat-bubble chat-bubble--assistant';
+            welcomeEl.innerHTML = 'Asistente náutico de <strong>Touron S.A.</strong> — consultas sobre productos, marcas y servicios.<br><br>Usa <strong>/web &lt;consulta&gt;</strong> para buscar información en tiempo real.';
+            chatMessages.appendChild(welcomeEl);
         }
     }
     function closeChatPanel() {
