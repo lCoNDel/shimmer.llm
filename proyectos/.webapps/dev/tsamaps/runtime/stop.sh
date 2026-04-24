@@ -3,7 +3,7 @@ COMPOSE_FILE="$(dirname "$0")/../../../../.docker/compose/proxy.yml"
 
 # Detener contenedor tsamaps_server
 echo "Deteniendo tsamaps_server..."
-docker compose -f "$COMPOSE_FILE" stop tsamaps_server
+docker compose -f "$COMPOSE_FILE" stop tsamaps_server_dev
 echo "Servidor detenido."
 
 # Cerrar proceso Node (http-server) en puerto 5050 si está corriendo

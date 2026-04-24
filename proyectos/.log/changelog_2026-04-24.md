@@ -235,3 +235,55 @@ El contenedor padre `map-controls-bottom-left` tiene `position: absolute; left: 
 ### Runtime prod — ahora usa Docker compose
 `start.sh` lanza `docker compose -f ../../../../.docker/compose/proxy.yml up -d tsamaps_server`
 `stop.sh` para el contenedor y cierra ngrok vía `powershell.exe`
+
+---
+
+## tsamaps — Separación de entornos dev/prod en proxy Docker (cuarta sesión)
+
+### Contexto
+Hasta ahora `proxy.yml` tenía un único servicio `tsamaps_server` apuntando a `dev/tsamaps`. Se separó en dos servicios independientes para poder levantar dev o prod a voluntad sin rutas relativas compartidas.
+
+### proxy.yml — dos servicios independientes
+- `tsamaps_server` renombrado a `tsamaps_server_dev` (monta `.webapps/dev/tsamaps`)
+- Añadido `tsamaps_server_prod` (monta `.webapps/prod/tsamaps`)
+- Ambos usan puerto 5050 — nunca corren simultáneamente
+- Archivo: `.docker/compose/proxy.yml`
+
+### server.py creado en prod
+- `server.py` no existía en `prod/tsamaps` — creado con el mismo contenido que `dev/tsamaps/server.py`
+- Archivo: `.webapps/prod/tsamaps/server.py`
+
+### Scripts de runtime actualizados
+- `dev/tsamaps/runtime/start.sh` y `stop.sh` actualizados para referenciar `tsamaps_server_dev`
+- Creados `prod/tsamaps/runtime/start.sh`, `stop.sh` y `tunnel.ps1` referenciando `tsamaps_server_prod`
+
+### Runtime.md actualizados
+- `dev/tsamaps/Runtime.md` y `prod/tsamaps/Runtime.md` actualizados: describen su propio entorno, el servicio Docker correcto y el arranque conjunto (servidor + túnel ngrok siempre juntos)
+
+### Permisos Claude Code
+- Añadidos a `.claude/settings.json`: `Bash(bash *runtime/start.sh*)` y `Bash(bash *runtime/stop.sh*)` para cubrir rutas absolutas desde cualquier directorio
+
+### 00_memoria.html — ediciones de contenido
+- Sección "Compromisos y Ruegos": punto de Concienciación/Formación movido al primer lugar
+- Texto del punto reescrito: título cambiado a "Concienciación — Cómo funciona una IA y Prompting", contenido ampliado con explicación de que la IA no almacena datos sino que aprende patrones estadísticos; "almacena datos" y "aprende patrones" en negrita
+- Orden de secciones invertido: "Compromisos y Ruegos" ahora precede a "Implicaciones Técnicas y Responsabilidades"
+- Archivo: `C:\Users\luisc\OneDrive - TOURON, S.A\IT - Documentos\PROYECTOS\SISTEMAS\Plataforma LLM & RAG\00_memoria.html`
+
+---
+
+## Contexto técnico para agentes (cuarta sesión)
+
+> Archivos modificados: `.docker/compose/proxy.yml`, `.webapps/dev/tsamaps/runtime/start.sh`, `.webapps/dev/tsamaps/runtime/stop.sh`, `.webapps/dev/tsamaps/Runtime.md`, `.webapps/prod/tsamaps/server.py` (nuevo), `.webapps/prod/tsamaps/runtime/start.sh` (nuevo), `.webapps/prod/tsamaps/runtime/stop.sh` (nuevo), `.webapps/prod/tsamaps/runtime/tunnel.ps1` (nuevo), `.webapps/prod/tsamaps/Runtime.md`, `.claude/settings.json`
+
+### proxy.yml — estructura actual
+```yaml
+services:
+  tsamaps_server_dev:   # monta .webapps/dev/tsamaps
+  tsamaps_server_prod:  # monta .webapps/prod/tsamaps
+# ambos en puerto 5050 — nunca simultáneos
+```
+
+### Arranque del servicio web (cualquier entorno)
+El agente ejecuta siempre dos pasos:
+1. `bash ./runtime/start.sh` en background → levanta el contenedor Docker
+2. `powershell -File ./runtime/tunnel.ps1` → abre ngrok en ventana visible

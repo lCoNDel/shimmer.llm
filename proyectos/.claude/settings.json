@@ -10,6 +10,8 @@
       "Bash(docker logs *)",
       "Bash(bash ./runtime/start.sh)",
       "Bash(bash ./runtime/stop.sh)",
+      "Bash(bash *runtime/start.sh*)",
+      "Bash(bash *runtime/stop.sh*)",
       "Bash(cp *)",
       "PowerShell(*)"
     ]
