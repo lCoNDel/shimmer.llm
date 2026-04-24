@@ -1,0 +1,7 @@
+Integrar OneDrive for Business y SharePoint en Open WebUI para poder adjuntar archivos de Microsoft 365 directamente desde el chat.
+
+Referencia: https://docs.openwebui.com/tutorials/integrations/onedrive-sharepoint/
+
+Requiere registrar una app en Azure Entra ID, conceder permisos de Graph (Files.Read, Sites.Read.All, etc.) y añadir variables de entorno al compose. Además hay que activarlo desde el Admin Panel — las variables solas no bastan.
+
+Pendiente: hablar con Viviana para las credenciales Azure y la URL exacta del tenant de SharePoint. Probar primero en dev antes de tocar prod. HTTPS obligatorio en producción.

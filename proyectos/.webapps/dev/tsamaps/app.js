@@ -446,8 +446,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function closeMobileSearch() {
         document.body.classList.remove('mobile-search-active');
         globalSearchResults.classList.add('hidden');
-        const radioPanel = document.getElementById('radioPanel');
-        if (radioPanel) radioPanel.classList.add('closed');
+        document.getElementById('radioPanel')?.classList.add('closed');
+        document.getElementById('radioBtn')?.classList.remove('active');
     }
 
     if (mobileSearchBtn) {
@@ -460,8 +460,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (isWindLayerActive) { showToast('Capa de viento desactivada');     windLayerBtn.click(); }
                 if (isRadarActive)     { showToast('Radar meteorológico desactivado'); owmLayerBtn.click(); }
                 if (isRulerActive)     { showToast('Regla náutica desactivada');       rulerBtn.click(); }
-                const radioPanel = document.getElementById('radioPanel');
-                if (radioPanel) radioPanel.classList.add('closed');
+                document.getElementById('radioPanel')?.classList.add('closed');
+                document.getElementById('radioBtn')?.classList.remove('active');
             } else {
                 globalSearchResults.classList.add('hidden');
             }
@@ -482,16 +482,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeRadioBtn = document.getElementById('closeRadioBtn');
 
     radioBtn.addEventListener('click', () => {
+        if (isSosLocked()) return;
         const isOpen = !radioPanel.classList.contains('closed');
         radioPanel.classList.toggle('closed');
         radioBtn.classList.toggle('active', !isOpen);
-        if (!isOpen) { document.getElementById('chatPanel')?.classList.add('closed'); document.getElementById('chatBtn')?.classList.remove('active'); }
+        if (!isOpen) { closeChatPanel(); }
     });
 
-    closeRadioBtn.addEventListener('click', () => {
-        radioPanel.classList.add('closed');
-        radioBtn.classList.remove('active');
-    });
+    closeRadioBtn.addEventListener('click', closeRadioPanel);
 
     addSwipeToClose(radioPanel);
 
@@ -522,20 +520,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // eventos del panel de distribuidores
     openSearchBtn.addEventListener('click', () => {
+        if (isSosLocked()) return;
         searchPanel.classList.remove('closed');
         searchInput.focus();
         map.invalidateSize({ animate: true });
-        document.getElementById('chatPanel')?.classList.add('closed'); document.getElementById('chatBtn')?.classList.remove('active');
+        closeChatPanel();
     });
 
     closeSearchBtn.addEventListener('click', () => {
-        searchPanel.classList.add('closed');
+        closeSearchPanel();
         map.invalidateSize({ animate: true });
     });
 
-    document.getElementById('closeWeatherBtn').addEventListener('click', () => {
+    function closeWeatherPanel() {
         weatherPanel.classList.add('closed');
-    });
+        document.getElementById('gpsShortcutBtn')?.classList.remove('active');
+    }
+
+    function closeRadioPanel() {
+        radioPanel.classList.add('closed');
+        radioBtn.classList.remove('active');
+    }
+
+    function closeSearchPanel() {
+        searchPanel.classList.add('closed');
+    }
+
+    function closeSunMoonPanel() {
+        sunMoonPanel.classList.add('closed');
+        sunMoonBtn.classList.remove('active');
+        sunMoonBtn.blur();
+    }
+
+    document.getElementById('closeWeatherBtn').addEventListener('click', closeWeatherPanel);
 
     // modal de información del proyecto
     infoBtn.addEventListener('click', () => {
@@ -631,7 +648,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 // cierra el panel al seleccionar
-                searchPanel.classList.add('closed');
+                closeSearchPanel();
             });
 
             dealerList.appendChild(card);
@@ -681,7 +698,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             panel.classList.remove('is-dragging');
             panel.style.transform = '';
             if (currentDeltaY >= DISTANCE_THRESHOLD || velocity >= VELOCITY_THRESHOLD) {
-                panel.classList.add('closed');
+                if (panel === weatherPanel) closeWeatherPanel();
+                else if (panel === sunMoonPanel) closeSunMoonPanel();
+                else if (panel === chatPanel) closeChatPanel();
+                else panel.classList.add('closed');
             }
             currentDeltaY = 0;
         }, { passive: true });
@@ -699,10 +719,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     initDealers();
 
-    // 5. clics en el mapa para obtener datos marinos
+    // 5. clics en el mapa — despacha según modo activo
     map.on('click', async (e) => {
-        if (isTrackingActive || isRulerActive || isRadarActive || isTrafficActive || isWindLayerActive) {
-            if (!isTrackingActive && !isRulerActive) showToolBlockedFeedback();
+        // regla náutica
+        if (isRulerActive) {
+            if (rulerPoints.length === 2) clearRuler();
+
+            rulerPoints.push(e.latlng);
+            const marker = L.circleMarker(e.latlng, {
+                radius: 5, fillColor: "#ff7800", color: "#000",
+                weight: 1, opacity: 1, fillOpacity: 1
+            }).addTo(map);
+            rulerMarkers.push(marker);
+
+            if (rulerPoints.length === 1) {
+                rulerHoverLine = L.polyline([rulerPoints[0], rulerPoints[0]], {
+                    color: '#ff7800', dashArray: '5, 5', weight: 2
+                }).addTo(map);
+                rulerTooltip = L.popup({
+                    closeButton: false, autoClose: false, closeOnClick: false, className: 'ruler-popup'
+                }).setLatLng(e.latlng).setContent('<div style="font-family: \'Outfit\', sans-serif;">Haz clic en el destino</div>').openOn(map);
+            } else if (rulerPoints.length === 2) {
+                if (rulerHoverLine) map.removeLayer(rulerHoverLine);
+                rulerPolyline = L.polyline(rulerPoints, { color: '#ff7800', weight: 3 }).addTo(map);
+                const distanceMeters = map.distance(rulerPoints[0], rulerPoints[1]);
+                const distanceNM = (distanceMeters / 1852).toFixed(2);
+                const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, rulerPoints[1].lat, rulerPoints[1].lng).toFixed(0);
+                rulerTooltip.setLatLng(rulerPoints[1]).setContent(`
+                    <div style="text-align: center; font-family: 'Outfit', sans-serif;">
+                        <div style="font-weight: 600; font-size: 1.1rem; color: #ff7800;">${distanceNM} NM</div>
+                        <div style="font-size: 0.85rem; color: #555;">Rumbo: ${bearing}°</div>
+                    </div>
+                `);
+            }
+            return;
+        }
+
+        // otros modos bloqueantes
+        if (isTrackingActive || isRadarActive || isTrafficActive || isWindLayerActive) {
+            if (!isTrackingActive) showToolBlockedFeedback();
             return;
         }
 
@@ -760,9 +815,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (gpsShortcutBtn) {
         gpsShortcutBtn.addEventListener('click', () => {
-            const isOpen = !weatherPanel.classList.contains('closed');
-            weatherPanel.classList.toggle('closed');
-            gpsShortcutBtn.classList.toggle('active', !isOpen);
+            if (!weatherPanel.classList.contains('closed')) {
+                closeWeatherPanel();
+            } else {
+                weatherPanel.classList.remove('closed');
+                gpsShortcutBtn.classList.add('active');
+            }
         });
     }
 
@@ -798,6 +856,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             isTrackingActive = true;
             geoBtn.classList.add('active');
+            clearInterval(gpsMarineRefreshId);
             gpsMarineRefreshId = setInterval(async () => {
                 if (lastGpsLat !== null && lastGpsLng !== null) {
                     try { await fetchMarineWeatherAnalysis(lastGpsLat, lastGpsLng); } catch (_) {}
@@ -1016,14 +1075,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     sunMoonBtn.addEventListener('click', () => {
         const isOpen = !sunMoonPanel.classList.contains('closed');
         if (isOpen) {
-            sunMoonPanel.classList.add('closed');
-            sunMoonBtn.classList.remove('active');
-            sunMoonBtn.blur();
+            closeSunMoonPanel();
             return;
         }
         sunMoonPanel.classList.remove('closed');
         sunMoonBtn.classList.add('active');
-        document.getElementById('chatPanel')?.classList.add('closed'); document.getElementById('chatBtn')?.classList.remove('active');
+        closeChatPanel();
         // coordenadas en orden de prioridad
         const lat = lastGpsLat ?? window.lastRequestedLat ?? map.getCenter().lat;
         const lng = lastGpsLng ?? window.lastRequestedLng ?? map.getCenter().lng;
@@ -1034,11 +1091,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    closeSunMoonBtn.addEventListener('click', () => {
-        sunMoonPanel.classList.add('closed');
-        sunMoonBtn.classList.remove('active');
-        sunMoonBtn.blur();
-    });
+    closeSunMoonBtn.addEventListener('click', closeSunMoonPanel);
+    addSwipeToClose(sunMoonPanel);
 
     // 9. sistema de radio (radio browser api)
     const radioSearchInput = document.getElementById('radioSearchInput');
@@ -1250,9 +1304,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         sosBtnContainer.classList.add('hidden');
         document.getElementById('radioBtn').classList.add('hidden');
         document.getElementById('gpsShortcutBtn').classList.add('hidden');
+        document.getElementById('chatBtn').classList.add('hidden');
         vesselCloseBar.classList.remove('hidden');
         weatherPanel.classList.add('hidden');
-        searchPanel.classList.add('closed');
+        closeSearchPanel();
     }
 
     function exitTrafficMode() {
@@ -1260,6 +1315,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         sosBtnContainer.classList.remove('hidden');
         document.getElementById('radioBtn').classList.remove('hidden');
         document.getElementById('gpsShortcutBtn').classList.remove('hidden');
+        document.getElementById('chatBtn').classList.remove('hidden');
         vesselCloseBar.classList.add('hidden');
         weatherPanel.classList.remove('hidden');
     }
@@ -1272,8 +1328,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             toggleTrafficBtn.classList.add('active');
             showToolLabel(toggleTrafficBtn);
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
-            const radioPanel = document.getElementById('radioPanel');
-            if (radioPanel) radioPanel.classList.add('closed');
+            closeRadioPanel();
 
             // desactiva otros modos incompatibles
             if (isWindLayerActive) { showToast('Capa de viento desactivada'); windLayerBtn.click(); }
@@ -1347,6 +1402,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     let radarLayerPrev = null;
+    let radarLayerPrevTimeout = null;
 
     function radarShowFrame(index) {
         // si aún hay una capa "anterior" pendiente de eliminar, la quitamos ya
@@ -1364,7 +1420,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         radarLayer.addTo(map);
 
         // elimina la anterior tras 400ms (tiempo suficiente para que carguen los tiles)
-        setTimeout(() => {
+        clearTimeout(radarLayerPrevTimeout);
+        radarLayerPrevTimeout = setTimeout(() => {
             if (radarLayerPrev) { map.removeLayer(radarLayerPrev); radarLayerPrev = null; }
         }, 400);
 
@@ -1435,8 +1492,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('radarHud').classList.add('hidden');
             } else {
                 if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
-                const radioPanel = document.getElementById('radioPanel');
-                if (radioPanel) radioPanel.classList.add('closed');
+                closeRadioPanel();
                 if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
                 if (isWindLayerActive) { showToast('Capa de viento desactivada'); windLayerBtn.click(); }
                 if (isRulerActive) { showToast('Regla náutica desactivada'); rulerBtn.click(); }
@@ -1564,8 +1620,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showToolLabel(rulerBtn);
             document.getElementById('map').style.cursor = 'crosshair';
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
-            const radioPanel = document.getElementById('radioPanel');
-            if (radioPanel) radioPanel.classList.add('closed');
+            closeRadioPanel();
 
             // Si el tráfico marítimo u otros modos están activos, los cerramos
             if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
@@ -1577,63 +1632,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             rulerBtn.blur();
             document.getElementById('map').style.cursor = '';
             clearRuler();
-        }
-    });
-
-    map.on('click', (e) => {
-        if (!isRulerActive) return;
-
-        if (rulerPoints.length === 2) {
-            // reinicia si ya hay 2 puntos
-            clearRuler();
-        }
-
-        rulerPoints.push(e.latlng);
-
-        const marker = L.circleMarker(e.latlng, {
-            radius: 5,
-            fillColor: "#ff7800",
-            color: "#000",
-            weight: 1,
-            opacity: 1,
-            fillOpacity: 1
-        }).addTo(map);
-        rulerMarkers.push(marker);
-
-        if (rulerPoints.length === 1) {
-            // primer clic: inicializa línea de previsualización
-            rulerHoverLine = L.polyline([rulerPoints[0], rulerPoints[0]], {
-                color: '#ff7800',
-                dashArray: '5, 5',
-                weight: 2
-            }).addTo(map);
-
-            rulerTooltip = L.popup({
-                closeButton: false,
-                autoClose: false,
-                closeOnClick: false,
-                className: 'ruler-popup'
-            }).setLatLng(e.latlng).setContent('<div style="font-family: \'Outfit\', sans-serif;">Haz clic en el destino</div>').openOn(map);
-
-        } else if (rulerPoints.length === 2) {
-            // segundo clic: finaliza la medición
-            if (rulerHoverLine) map.removeLayer(rulerHoverLine);
-
-            rulerPolyline = L.polyline(rulerPoints, {
-                color: '#ff7800',
-                weight: 3
-            }).addTo(map);
-
-            const distanceMeters = map.distance(rulerPoints[0], rulerPoints[1]);
-            const distanceNM = (distanceMeters / 1852).toFixed(2);
-            const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, rulerPoints[1].lat, rulerPoints[1].lng).toFixed(0);
-
-            rulerTooltip.setLatLng(rulerPoints[1]).setContent(`
-                <div style="text-align: center; font-family: 'Outfit', sans-serif;">
-                    <div style="font-weight: 600; font-size: 1.1rem; color: #ff7800;">${distanceNM} NM</div>
-                    <div style="font-size: 0.85rem; color: #555;">Rumbo: ${bearing}°</div>
-                </div>
-             `);
         }
     });
 
@@ -1930,11 +1928,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            // solicita permisos de notificación antes de iniciar
-            if ('Notification' in window && Notification.permission !== 'granted') {
-                Notification.requestPermission();
-            }
-
             // establece la UI en estado de carga
             toggleAnchorBtn.textContent = 'OBTENIENDO GPS...';
             toggleAnchorBtn.disabled = true;
@@ -1984,8 +1977,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             windLayerBtn.classList.add('active');
             showToolLabel(windLayerBtn);
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
-            const radioPanel = document.getElementById('radioPanel');
-            if (radioPanel) radioPanel.classList.add('closed');
+            closeRadioPanel();
 
             // desactiva otros modos del mapa
             if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
@@ -2139,7 +2131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             color: white;
             padding: 15px 25px;
             border-radius: 8px;
-            z-index: 2000;
+            z-index: var(--z-modal);
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             text-align: center;
             border: 2px solid white;
@@ -2167,17 +2159,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // modal de confirmación MOB (confirm() nativo bloqueado en iOS Safari)
+    const mobConfirmOverlay = document.getElementById('mobConfirmOverlay');
+    const mobConfirmText    = document.getElementById('mobConfirmText');
+    const mobConfirmOk      = document.getElementById('mobConfirmOk');
+    const mobConfirmCancel  = document.getElementById('mobConfirmCancel');
+
+    function showMobConfirm(message, onConfirm) {
+        mobConfirmText.textContent = message;
+        mobConfirmOverlay.style.display = 'flex';
+        const cleanup = () => { mobConfirmOverlay.style.display = 'none'; mobConfirmOk.onclick = null; mobConfirmCancel.onclick = null; };
+        mobConfirmOk.onclick     = () => { cleanup(); onConfirm(); };
+        mobConfirmCancel.onclick = () => { cleanup(); };
+    }
+
     floatingSosBtn.addEventListener('click', () => {
         if (isSosActive) {
-            // DOBLE CONFIRMACIÓN para cancelar SOS
-            const firstConfirm = confirm("⚠️ ¿ESTÁS SEGURO DE DETENER LA ALARMA S.O.S?\n\nSi detienes la alarma, se borrará la marca de HOMBRE AL AGUA del mapa.");
-            if (firstConfirm) {
-                const secondConfirm = confirm("🛑 CONFIRMACIÓN DE SEGURIDAD 🛑\n\n¿Cancelamos definitivamente el rescate y borramos el marcador S.O.S?");
-                if (secondConfirm) {
-                    stopSosAlarm();
-                    alert("Alarma S.O.S desactivada.");
-                }
-            }
+            showMobConfirm(
+                '¿DETENER LA ALARMA MOB?\n\nSe borrará la marca de HOMBRE AL AGUA del mapa.',
+                () => showMobConfirm(
+                    '🛑 CONFIRMACIÓN FINAL\n\n¿Cancelamos definitivamente el rescate y borramos el marcador?',
+                    () => { stopSosAlarm(); showToast('Alarma MOB desactivada'); }
+                )
+            );
             return;
         }
 
@@ -2216,7 +2220,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             (err) => {
                 floatingSosBtn.innerHTML = originalHTML;
                 floatingSosBtn.style.background = '#ff4757';
-                alert(`Error al obtener GPS Crítico: ${err.message}`);
+                showToast(`Error GPS: ${err.message}`);
             },
             { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
         );
@@ -2259,10 +2263,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             navigator.geolocation.getCurrentPosition(() => {}, () => {});
         }
 
-        // notificaciones después
-        if ('Notification' in window && Notification.permission === 'default') {
-            await Notification.requestPermission();
-        }
     }
 
     permissionsGrantBtn.addEventListener('click', requestPermissions);
@@ -2273,10 +2273,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // mostrar solo si no se ha visto antes y faltan permisos
     if (!localStorage.getItem('permissionsBannerSeen')) {
-        const geoState   = await navigator.permissions.query({ name: 'geolocation' }).catch(() => ({ state: 'prompt' }));
-        const notifState = 'Notification' in window ? Notification.permission : 'granted';
+        const geoState = await navigator.permissions.query({ name: 'geolocation' }).catch(() => ({ state: 'prompt' }));
 
-        if (geoState.state === 'prompt' || notifState === 'default') {
+        if (geoState.state === 'prompt') {
             setTimeout(() => permissionsBanner.classList.remove('hidden'), 800);
         } else {
             localStorage.setItem('permissionsBannerSeen', '1');
@@ -2298,13 +2297,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     let chatLastActivity = Date.now();
 
     function openChatPanel() {
-        radioPanel.classList.add('closed'); radioBtn.classList.remove('active');
-        searchPanel.classList.add('closed');
-        weatherPanel.classList.add('closed');
-        sunMoonPanel.classList.add('closed'); sunMoonBtn.classList.remove('active');
+        if (window.innerWidth <= 768) {
+            closeRadioPanel();
+            closeSearchPanel();
+            closeWeatherPanel();
+            closeSunMoonPanel();
+        }
         chatPanel.classList.remove('closed');
         chatBtn.classList.add('active');
-        chatInput.focus();
+        if (window.innerWidth > 768) chatInput.focus();
         if (chatHistory.length === 0) {
             chatInput.value = 'Hola!';
             sendMessage();
@@ -2321,6 +2322,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         else closeChatPanel();
     });
     closeChatBtn.addEventListener('click', closeChatPanel);
+    addSwipeToClose(chatPanel);
 
     function appendBubble(role, text) {
         const div = document.createElement('div');

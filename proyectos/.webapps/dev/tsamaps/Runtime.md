@@ -44,3 +44,4 @@ powershell -File ./runtime/tunnel.ps1
 - El túnel es opcional. Solo lanzarlo si el usuario lo pide explícitamente — por defecto, únicamente se inicia el servidor local.
 - Para el túnel: ejecutar `powershell -File ./runtime/tunnel.ps1` con la herramienta PowerShell y nada más. El script usa `Start-Process -WindowStyle Normal` internamente para abrir ngrok en una ventana visible — es el script quien abre la ventana, no el agente. El agente no puede abrir ventanas directamente, pero esto no es necesario: el script lo gestiona correctamente. No intentar ningún otro enfoque.
 - **Cerrar el túnel**: `stop.sh` lo cierra siempre. El agente no necesita hacer nada extra.
+- `stop.sh` también mata el proceso Node (http-server) en el puerto 5050 si está corriendo fuera de Docker.

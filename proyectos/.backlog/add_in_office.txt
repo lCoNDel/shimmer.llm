@@ -1,0 +1,32 @@
+Complemento de Microsoft Office (Outlook y Excel) conectado a Shimmer (plataforma LLM interna de Touron).
+La idea surge al comprobar que Copilot y Claude tienen sus propios add-ins para Office.
+
+TECNOLOGÍA
+- Office Add-ins (task pane HTML/JS) — la misma base que usa Copilot
+- Arquitectura: Outlook/Excel → Add-in (HTML/JS) → API Open WebUI → vLLM
+- UI propia con branding Touron/Shimmer (no iframe directo a Open WebUI)
+  → Razón: permite leer el contexto activo (email abierto, rango seleccionado)
+    y enviarlo automáticamente al agente
+
+DECISIONES TOMADAS
+- Opción A (iframe directo) descartada — sin acceso al contexto de la app
+- Opción B elegida — UI propia + llamada a API de Open WebUI
+- Distribución interna via Microsoft 365 Admin Center (Centralized Deployment),
+  sin pasar por AppSource
+- HTTPS obligatorio en el endpoint de Shimmer (EC2) — requisito bloqueante
+
+VERIFICADO EN DOCS MICROSOFT
+- Los task panes soportan iframes a cualquier URL
+- HTTPS es obligatorio para todas las URLs del add-in
+- Los task panes en Outlook son "pinnable" (permanecen abiertos al cambiar de email)
+
+CASOS DE USO PRIORITARIOS
+1. Outlook: leer email activo → enviar al agente → redactar respuesta
+2. Excel: leer rango seleccionado → enviar al agente → escribir resultado en celda
+
+ESTIMACIÓN MVP
+1-2 semanas para panel lateral en Outlook con chat contra Shimmer
+
+PENDIENTE
+- Decidir qué agente de Shimmer se activa por defecto en Outlook y en Excel
+- HTTPS en EC2 (bloqueante antes de cualquier deploy)

@@ -18,7 +18,14 @@
       "Bash(docker compose -f proyectos/.docker/compose/prod.yml pull open-webui)",
       "Bash(docker compose -f proyectos/.docker/compose/prod.yml up -d --force-recreate open-webui)",
       "Bash(docker logs open-webui --tail *)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(bash ./runtime/start.sh)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\luisc\\\\Documents\\\\GitHub\\\\shimmer.llm\\\\proyectos\\\\.webapps\\\\dev\\\\tsamaps\"; powershell -File ./runtime/tunnel.ps1)",
+      "Bash(bash \"c:/Users/luisc/Documents/GitHub/shimmer.llm/proyectos/.webapps/dev/tsamaps/runtime/start.sh\")",
+      "PowerShell(powershell -File \"c:\\\\Users\\\\luisc\\\\Documents\\\\GitHub\\\\shimmer.llm\\\\proyectos\\\\.webapps\\\\dev\\\\tsamaps\\\\runtime\\\\tunnel.ps1\")",
+      "Bash(cat)",
+      "Bash(chmod +x /tmp/check_classes.sh)",
+      "Bash(bash /tmp/check_classes.sh)"
     ]
   }
 }
