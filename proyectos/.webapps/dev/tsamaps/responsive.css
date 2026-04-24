@@ -248,6 +248,15 @@
         height: 20px;
     }
 
+    .floating-alarm-panel {
+        position: fixed;
+        bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+        left: 12px;
+        right: 12px;
+        width: auto;
+        transform-origin: bottom left;
+    }
+
     /* -- Radar HUD -- */
     .radar-hud {
         top: 120px;

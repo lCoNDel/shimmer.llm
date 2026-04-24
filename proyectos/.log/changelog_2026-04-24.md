@@ -125,3 +125,55 @@ let radarLayerPrevTimeout = null;  // ← nuevo
 clearTimeout(radarLayerPrevTimeout);
 radarLayerPrevTimeout = setTimeout(() => { ... }, 400);
 ```
+
+---
+
+## tsamaps — Correcciones UI móvil y banner de permisos (segunda sesión)
+
+### Panel alarma de fondeo — desbordamiento en móvil (responsive.css)
+- El panel `.floating-alarm-panel` se salía por los bordes en móvil porque `position: absolute` lo posicionaba relativo al contenedor padre `map-controls-bottom-left` (anclado a la izquierda con ancho de contenido)
+- Solución: en el breakpoint `≤768px` se sobreescribe con `position: fixed`, anclado al viewport con `left: 12px; right: 12px; width: auto; bottom: calc(90px + env(safe-area-inset-bottom, 0px))`
+- En desktop queda sin cambios (`position: absolute; left: 0`)
+
+### Botón `.close-btn` — desalineación X respecto al título (index.css)
+- La X de cierre de paneles (chat, radio, sol/luna, etc.) no quedaba centrada verticalmente respecto al `h2` del `panel-header`
+- Causa: `font-size: 1.5rem` en el carácter `×` genera espacio vertical por line-height implícito
+- Solución: añadidos `line-height: 1` y `display: flex; align-items: center` a `.close-btn`
+- Aplica a todos los paneles que usan esta clase
+
+### Banner de permisos de primera visita (index.html)
+- Título cambiado: "acceso a tu dispositivo" → "acceso a tu ubicación"
+- Eliminado el `<li>` de Notificaciones (la solicitud de permisos de notificación fue eliminada en sesión anterior; el banner aún lo referenciaba)
+- Descripción GPS actualizada: "para la alarma de fondeo y el S.O.S" → "Seguimiento en tiempo real, alarma de fondeo y alerta MOB"
+- Tip corregido al singular: "permisos no expiren" → "permiso no expire"
+- Botón "Continuar sin permisos" ampliado con aviso: "(Se perderá acceso a las funcionalidades principales del aplicativo)"
+
+---
+
+## Contexto técnico para agentes (segunda sesión)
+
+> Archivos modificados: `responsive.css`, `index.css`, `index.html`
+
+### floating-alarm-panel en móvil
+```css
+/* responsive.css — breakpoint ≤768px */
+.floating-alarm-panel {
+    position: fixed;
+    bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+    left: 12px;
+    right: 12px;
+    width: auto;
+    transform-origin: bottom left;
+}
+```
+El contenedor padre `map-controls-bottom-left` tiene `position: absolute; left: 12px` — cualquier `right: 0` sobre el panel hijo se resuelve relativo a ese contenedor, no al viewport. `position: fixed` es la única solución que sale del flujo correctamente.
+
+### .close-btn alineación
+```css
+.close-btn {
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    /* resto sin cambios */
+}
+```
