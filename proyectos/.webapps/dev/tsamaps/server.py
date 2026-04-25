@@ -1,10 +1,12 @@
 from fastapi import FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from ddgs import DDGS
 import httpx
 import logging
+import os
+from pathlib import Path
 
 OPENWEBUI_URL = "http://host.docker.internal:3000"
 API_KEY       = "sk-86be5033063c4e1488007be92f4b2196"
@@ -63,5 +65,15 @@ async def chat(req: ChatRequest):
     data = response.json()
     return {"response": data["choices"][0]["message"]["content"]}
 
-# static files van al final para no solapar rutas de API
-app.mount("/", StaticFiles(directory="/app", html=True), name="static")
+STATIC_DIR = Path("/app")
+
+@app.get("/{full_path:path}")
+async def serve_static(full_path: str):
+    path = STATIC_DIR / (full_path if full_path else "index.html")
+    if path.is_dir():
+        path = path / "index.html"
+    if not path.exists():
+        raise HTTPException(status_code=404)
+    response = FileResponse(path)
+    response.headers["Cache-Control"] = "no-store"
+    return response

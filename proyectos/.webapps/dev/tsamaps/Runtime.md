@@ -9,37 +9,28 @@ Esta skill proporciona indicaciones para gestionar el servidor web local del pro
 
 ## Funciones
 
-1.  **Iniciar Servidor**: Levanta el contenedor `tsamaps_server_dev` (Docker) en el puerto 5050.
-2.  **Detener Servidor**: Para el contenedor y libera el puerto 5050.
-3.  **Exponer a internet**: Lanza un túnel para hacer accesible el servicio desde fuera de la red local.
+1.  **Iniciar Servidor**: Levanta el contenedor `tsamaps_server_dev` (Docker) en el puerto 5050 y abre el túnel ngrok.
+2.  **Detener Servidor**: Para el contenedor y cierra el túnel ngrok.
 
 ## Instrucciones de Uso
 
 ### Iniciar el servicio
-```bash
-bash ./runtime/start.sh
+```powershell
+powershell -File "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.webapps\dev\tsamaps\runtime\start.ps1"
 ```
 
 ### Detener el servicio
-```bash
-bash ./runtime/stop.sh
+```powershell
+powershell -File "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.webapps\dev\tsamaps\runtime\stop.ps1"
 ```
-
-### Exponer a internet (túnel)
-```bash
-powershell -File ./runtime/tunnel.ps1
-```
-
-### Detener el túnel
-`stop.sh` cierra ngrok automáticamente. El usuario también puede cerrar la ventana manualmente.
 
 > [!NOTE]
 > El servidor se inicia en segundo plano. El contenedor Docker monta esta carpeta (`dev/tsamaps`) como `/app` y sirve el frontend + el proxy `/chat` hacia Open WebUI en el puerto 5050.
 
 ## Comportamiento esperado del agente
 
-- Al iniciar el servicio, ejecutar **en este orden**: primero `start.sh` en segundo plano (`run_in_background: true`), luego `tunnel.ps1` con la herramienta PowerShell. Ambos se lanzan siempre juntos — servidor y túnel van en el mismo arranque.
-- No verificar el estado HTTP con curl ni comprobar que responde — se asume que el script funciona correctamente.
-- Para el túnel: ejecutar `powershell -File ./runtime/tunnel.ps1` con la herramienta PowerShell y nada más. El script usa `Start-Process -WindowStyle Normal` internamente para abrir ngrok en una ventana visible — es el script quien abre la ventana, no el agente. El agente no puede abrir ventanas directamente, pero esto no es necesario: el script lo gestiona correctamente. No intentar ningún otro enfoque.
-- **Cerrar el túnel**: `stop.sh` lo cierra siempre. El agente no necesita hacer nada extra.
-- `stop.sh` también mata el proceso Node (http-server) en el puerto 5050 si está corriendo fuera de Docker.
+- **Iniciar**: ejecutar `start.ps1` con la herramienta PowerShell usando la ruta absoluta Windows exacta mostrada arriba. Un solo comando lanza Docker + ngrok — no hay pasos separados.
+- **Detener**: ejecutar `stop.ps1` con la herramienta PowerShell usando la ruta absoluta Windows exacta mostrada arriba. Para Docker y cierra ngrok en un solo paso.
+- Usar **siempre rutas absolutas Windows** (`C:\Users\...`). Las rutas relativas (`./runtime/...`) fallan porque la herramienta PowerShell no hereda el directorio de trabajo del proyecto.
+- No usar `bash` ni `.sh` para estas operaciones — PowerShell con `.ps1` es el método correcto en este entorno Windows.
+- No verificar el estado HTTP con curl — se asume que el script funciona correctamente.

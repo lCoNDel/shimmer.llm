@@ -280,6 +280,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => toast.remove(), 3100);
     }
 
+    function showToastAt(message, topPx) {
+        const container = document.getElementById('toast-container');
+        const prev = { bottom: container.style.bottom, top: container.style.top };
+        container.style.bottom = 'auto';
+        container.style.top = `${topPx}px`;
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.remove();
+            container.style.bottom = prev.bottom;
+            container.style.top = prev.top;
+        }, 3100);
+    }
+
     // Muestra el tooltip de una herramienta al activarla y lo oculta a los 2.5s
     function showToolLabel(btn) {
         btn.classList.add('tooltip-active');
@@ -519,17 +535,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // eventos del panel de distribuidores
+    let weatherWasOpen = false;
+
     openSearchBtn.addEventListener('click', () => {
         if (isSosLocked()) return;
+        weatherWasOpen = !weatherPanel.classList.contains('closed');
         searchPanel.classList.remove('closed');
         searchInput.focus();
         map.invalidateSize({ animate: true });
         closeChatPanel();
+        closeWeatherPanel();
     });
 
     closeSearchBtn.addEventListener('click', () => {
         closeSearchPanel();
         map.invalidateSize({ animate: true });
+        if (weatherWasOpen) weatherPanel.classList.remove('closed');
     });
 
     function closeWeatherPanel() {
@@ -1301,7 +1322,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function enterTrafficMode() {
         mapControlsBottomLeft.classList.add('hidden');
-        sosBtnContainer.classList.add('hidden');
         document.getElementById('radioBtn').classList.add('hidden');
         document.getElementById('gpsShortcutBtn').classList.add('hidden');
         document.getElementById('chatBtn').classList.add('hidden');
@@ -2103,10 +2123,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (oldPanel) oldPanel.remove();
     }
 
+    function isInPortugueseWaters(lat, lng) {
+        // Bounding box aproximado de aguas territoriales portuguesas (incluye Azores y Madeira)
+        // Costa continental: lat 36.9–42.2, lng -9.5–-6.1
+        // Madeira: lat 32.4–33.1, lng -17.3–-16.2
+        // Azores: lat 36.9–39.8, lng -31.3–-24.8
+        if (lat >= 36.9 && lat <= 42.2 && lng >= -9.5 && lng <= -6.1) return true;
+        if (lat >= 32.4 && lat <= 33.1 && lng >= -17.3 && lng <= -16.2) return true;
+        if (lat >= 36.9 && lat <= 39.8 && lng >= -31.3 && lng <= -24.8) return true;
+        return false;
+    }
+
     function activateSos(sosLatLng) {
         isSosActive = true;
 
-        // 1. coloca marcador permanente (punto MOB)
+        // 1. cerrar y desactivar todo lo que pueda distraer en una emergencia
+        // Usar llamadas directas (no .click()) para evitar el guard isSosLocked() que ya está activo
+        if (isTrafficActive) {
+            isTrafficActive = false;
+            toggleTrafficBtn.classList.remove('active');
+            vesselFinderOverlay.classList.add('hidden');
+            exitTrafficMode();
+            showToast('Tráfico marítimo desactivado');
+        }
+        if (isWindLayerActive) { windLayerBtn.click(); showToast('Capa de viento desactivada'); }
+        if (isRadarActive)     { owmLayerBtn.click();  showToast('Radar meteorológico desactivado'); }
+        if (isRulerActive)     { rulerBtn.click();     showToast('Regla náutica desactivada'); }
+        if (!radioPlayer.paused) { radioPlayer.pause(); showToast('Radio detenida'); }
+        closeWeatherPanel();
+        closeRadioPanel();
+        closeSearchPanel();
+        closeSunMoonPanel();
+        closeChatPanel();
+
+        // 2. coloca marcador permanente (punto MOB)
         sosMarker = L.marker(sosLatLng, { icon: sosIcon, zIndexOffset: 1000 }).addTo(map);
 
         // 2. centra el mapa en la emergencia
@@ -2119,7 +2169,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         floatingSosBtn.style.animation = 'pulse-red 1s infinite';
         floatingSosBtn.title = 'S.O.S ACTIVO (Clic para gestionar)';
 
-        // 5. crea el panel de seguimiento
+        // 5. determinar números de emergencia según aguas
+        const inPortugal = isInPortugueseWaters(sosLatLng.lat, sosLatLng.lng);
+        const salvamentoNum   = inPortugal ? '1520'          : '900 202 202';
+        const salvamentoLabel = inPortugal ? 'Salvamento PT' : 'Salvamento ES';
+
+        // 6. crea el panel de seguimiento
         const trackingPanel = document.createElement('div');
         trackingPanel.id = 'sos-tracking-panel';
         trackingPanel.style.cssText = `
@@ -2149,8 +2204,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div style="font-size: 0.8rem; opacity: 0.9;">
                 Coord: ${sosLatLng.lat.toFixed(5)}, ${sosLatLng.lng.toFixed(5)}
             </div>
+            <div style="margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.4); padding-top: 8px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                <a href="tel:112" style="background: white; color: #e84118; font-weight: 800; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 1rem;">
+                    📞 112
+                </a>
+                <a href="tel:${salvamentoNum.replace(/\s/g, '')}" style="background: white; color: #e84118; font-weight: 800; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 1rem;">
+                    📞 ${salvamentoNum} <span style="font-weight: 400; font-size: 0.75rem;">${salvamentoLabel}</span>
+                </a>
+            </div>
         `;
         document.querySelector('.app-container').appendChild(trackingPanel);
+
+        // copiar coordenadas al portapapeles automáticamente al activar MOB
+        const coordText = `${sosLatLng.lat.toFixed(5)}, ${sosLatLng.lng.toFixed(5)}`;
+        navigator.clipboard?.writeText(coordText).then(() => {
+            const panel = document.getElementById('sos-tracking-panel');
+            const rect = panel?.getBoundingClientRect();
+            const topPx = rect ? rect.bottom + 10 : 240;
+            showToastAt('Coordenadas copiadas al portapapeles', topPx);
+        }).catch(() => {});
 
         // 6. asegura que el seguimiento GPS en tiempo real esté activo
         if (!isTrackingActive) {
@@ -2383,7 +2455,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const now = Date.now();
         if (now - chatLastActivity > CHAT_TIMEOUT) {
             chatHistory = [];
-            appendBubble('assistant', '⏳ Sesión reiniciada por inactividad. ¿En qué puedo ayudarte?');
+            appendBubble('assistant', '⏳ Sesión reiniciada por inactividad, un nuevo chat comenzará en breves instantes.');
         }
         chatLastActivity = now;
 

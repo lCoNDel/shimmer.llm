@@ -658,6 +658,7 @@ body {
     padding: 2rem 1.5rem;
 }
 
+
 .search-container {
     margin-bottom: 1.5rem;
 }
@@ -862,7 +863,7 @@ body {
 .feature-list li {
     margin-bottom: 1rem;
     line-height: 1.6;
-    padding-left: 1.8rem;
+    padding-left: 0;
     position: relative;
     font-size: 0.95rem;
     color: var(--brand-text-muted);
@@ -873,7 +874,7 @@ body {
 }
 
 .feature-list li::before {
-    content: '⚓';
+    content: '';
     position: absolute;
     left: 0;
     top: 2px;

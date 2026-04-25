@@ -2,8 +2,8 @@ import telebot
 import requests
 import json
 import logging
-import time
 import base64
+import fitz
 from ddgs import DDGS
 
 # Configuración básica de logs
@@ -15,7 +15,7 @@ OPENWEBUI_API_KEY = "sk-86be5033063c4e1488007be92f4b2196"
 OPENWEBUI_URL = "http://host.docker.internal:3000/api/chat/completions"
 MODEL_ID = "asistente-touron"
 
-ALLOWED_USERS = [216529295]
+ALLOWED_USERS = None  # None = acceso abierto a todos
 WEB_PREFIX = "/web "
 
 def search_web(query: str, max_results: int = 5) -> str:
@@ -46,15 +46,33 @@ bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 # Diccionario para mantener un historial y timestamp por usuario
 user_history = {}
-TIMEOUT_MINUTES = 10
+
+# Usuarios en modo búsqueda web (esperando consulta tras pulsar el botón)
+web_mode_users = set()
+
+# PDF pendiente de instrucción por usuario
+pdf_pending = {}
+
+def main_keyboard():
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, is_persistent=True)
+    markup.row(telebot.types.KeyboardButton('🌐 Búsqueda Web'))
+    markup.row(telebot.types.KeyboardButton('🗑️ Borrar Memoria'))
+    return markup
+
+def web_keyboard():
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, is_persistent=True)
+    markup.row(telebot.types.KeyboardButton('❌ Cancelar Búsqueda'))
+    return markup
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    pass
+    if ALLOWED_USERS is not None and message.from_user.id not in ALLOWED_USERS:
+        return
+    bot.send_message(message.chat.id, "Shimmer Iniciado.", reply_markup=main_keyboard())
 
 @bot.message_handler(commands=['web'])
 def handle_web_command(message):
-    if message.from_user.id not in ALLOWED_USERS:
+    if ALLOWED_USERS is not None and message.from_user.id not in ALLOWED_USERS:
         uid = message.from_user.id
         attempt = unauthorized_attempts.get(uid, 0)
         unauthorized_attempts[uid] = attempt + 1
@@ -69,14 +87,9 @@ def handle_web_command(message):
 
     query = parts[1].strip()
     user_id = message.from_user.id
-    current_time = time.time()
 
     if user_id not in user_history:
-        user_history[user_id] = {"timestamp": current_time, "messages": []}
-    else:
-        if (current_time - user_history[user_id]["timestamp"]) > (TIMEOUT_MINUTES * 60):
-            user_history[user_id] = {"timestamp": current_time, "messages": []}
-    user_history[user_id]["timestamp"] = current_time
+        user_history[user_id] = {"messages": []}
 
     bot.send_chat_action(message.chat.id, 'typing')
     search_results = search_web(query)
@@ -114,7 +127,7 @@ def handle_web_command(message):
 
 @bot.message_handler(commands=['newchat'])
 def reset_history(message):
-    if message.from_user.id not in ALLOWED_USERS:
+    if ALLOWED_USERS is not None and message.from_user.id not in ALLOWED_USERS:
         uid = message.from_user.id
         attempt = unauthorized_attempts.get(uid, 0)
         unauthorized_attempts[uid] = attempt + 1
@@ -122,12 +135,12 @@ def reset_history(message):
             bot.reply_to(message, UNAUTHORIZED_MESSAGES[attempt])
         return
     user_id = message.from_user.id
-    user_history[user_id] = {"timestamp": time.time(), "messages": []}
+    user_history[user_id] = {"messages": []}
     bot.reply_to(message, "Conversación reiniciada. Se ha limpiado el historial local.")
 
 @bot.message_handler(content_types=['photo'])
 def handle_photo(message):
-    if message.from_user.id not in ALLOWED_USERS:
+    if ALLOWED_USERS is not None and message.from_user.id not in ALLOWED_USERS:
         uid = message.from_user.id
         attempt = unauthorized_attempts.get(uid, 0)
         unauthorized_attempts[uid] = attempt + 1
@@ -135,17 +148,9 @@ def handle_photo(message):
             bot.reply_to(message, UNAUTHORIZED_MESSAGES[attempt])
         return
     user_id = message.from_user.id
-    current_time = time.time()
 
     if user_id not in user_history:
-        user_history[user_id] = {"timestamp": current_time, "messages": []}
-    else:
-        last_time = user_history[user_id]["timestamp"]
-        if (current_time - last_time) > (TIMEOUT_MINUTES * 60):
-            user_history[user_id] = {"timestamp": current_time, "messages": []}
-            bot.reply_to(message, "⏳ La sesión ha caducado, un nuevo chat comenzará en breves.")
-
-    user_history[user_id]["timestamp"] = current_time
+        user_history[user_id] = {"messages": []}
 
     caption = message.caption or "Describe esta imagen."
 
@@ -195,9 +200,57 @@ def handle_photo(message):
         bot.reply_to(message, f"Ocurrió un error inesperado: {str(e)}")
 
 
+@bot.message_handler(content_types=['document'])
+def handle_document(message):
+    if ALLOWED_USERS is not None and message.from_user.id not in ALLOWED_USERS:
+        return
+    user_id = message.from_user.id
+
+    if not message.document.mime_type == 'application/pdf':
+        bot.reply_to(message, "Solo se admiten documentos PDF.")
+        return
+
+    if user_id not in user_history:
+        user_history[user_id] = {"messages": []}
+
+    bot.send_chat_action(message.chat.id, 'typing')
+
+    try:
+        file_info = bot.get_file(message.document.file_id)
+        downloaded = bot.download_file(file_info.file_path)
+
+        pdf = fitz.open(stream=downloaded, filetype="pdf")
+        text = "\n".join(page.get_text() for page in pdf)
+        pdf.close()
+
+        if not text.strip():
+            bot.reply_to(message, "No se pudo extraer texto del PDF. Puede estar escaneado o protegido.")
+            return
+
+        MAX_CHARS = 12000
+        if len(text) > MAX_CHARS:
+            text = text[:MAX_CHARS] + "\n\n[Documento truncado por longitud]"
+
+        pdf_pending[user_id] = text
+        bot.send_message(message.chat.id, "📄 Documento recibido. ¿Qué quieres saber?", reply_markup=main_keyboard())
+
+    except Exception as e:
+        logging.exception("Error procesando PDF")
+        bot.reply_to(message, f"Error inesperado: {str(e)}")
+
+@bot.callback_query_handler(func=lambda call: call.data in ["confirm_clear", "cancel_clear"])
+def handle_clear_callback(call):
+    user_id = call.from_user.id
+    if call.data == "confirm_clear":
+        user_history[user_id] = {"messages": []}
+        web_mode_users.discard(user_id)
+        bot.edit_message_text("🗑️ Memoria borrada.", call.message.chat.id, call.message.message_id)
+    else:
+        bot.edit_message_text("Cancelado. La memoria se conserva.", call.message.chat.id, call.message.message_id)
+
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
-    if message.from_user.id not in ALLOWED_USERS:
+    if ALLOWED_USERS is not None and message.from_user.id not in ALLOWED_USERS:
         uid = message.from_user.id
         attempt = unauthorized_attempts.get(uid, 0)
         unauthorized_attempts[uid] = attempt + 1
@@ -206,24 +259,68 @@ def handle_message(message):
         return
     user_id = message.from_user.id
     user_input = message.text
-    current_time = time.time()
+    # Botón: Búsqueda web
+    if user_input == '🌐 Búsqueda Web':
+        web_mode_users.add(user_id)
+        bot.send_message(message.chat.id, "¿Qué quieres buscar?", reply_markup=web_keyboard())
+        return
 
-    # Inicializar historial si no existe o si pasó el timeout
+    # Botón: Cancelar búsqueda
+    if user_input == '❌ Cancelar Búsqueda':
+        web_mode_users.discard(user_id)
+        bot.send_message(message.chat.id, "Búsqueda cancelada.", reply_markup=main_keyboard())
+        return
+
+    # Botón: Borrar Memoria — pide confirmación
+    if user_input == '🗑️ Borrar Memoria':
+        markup = telebot.types.InlineKeyboardMarkup()
+        markup.row(
+            telebot.types.InlineKeyboardButton("✅ Confirmar", callback_data="confirm_clear"),
+            telebot.types.InlineKeyboardButton("❌ Cancelar", callback_data="cancel_clear")
+        )
+        bot.send_message(message.chat.id, "⚠️ Se borrará toda la memoria de esta conversación. El asistente no recordará nada de lo hablado.\n\n¿Confirmas?", reply_markup=markup)
+        return
+
+    # Inicializar historial si no existe
     if user_id not in user_history:
-        user_history[user_id] = {"timestamp": current_time, "messages": []}
-    else:
-        last_time = user_history[user_id]["timestamp"]
-        if (current_time - last_time) > (TIMEOUT_MINUTES * 60):
-            logging.info(f"Limpiando historial por inactividad para {user_id}")
-            user_history[user_id] = {"timestamp": current_time, "messages": []}
-            bot.reply_to(message, "⏳ La sesión ha caducado, un nuevo chat comenzará en breves.")
+        user_history[user_id] = {"messages": []}
 
-    # Actualizar timestamp
-    user_history[user_id]["timestamp"] = current_time
+    # PDF pendiente de instrucción
+    if user_id in pdf_pending:
+        text = pdf_pending.pop(user_id)
+        enriched = f"Contenido del documento PDF:\n\n{text}\n\nInstrucción: {user_input}"
+        messages_pdf = [
+            {"role": "system", "content": "Eres un asistente que analiza documentos. Responde ÚNICAMENTE basándote en el contenido del documento proporcionado. No menciones ni hagas referencia a ningún otro contexto o instrucción previa."},
+            {"role": "user", "content": enriched}
+        ]
+        bot.send_chat_action(message.chat.id, 'typing')
+        try:
+            headers = {"Authorization": f"Bearer {OPENWEBUI_API_KEY}", "Content-Type": "application/json"}
+            payload = {"model": MODEL_ID, "messages": messages_pdf, "stream": False}
+            response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=120)
+            if response.status_code == 200:
+                answer = response.json()['choices'][0]['message']['content']
+                user_history[user_id]["messages"].append({"role": "user", "content": enriched})
+                user_history[user_id]["messages"].append({"role": "assistant", "content": answer})
+                if len(answer) > 4000:
+                    for i in range(0, len(answer), 4000):
+                        bot.send_message(message.chat.id, answer[i:i+4000], reply_markup=main_keyboard())
+                else:
+                    bot.send_message(message.chat.id, answer, reply_markup=main_keyboard())
+            else:
+                bot.reply_to(message, "Error al procesar el documento.")
+        except Exception as e:
+            logging.exception("Error procesando instrucción PDF")
+            bot.reply_to(message, f"Error inesperado: {str(e)}")
+        return
 
-    # Detectar /web y enriquecer el contexto con búsqueda web
+    # Detectar modo búsqueda web (botón) o prefijo /web
     extra_system = None
-    if user_input.lower().startswith(WEB_PREFIX):
+    if user_id in web_mode_users:
+        web_mode_users.discard(user_id)
+        bot.send_chat_action(message.chat.id, 'typing')
+        extra_system = search_web(user_input)
+    elif user_input.lower().startswith(WEB_PREFIX):
         query = user_input[len(WEB_PREFIX):].strip()
         user_input = query
         bot.send_chat_action(message.chat.id, 'typing')
@@ -268,12 +365,12 @@ def handle_message(message):
                 for i in range(0, len(answer), 4000):
                     bot.send_message(message.chat.id, answer[i:i+4000])
             else:
-                bot.reply_to(message, answer)
+                bot.send_message(message.chat.id, answer, reply_markup=main_keyboard())
         else:
             error_msg = f"Error de Open WebUI ({response.status_code}): {response.text}"
             logging.error(error_msg)
             bot.reply_to(message, "Lo siento, hubo un problema al conectar con Open WebUI.")
-            
+
     except Exception as e:
         logging.exception("Error procesando mensaje")
         bot.reply_to(message, f"Ocurrió un error inesperado: {str(e)}")
