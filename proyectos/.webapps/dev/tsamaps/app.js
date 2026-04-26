@@ -264,11 +264,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let lastGpsLng = null;
     const GPS_MARINE_REFRESH_MS = 5 * 60 * 1000; // refresca condiciones cada 5 min
 
-    function isSosLocked() {
-        if (!isSosActive) return false;
-        alert("⚠️ EMERGENCIA ACTIVA\n\nDesactiva la alarma S.O.S antes de usar otras funciones.");
-        return true;
-    }
 
     // muestra una notificación toast
     function showToast(message, extraClass = '') {
@@ -280,20 +275,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         setTimeout(() => toast.remove(), 3100);
     }
 
-    function showToastAt(message, topPx) {
+    function showToastAt(message, topPx, duration = 3100, extraStyle = '') {
         const container = document.getElementById('toast-container');
         const prev = { bottom: container.style.bottom, top: container.style.top };
         container.style.bottom = 'auto';
         container.style.top = `${topPx}px`;
         const toast = document.createElement('div');
         toast.className = 'toast';
+        if (extraStyle) toast.style.cssText += extraStyle;
         toast.textContent = message;
         container.appendChild(toast);
         setTimeout(() => {
             toast.remove();
             container.style.bottom = prev.bottom;
             container.style.top = prev.top;
-        }, 3100);
+        }, duration);
     }
 
     // Muestra el tooltip de una herramienta al activarla y lo oculta a los 2.5s
@@ -329,7 +325,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const dist = map.distance(sosLatLng, latlng);
             const distText = document.getElementById('sos-distance-text');
             if (distText) {
-                distText.innerHTML = `Distancia a víctima: <strong>${dist.toFixed(1)} metros</strong>`;
+                const distNM = dist / 1852;
+                const distStr = distNM < 0.1
+                    ? `${dist.toFixed(0)} m`
+                    : `${distNM.toFixed(2)} NM`;
+                distText.innerHTML = `Distancia a víctima: <strong>${distStr}</strong>`;
             }
         }
 
@@ -468,14 +468,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (mobileSearchBtn) {
         mobileSearchBtn.addEventListener('click', (e) => {
+            if (isSosActive) return;
             e.stopPropagation();
             const isActive = document.body.classList.toggle('mobile-search-active');
             if (isActive) {
                 globalSearchInput.focus();
-                if (isTrafficActive)   { showToast('Tráfico marítimo desactivado');  toggleTrafficBtn.click(); }
-                if (isWindLayerActive) { showToast('Capa de viento desactivada');     windLayerBtn.click(); }
-                if (isRadarActive)     { showToast('Radar meteorológico desactivado'); owmLayerBtn.click(); }
-                if (isRulerActive)     { showToast('Regla náutica desactivada');       rulerBtn.click(); }
+                if (isTrafficActive)   { toggleTrafficBtn.click(); }
+                if (isWindLayerActive) { windLayerBtn.click(); }
+                if (isRadarActive)     { owmLayerBtn.click(); }
+                if (isRulerActive)     { rulerBtn.click(); }
                 document.getElementById('radioPanel')?.classList.add('closed');
                 document.getElementById('radioBtn')?.classList.remove('active');
             } else {
@@ -498,7 +499,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeRadioBtn = document.getElementById('closeRadioBtn');
 
     radioBtn.addEventListener('click', () => {
-        if (isSosLocked()) return;
+        if (isSosActive) return;
         const isOpen = !radioPanel.classList.contains('closed');
         radioPanel.classList.toggle('closed');
         radioBtn.classList.toggle('active', !isOpen);
@@ -538,7 +539,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let weatherWasOpen = false;
 
     openSearchBtn.addEventListener('click', () => {
-        if (isSosLocked()) return;
+        if (isSosActive) return;
         weatherWasOpen = !weatherPanel.classList.contains('closed');
         searchPanel.classList.remove('closed');
         searchInput.focus();
@@ -577,6 +578,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // modal de información del proyecto
     infoBtn.addEventListener('click', () => {
+        if (isSosActive) return;
         infoModal.classList.remove('hidden');
     });
 
@@ -806,6 +808,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // en móvil, no abrir condiciones si Sol/Luna está abierto
         if (window.innerWidth <= 768 && !sunMoonPanel.classList.contains('closed')) return;
+        if (isSosActive) return;
 
         // abre el panel meteorológico con el cargador
         weatherPanel.classList.remove('closed');
@@ -839,6 +842,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!weatherPanel.classList.contains('closed')) {
                 closeWeatherPanel();
             } else {
+                if (isSosActive) return;
                 weatherPanel.classList.remove('closed');
                 gpsShortcutBtn.classList.add('active');
             }
@@ -852,7 +856,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (isTrackingActive) {
-            if (isSosLocked()) return;
+            if (isSosActive) return;
             isTrackingActive = false;
             if (trackingWatchId !== null) {
                 navigator.geolocation.clearWatch(trackingWatchId);
@@ -1094,6 +1098,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     sunMoonBtn.addEventListener('click', () => {
+        if (isSosActive) return;
         const isOpen = !sunMoonPanel.classList.contains('closed');
         if (isOpen) {
             closeSunMoonPanel();
@@ -1341,7 +1346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     toggleTrafficBtn.addEventListener('click', () => {
-        if (isSosLocked()) return;
+        if (isSosActive) return;
         isTrafficActive = !isTrafficActive;
 
         if (isTrafficActive) {
@@ -1351,9 +1356,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeRadioPanel();
 
             // desactiva otros modos incompatibles
-            if (isWindLayerActive) { showToast('Capa de viento desactivada'); windLayerBtn.click(); }
-            if (isRadarActive) { showToast('Radar meteorológico desactivado'); owmLayerBtn.click(); }
-            if (isRulerActive) { showToast('Regla náutica desactivada'); rulerBtn.click(); }
+            if (isWindLayerActive) { windLayerBtn.click(); }
+            if (isRadarActive) { owmLayerBtn.click(); }
+            if (isRulerActive) { rulerBtn.click(); }
 
             // obtiene la vista actual del mapa
             const center = map.getCenter();
@@ -1500,7 +1505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (owmLayerBtn) {
         owmLayerBtn.addEventListener('click', async () => {
-            if (isSosLocked()) return;
+            if (isSosActive) return;
             if (isRadarActive) {
                 radarStopAnim();
                 owmLayerBtn.classList.remove('active');
@@ -1513,9 +1518,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
                 closeRadioPanel();
-                if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
-                if (isWindLayerActive) { showToast('Capa de viento desactivada'); windLayerBtn.click(); }
-                if (isRulerActive) { showToast('Regla náutica desactivada'); rulerBtn.click(); }
+                if (isTrafficActive) { toggleTrafficBtn.click(); }
+                if (isWindLayerActive) { windLayerBtn.click(); }
+                if (isRulerActive) { rulerBtn.click(); }
 
                 owmLayerBtn.classList.add('active');
                 showToolLabel(owmLayerBtn);
@@ -1633,19 +1638,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     rulerBtn.addEventListener('click', () => {
-        if (isSosLocked()) return;
+        if (isSosActive) return;
         isRulerActive = !isRulerActive;
         if (isRulerActive) {
             rulerBtn.classList.add('active');
-            showToolLabel(rulerBtn);
+            showToast('Regla Náutica activada');
             document.getElementById('map').style.cursor = 'crosshair';
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
             closeRadioPanel();
 
             // Si el tráfico marítimo u otros modos están activos, los cerramos
-            if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
-            if (isWindLayerActive) { showToast('Capa de viento desactivada'); windLayerBtn.click(); }
-            if (isRadarActive) { showToast('Radar meteorológico desactivado'); owmLayerBtn.click(); }
+            if (isTrafficActive) { toggleTrafficBtn.click(); }
+            if (isWindLayerActive) { windLayerBtn.click(); }
+            if (isRadarActive) { owmLayerBtn.click(); }
 
         } else {
             rulerBtn.classList.remove('active');
@@ -1777,7 +1782,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let anchorCountdownInterval = null;
 
     floatingAlarmToggle.addEventListener('click', () => {
-        if (isSosLocked()) return;
+        if (isSosActive) return;
         const isClosed = floatingAlarmPanel.classList.toggle('closed');
 
         if (!isClosed) {
@@ -1958,7 +1963,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     toggleAnchorBtn.disabled = false;
                     toggleAnchorBtn.textContent = 'DESACTIVAR ALARMA';
                     toggleAnchorBtn.classList.remove('btn-primary');
-                    toggleAnchorBtn.classList.add('btn-danger'); // Add a danger class if you have one, or configure CSS
+                    toggleAnchorBtn.classList.add('btn-danger');
                     anchorStatusPanel.classList.remove('hidden');
 
                     startAnchorWatch(position);
@@ -1981,33 +1986,88 @@ document.addEventListener('DOMContentLoaded', async () => {
     const windLayerBtn = document.getElementById('windLayerBtn');
     let velocityLayer = null;
     let isWindLayerActive = false;
+    let isWindLayerLoading = false;
+
+    // límites de la rejilla (deben coincidir con server.py)
+    const WIND_BOUNDS = L.latLngBounds([[34.0, -12.0], [44.0, 5.0]]);
+
+    function applyWindClip() {
+        const canvas = document.querySelector('.velocity-overlay');
+        if (!canvas) return;
+        const topLeft = map.latLngToContainerPoint(WIND_BOUNDS.getNorthWest());
+        const bottomRight = map.latLngToContainerPoint(WIND_BOUNDS.getSouthEast());
+        canvas.style.clipPath = `polygon(${topLeft.x}px ${topLeft.y}px, ${bottomRight.x}px ${topLeft.y}px, ${bottomRight.x}px ${bottomRight.y}px, ${topLeft.x}px ${bottomRight.y}px)`;
+    }
+
+    const WIND_COLOR_SCALE = [
+        { color: "rgba(255,255,255,0.9)", kt: "0–3",   label: "Calma" },
+        { color: "rgba(0,255,255,0.9)",   kt: "3–6",   label: "Ventolina" },
+        { color: "rgba(0,200,255,0.9)",   kt: "6–10",  label: "Flojito" },
+        { color: "rgba(0,150,255,0.9)",   kt: "10–13", label: "Flojo" },
+        { color: "rgba(100,255,100,0.9)", kt: "13–16", label: "Bonancible" },
+        { color: "rgba(0,255,0,0.9)",     kt: "16–19", label: "Fresquito" },
+        { color: "rgba(200,255,0,0.9)",   kt: "19–23", label: "Fresco" },
+        { color: "rgba(255,255,0,0.9)",   kt: "23–26", label: "Frescachón" },
+        { color: "rgba(255,200,0,0.9)",   kt: "26–29", label: "Frescachón" },
+        { color: "rgba(255,150,0,0.9)",   kt: "29–32", label: "Temporal" },
+        { color: "rgba(255,100,0,0.9)",   kt: "32–36", label: "Temporal" },
+        { color: "rgba(255,50,0,0.9)",    kt: "36–39", label: "T. fuerte" },
+        { color: "rgba(255,0,0,0.9)",     kt: "39–42", label: "T. duro" },
+        { color: "rgba(200,0,50,0.9)",    kt: "42–45", label: "T. muy duro" },
+        { color: "rgba(150,0,100,0.9)",   kt: "45+",   label: "Borrasca" },
+    ];
+
+    function showWindLegend(timestamp) {
+        if (document.getElementById('wind-legend')) return;
+        const legend = document.createElement('div');
+        legend.id = 'wind-legend';
+        legend.innerHTML = `
+            <div style="font-weight:700; font-size:0.75rem; margin-bottom:5px; color:var(--brand-navy);">Viento (kt)</div>
+            ${WIND_COLOR_SCALE.map(e => `
+                <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px;">
+                    <div style="width:14px;height:14px;border-radius:3px;background:${e.color};flex-shrink:0;border:1px solid rgba(0,0,0,0.1);"></div>
+                    <span style="font-size:0.7rem;color:#444;">${e.kt} — ${e.label}</span>
+                </div>
+            `).join('')}
+            ${timestamp ? `<div style="margin-top:6px;padding-top:5px;border-top:1px solid rgba(0,0,0,0.1);font-size:0.65rem;color:#888;">Actualizado: ${timestamp}</div>` : ''}
+        `;
+        document.querySelector('.app-container').appendChild(legend);
+    }
+
+    function hideWindLegend() {
+        document.getElementById('wind-legend')?.remove();
+    }
 
     windLayerBtn.addEventListener('click', async () => {
-        if (isSosLocked()) return;
-        if (isWindLayerActive) {
-            // desactiva la capa de viento
+        if (isSosActive) return;
+        if (isWindLayerActive || isWindLayerLoading) {
             if (velocityLayer) {
                 map.removeLayer(velocityLayer);
             }
+            map.off('move zoom viewreset', applyWindClip);
             windLayerBtn.classList.remove('active');
             windLayerBtn.blur();
             isWindLayerActive = false;
+            isWindLayerLoading = false;
+            hideWindLegend();
         } else {
-            // activa la capa de viento
+            isWindLayerLoading = true;
             windLayerBtn.classList.add('active');
-            showToolLabel(windLayerBtn);
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
             closeRadioPanel();
 
-            // desactiva otros modos del mapa
-            if (isTrafficActive) { showToast('Tráfico marítimo desactivado'); toggleTrafficBtn.click(); }
-            if (isRadarActive) { showToast('Radar meteorológico desactivado'); owmLayerBtn.click(); }
-            if (isRulerActive) { showToast('Regla náutica desactivada'); rulerBtn.click(); }
+            if (isTrafficActive) { toggleTrafficBtn.click(); }
+            if (isRadarActive) { owmLayerBtn.click(); }
+            if (isRulerActive) { rulerBtn.click(); }
 
             try {
-                // carga los datos de viento GFS descargados (wind-global.json)
-                const response = await fetch('wind-global.json');
-                const data = await response.json();
+                const [windRes, tsRes] = await Promise.all([
+                    fetch('wind-global.json'),
+                    fetch('wind-timestamp').then(r => r.json()).catch(() => ({ updated: null }))
+                ]);
+                const data = await windRes.json();
+
+                if (!isWindLayerLoading) return;
 
                 velocityLayer = L.velocityLayer({
                     displayValues: true,
@@ -2018,41 +2078,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                         angleConvention: 'bearingCW',
                         displayPosition: 'bottomleft',
                         displayEmptyString: 'Sin datos de viento',
-                        speedUnit: 'k/h'
+                        speedUnit: 'kt'
                     },
                     data: data,
-                    maxVelocity: 25, // aumenta velocidad máxima para mejor distribución de colores
-                    velocityScale: 0.01, // duplica la velocidad de las partículas
-                    particleAge: 90, // vida útil de las partículas antes de desaparecer
-                    particleMultiplier: 1 / 200, // mayor densidad de partículas
-                    lineWidth: 3, // líneas más gruesas y visibles
-                    colorScale: [
-                        "rgba(255, 255, 255, 0.9)", // White (Low wind)
-                        "rgba(0, 255, 255, 0.9)",   // Cyan
-                        "rgba(0, 200, 255, 0.9)",   // Light Blue
-                        "rgba(0, 150, 255, 0.9)",   // Blue
-                        "rgba(100, 255, 100, 0.9)", // Light Green
-                        "rgba(0, 255, 0, 0.9)",     // Green
-                        "rgba(200, 255, 0, 0.9)",   // Yellow-Green
-                        "rgba(255, 255, 0, 0.9)",   // Yellow
-                        "rgba(255, 200, 0, 0.9)",   // Orange-Yellow
-                        "rgba(255, 150, 0, 0.9)",   // Orange
-                        "rgba(255, 100, 0, 0.9)",   // Dark Orange
-                        "rgba(255, 50, 0, 0.9)",    // Red-Orange
-                        "rgba(255, 0, 0, 0.9)",     // Red
-                        "rgba(200, 0, 50, 0.9)",    // Dark Red
-                        "rgba(150, 0, 100, 0.9)"    // Purple (Extreme wind)
-                    ]
+                    maxVelocity: 25,
+                    velocityScale: 0.01,
+                    particleAge: 90,
+                    particleMultiplier: 1 / 200,
+                    lineWidth: 3,
+                    colorScale: WIND_COLOR_SCALE.map(e => e.color)
                 });
 
                 velocityLayer.addTo(map);
+                setTimeout(applyWindClip, 100);
+                map.on('move zoom viewreset', applyWindClip);
+
                 isWindLayerActive = true;
+                isWindLayerLoading = false;
+                showWindLegend(tsRes.updated);
+                showToast('Capa de viento activada');
 
             } catch (error) {
                 console.error('Error loading wind data:', error);
-                alert('No se pudo cargar la capa de viento. Verifique si el archivo wind-global.json existe y es accesible.');
+                showToast('Error al cargar la capa de viento');
                 windLayerBtn.classList.remove('active');
                 isWindLayerActive = false;
+                isWindLayerLoading = false;
             }
         }
     });
@@ -2144,22 +2195,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             toggleTrafficBtn.classList.remove('active');
             vesselFinderOverlay.classList.add('hidden');
             exitTrafficMode();
-            showToast('Tráfico marítimo desactivado');
         }
-        if (isWindLayerActive) { windLayerBtn.click(); showToast('Capa de viento desactivada'); }
-        if (isRadarActive)     { owmLayerBtn.click();  showToast('Radar meteorológico desactivado'); }
-        if (isRulerActive)     { rulerBtn.click();     showToast('Regla náutica desactivada'); }
-        if (!radioPlayer.paused) { radioPlayer.pause(); showToast('Radio detenida'); }
+        if (isWindLayerActive || isWindLayerLoading) {
+            if (velocityLayer) { map.removeLayer(velocityLayer); velocityLayer = null; }
+            windLayerBtn.classList.remove('active');
+            isWindLayerActive = false;
+            isWindLayerLoading = false;
+        }
+        if (isRadarActive)     { owmLayerBtn.click(); }
+        if (isRulerActive)     { rulerBtn.click(); }
+        if (!radioPlayer.paused) { radioPlayer.pause(); }
         closeWeatherPanel();
         closeRadioPanel();
         closeSearchPanel();
         closeSunMoonPanel();
         closeChatPanel();
 
-        // 2. coloca marcador permanente (punto MOB)
+        // 2. coloca marcador permanente (punto MOB) y centra mapa
         sosMarker = L.marker(sosLatLng, { icon: sosIcon, zIndexOffset: 1000 }).addTo(map);
-
-        // 2. centra el mapa en la emergencia
         map.setView(sosLatLng, 17);
 
         // 3. actualiza el marcador del barco INMEDIATAMENTE con las mismas coordenadas
@@ -2177,6 +2230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 6. crea el panel de seguimiento
         const trackingPanel = document.createElement('div');
         trackingPanel.id = 'sos-tracking-panel';
+        trackingPanel.className = 'sos-tracking-panel';
         trackingPanel.style.cssText = `
             position: absolute;
             top: 80px;
@@ -2195,22 +2249,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             gap: 5px;
         `;
         trackingPanel.innerHTML = `
-            <div style="font-weight: 800; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 1.5rem;">⚠️</span> EMERGENCIA MOB ACTIVA
+            <div style="font-weight: 800; font-size: 1.3rem; display: flex; align-items: center; gap: 8px; justify-content: center;">
+                <span style="font-size: 1.5rem;">⚠️</span> MOB ACTIVO
             </div>
-            <div id="sos-distance-text" style="font-size: 1rem; font-weight: 600;">
+            <div id="sos-distance-text" style="font-size: 1.15rem; font-weight: 700;">
                 Distancia a víctima: Calculando...
             </div>
-            <div style="font-size: 0.8rem; opacity: 0.9;">
-                Coord: ${sosLatLng.lat.toFixed(5)}, ${sosLatLng.lng.toFixed(5)}
+            <div style="font-size: 1rem; font-weight: 600; letter-spacing: 0.03em;">
+                ${sosLatLng.lat.toFixed(5)}, ${sosLatLng.lng.toFixed(5)}
             </div>
-            <div style="margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.4); padding-top: 8px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-                <a href="tel:112" style="background: white; color: #e84118; font-weight: 800; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 1rem;">
-                    📞 112
-                </a>
-                <a href="tel:${salvamentoNum.replace(/\s/g, '')}" style="background: white; color: #e84118; font-weight: 800; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 1rem;">
-                    📞 ${salvamentoNum} <span style="font-weight: 400; font-size: 0.75rem;">${salvamentoLabel}</span>
-                </a>
+            <div style="margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.4); padding-top: 8px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                    <a href="tel:${salvamentoNum.replace(/\s/g, '')}" style="background: white; color: #e84118; font-weight: 800; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-size: 1.3rem;">
+                        📞 ${salvamentoNum} <span style="font-weight: 400; font-size: 0.9rem;">${salvamentoLabel}</span>
+                    </a>
+                    <a href="tel:112" style="background: white; color: #e84118; font-weight: 800; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-size: 1.3rem;">
+                        📞 112
+                    </a>
+                </div>
             </div>
         `;
         document.querySelector('.app-container').appendChild(trackingPanel);
@@ -2221,7 +2277,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const panel = document.getElementById('sos-tracking-panel');
             const rect = panel?.getBoundingClientRect();
             const topPx = rect ? rect.bottom + 10 : 240;
-            showToastAt('Coordenadas copiadas al portapapeles', topPx);
+            showToastAt('Coordenadas copiadas al portapapeles', topPx, 6200, 'font-size: 1.1rem; padding: 12px 20px;');
         }).catch(() => {});
 
         // 6. asegura que el seguimiento GPS en tiempo real esté activo
@@ -2250,8 +2306,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             showMobConfirm(
                 '¿DETENER LA ALARMA MOB?\n\nSe borrará la marca de HOMBRE AL AGUA del mapa.',
                 () => showMobConfirm(
-                    '🛑 CONFIRMACIÓN FINAL\n\n¿Cancelamos definitivamente el rescate y borramos el marcador?',
-                    () => { stopSosAlarm(); showToast('Alarma MOB desactivada'); }
+                    'CONFIRMACIÓN FINAL',
+                    () => { stopSosAlarm(); }
                 )
             );
             return;
@@ -2303,8 +2359,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeGuideBtn = document.getElementById('closeGuideBtn');
     const guideModal = document.getElementById('guideModal');
 
+    document.getElementById('brandLogoLink')?.addEventListener('click', (e) => {
+        if (isSosActive) e.preventDefault();
+    });
+
     if (openGuideBtn && closeGuideBtn && guideModal) {
         openGuideBtn.addEventListener('click', () => {
+            if (isSosActive) return;
             guideModal.classList.remove('hidden');
         });
 
@@ -2433,6 +2494,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     chatBtn.addEventListener('click', () => {
+        if (isSosActive) return;
         if (chatPanel.classList.contains('closed')) openChatPanel();
         else closeChatPanel();
     });

@@ -262,6 +262,22 @@
         transform-origin: bottom left;
     }
 
+    .floating-alarm-panel.closed {
+        position: fixed;
+    }
+
+    #wind-legend {
+        left: 12px;
+        right: auto;
+    }
+
+    .sos-tracking-panel {
+        left: 12px !important;
+        right: 12px !important;
+        width: auto !important;
+        transform: none !important;
+    }
+
     /* -- Radar HUD -- */
     .radar-hud {
         top: 120px;

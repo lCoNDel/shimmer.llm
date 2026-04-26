@@ -27,7 +27,7 @@
 <body>
     <header class="app-header">
         <div class="logo-container">
-            <a href="https://www.touron.es/" target="_blank" rel="noopener noreferrer">
+            <a id="brandLogoLink" href="https://www.touron.es/" target="_blank" rel="noopener noreferrer">
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwP6ECO812KN688mb1LhBvRawScR7tbavVCg&s"
                     alt="Touron" class="brand-logo-img">
             </a>
@@ -138,7 +138,7 @@
 
             <!-- Floating Wind Layer Button -->
             <div class="floating-wind-container">
-                <button class="floating-alarm-toggle" id="windLayerBtn" data-tooltip="Capa de Viento Animada (GFS)">
+                <button class="floating-alarm-toggle" id="windLayerBtn" data-tooltip="Capa de Viento">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path
@@ -195,7 +195,7 @@
 
             <!-- Floating Ruler -->
             <div class="floating-ruler-container">
-                <button class="floating-alarm-toggle" id="rulerBtn" data-tooltip="Regla Náutica (Medir distancias y rumbos)">
+                <button class="floating-alarm-toggle" id="rulerBtn" data-tooltip="Regla Náutica">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"></path>
@@ -596,7 +596,7 @@
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8e44ad"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
                                 <strong>Capa de Viento</strong>
                             </div>
-                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Flujo de viento animado en tiempo real con datos GFS de cobertura global.</span>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Flujo de viento animado en tiempo real con datos Open-Meteo. Cobertura España y Portugal.</span>
                         </div>
 
                     </div>

@@ -18,6 +18,16 @@ MODEL_ID = "asistente-touron"
 ALLOWED_USERS = None  # None = acceso abierto a todos
 WEB_PREFIX = "/web "
 
+def extract_answer(response_json: dict) -> str:
+    try:
+        content = response_json['choices'][0]['message']['content']
+        if not content:
+            logging.warning(f"content vacío. Respuesta completa: {json.dumps(response_json, ensure_ascii=False)[:500]}")
+        return content or ""
+    except (KeyError, IndexError, TypeError) as e:
+        logging.warning(f"extract_answer falló: {e}. JSON: {json.dumps(response_json, ensure_ascii=False)[:500]}")
+        return ""
+
 def search_web(query: str, max_results: int = 5) -> str:
     try:
         with DDGS() as ddgs:
@@ -44,31 +54,30 @@ unauthorized_attempts = {}
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
-# Diccionario para mantener un historial y timestamp por usuario
+# Historial por usuario
 user_history = {}
 
 # Usuarios en modo búsqueda web (esperando consulta tras pulsar el botón)
 web_mode_users = set()
 
-# PDF pendiente de instrucción por usuario
-pdf_pending = {}
-
 def main_keyboard():
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, is_persistent=True)
-    markup.row(telebot.types.KeyboardButton('🌐 Búsqueda Web'))
-    markup.row(telebot.types.KeyboardButton('🗑️ Borrar Memoria'))
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.row(
+        telebot.types.InlineKeyboardButton("🌐 Búsqueda Web", callback_data="web_search"),
+        telebot.types.InlineKeyboardButton("🗑️ Borrar Memoria", callback_data="clear_memory")
+    )
     return markup
 
 def web_keyboard():
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, is_persistent=True)
-    markup.row(telebot.types.KeyboardButton('❌ Cancelar Búsqueda'))
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.row(telebot.types.InlineKeyboardButton("❌ Cancelar Búsqueda", callback_data="cancel_search"))
     return markup
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     if ALLOWED_USERS is not None and message.from_user.id not in ALLOWED_USERS:
         return
-    bot.send_message(message.chat.id, "Shimmer Iniciado.", reply_markup=main_keyboard())
+    bot.send_message(message.chat.id, "Shimmer Iniciado.", reply_markup=telebot.types.ReplyKeyboardRemove())
 
 @bot.message_handler(commands=['web'])
 def handle_web_command(message):
@@ -107,7 +116,7 @@ def handle_web_command(message):
         response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=120)
 
         if response.status_code == 200:
-            answer = response.json()['choices'][0]['message']['content']
+            answer = extract_answer(response.json())
             logging.info(f"Respuesta Open WebUI para /web: '{answer[:100]}'")
             user_history[user_id]["messages"].append({"role": "assistant", "content": answer})
             if not answer.strip():
@@ -154,37 +163,32 @@ def handle_photo(message):
 
     caption = message.caption or "Describe esta imagen."
 
-    file_info = bot.get_file(message.photo[-1].file_id)
-    downloaded = bot.download_file(file_info.file_path)
-    image_b64 = base64.b64encode(downloaded).decode("utf-8")
-
-    user_history[user_id]["messages"].append({
-        "role": "user",
-        "content": [
-            {"type": "text", "text": caption},
-            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}}
-        ]
-    })
+    bot.send_message(message.chat.id, "🖼️ Imagen recibida, espere por favor...")
+    bot.send_chat_action(message.chat.id, 'typing')
 
     try:
-        bot.send_chat_action(message.chat.id, 'typing')
+        file_info = bot.get_file(message.photo[-1].file_id)
+        downloaded = bot.download_file(file_info.file_path)
+        image_b64 = base64.b64encode(downloaded).decode("utf-8")
 
-        headers = {
-            "Authorization": f"Bearer {OPENWEBUI_API_KEY}",
-            "Content-Type": "application/json"
+        image_message = {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": caption},
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}}
+            ]
         }
 
-        payload = {
-            "model": MODEL_ID,
-            "messages": user_history[user_id]["messages"][-10:],
-            "stream": False
-        }
-
-        logging.info(f"Enviando imagen a Open WebUI para el usuario {user_id}...")
+        headers = {"Authorization": f"Bearer {OPENWEBUI_API_KEY}", "Content-Type": "application/json"}
+        payload = {"model": MODEL_ID, "messages": [image_message], "stream": False}
         response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=120)
 
         if response.status_code == 200:
-            answer = response.json()['choices'][0]['message']['content']
+            answer = extract_answer(response.json())
+            if not answer.strip():
+                bot.reply_to(message, "El modelo devolvió una respuesta vacía.")
+                return
+            user_history[user_id]["messages"].append({"role": "user", "content": f"[imagen adjunta: {caption}]"})
             user_history[user_id]["messages"].append({"role": "assistant", "content": answer})
             if len(answer) > 4000:
                 for i in range(0, len(answer), 4000):
@@ -213,6 +217,7 @@ def handle_document(message):
     if user_id not in user_history:
         user_history[user_id] = {"messages": []}
 
+    bot.send_message(message.chat.id, "📄 Documento recibido, espere por favor...")
     bot.send_chat_action(message.chat.id, 'typing')
 
     try:
@@ -231,21 +236,64 @@ def handle_document(message):
         if len(text) > MAX_CHARS:
             text = text[:MAX_CHARS] + "\n\n[Documento truncado por longitud]"
 
-        pdf_pending[user_id] = text
-        bot.send_message(message.chat.id, "📄 Documento recibido. ¿Qué quieres saber?", reply_markup=main_keyboard())
+        caption = message.caption or "Resume este documento."
+        enriched = f"Contenido del documento PDF:\n\n{text}\n\nInstrucción: {caption}"
+        messages_pdf = [
+            {"role": "system", "content": "Eres un asistente que analiza documentos. Responde ÚNICAMENTE basándote en el contenido del documento proporcionado. No menciones ni hagas referencia a ningún otro contexto o instrucción previa."},
+            {"role": "user", "content": enriched}
+        ]
+
+        headers = {"Authorization": f"Bearer {OPENWEBUI_API_KEY}", "Content-Type": "application/json"}
+        payload = {"model": MODEL_ID, "messages": messages_pdf, "stream": False}
+        response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=120)
+
+        if response.status_code == 200:
+            answer = extract_answer(response.json())
+            if not answer.strip():
+                bot.reply_to(message, "El modelo devolvió una respuesta vacía.")
+                return
+            user_history[user_id]["messages"].append({"role": "user", "content": f"[documento PDF: {caption}]"})
+            user_history[user_id]["messages"].append({"role": "assistant", "content": answer})
+            if len(answer) > 4000:
+                for i in range(0, len(answer), 4000):
+                    bot.send_message(message.chat.id, answer[i:i+4000], reply_markup=main_keyboard())
+            else:
+                bot.send_message(message.chat.id, answer, reply_markup=main_keyboard())
+        else:
+            bot.reply_to(message, "Error al procesar el documento.")
 
     except Exception as e:
         logging.exception("Error procesando PDF")
         bot.reply_to(message, f"Error inesperado: {str(e)}")
 
-@bot.callback_query_handler(func=lambda call: call.data in ["confirm_clear", "cancel_clear"])
-def handle_clear_callback(call):
+@bot.callback_query_handler(func=lambda call: call.data in ["web_search", "cancel_search", "clear_memory", "confirm_clear", "cancel_clear"])
+def handle_callbacks(call):
     user_id = call.from_user.id
-    if call.data == "confirm_clear":
+    bot.answer_callback_query(call.id)
+
+    if call.data == "web_search":
+        web_mode_users.add(user_id)
+        bot.send_message(call.message.chat.id, "¿Qué quieres buscar?", reply_markup=web_keyboard())
+
+    elif call.data == "cancel_search":
+        web_mode_users.discard(user_id)
+        bot.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup=None)
+        bot.send_message(call.message.chat.id, "Búsqueda cancelada.", reply_markup=main_keyboard())
+
+    elif call.data == "clear_memory":
+        markup = telebot.types.InlineKeyboardMarkup()
+        markup.row(
+            telebot.types.InlineKeyboardButton("✅ Confirmar", callback_data="confirm_clear"),
+            telebot.types.InlineKeyboardButton("❌ Cancelar", callback_data="cancel_clear")
+        )
+        bot.send_message(call.message.chat.id, "⚠️ Se borrará toda la memoria de esta conversación. El asistente no recordará nada de lo hablado.\n\n¿Confirmas?", reply_markup=markup)
+
+    elif call.data == "confirm_clear":
         user_history[user_id] = {"messages": []}
         web_mode_users.discard(user_id)
         bot.edit_message_text("🗑️ Memoria borrada.", call.message.chat.id, call.message.message_id)
-    else:
+
+    elif call.data == "cancel_clear":
         bot.edit_message_text("Cancelado. La memoria se conserva.", call.message.chat.id, call.message.message_id)
 
 @bot.message_handler(func=lambda message: True)
@@ -259,60 +307,11 @@ def handle_message(message):
         return
     user_id = message.from_user.id
     user_input = message.text
-    # Botón: Búsqueda web
-    if user_input == '🌐 Búsqueda Web':
-        web_mode_users.add(user_id)
-        bot.send_message(message.chat.id, "¿Qué quieres buscar?", reply_markup=web_keyboard())
-        return
 
-    # Botón: Cancelar búsqueda
-    if user_input == '❌ Cancelar Búsqueda':
-        web_mode_users.discard(user_id)
-        bot.send_message(message.chat.id, "Búsqueda cancelada.", reply_markup=main_keyboard())
-        return
-
-    # Botón: Borrar Memoria — pide confirmación
-    if user_input == '🗑️ Borrar Memoria':
-        markup = telebot.types.InlineKeyboardMarkup()
-        markup.row(
-            telebot.types.InlineKeyboardButton("✅ Confirmar", callback_data="confirm_clear"),
-            telebot.types.InlineKeyboardButton("❌ Cancelar", callback_data="cancel_clear")
-        )
-        bot.send_message(message.chat.id, "⚠️ Se borrará toda la memoria de esta conversación. El asistente no recordará nada de lo hablado.\n\n¿Confirmas?", reply_markup=markup)
-        return
 
     # Inicializar historial si no existe
     if user_id not in user_history:
         user_history[user_id] = {"messages": []}
-
-    # PDF pendiente de instrucción
-    if user_id in pdf_pending:
-        text = pdf_pending.pop(user_id)
-        enriched = f"Contenido del documento PDF:\n\n{text}\n\nInstrucción: {user_input}"
-        messages_pdf = [
-            {"role": "system", "content": "Eres un asistente que analiza documentos. Responde ÚNICAMENTE basándote en el contenido del documento proporcionado. No menciones ni hagas referencia a ningún otro contexto o instrucción previa."},
-            {"role": "user", "content": enriched}
-        ]
-        bot.send_chat_action(message.chat.id, 'typing')
-        try:
-            headers = {"Authorization": f"Bearer {OPENWEBUI_API_KEY}", "Content-Type": "application/json"}
-            payload = {"model": MODEL_ID, "messages": messages_pdf, "stream": False}
-            response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=120)
-            if response.status_code == 200:
-                answer = response.json()['choices'][0]['message']['content']
-                user_history[user_id]["messages"].append({"role": "user", "content": enriched})
-                user_history[user_id]["messages"].append({"role": "assistant", "content": answer})
-                if len(answer) > 4000:
-                    for i in range(0, len(answer), 4000):
-                        bot.send_message(message.chat.id, answer[i:i+4000], reply_markup=main_keyboard())
-                else:
-                    bot.send_message(message.chat.id, answer, reply_markup=main_keyboard())
-            else:
-                bot.reply_to(message, "Error al procesar el documento.")
-        except Exception as e:
-            logging.exception("Error procesando instrucción PDF")
-            bot.reply_to(message, f"Error inesperado: {str(e)}")
-        return
 
     # Detectar modo búsqueda web (botón) o prefijo /web
     extra_system = None
@@ -326,7 +325,6 @@ def handle_message(message):
         bot.send_chat_action(message.chat.id, 'typing')
         extra_system = search_web(query)
 
-    # Añadir mensaje del usuario al historial (con resultados web enriquecidos si aplica)
     if extra_system:
         enriched_content = f"Usa los siguientes resultados de búsqueda web para responder:\n\n{extra_system}\n\nPregunta: {user_input}"
         user_history[user_id]["messages"].append({"role": "user", "content": enriched_content})
@@ -336,39 +334,29 @@ def handle_message(message):
     try:
         bot.send_chat_action(message.chat.id, 'typing')
 
-        headers = {
-            "Authorization": f"Bearer {OPENWEBUI_API_KEY}",
-            "Content-Type": "application/json"
-        }
-
+        headers = {"Authorization": f"Bearer {OPENWEBUI_API_KEY}", "Content-Type": "application/json"}
         messages = user_history[user_id]["messages"][-10:]
-        model = MODEL_ID
+        payload = {"model": MODEL_ID, "messages": messages, "stream": False}
 
-        payload = {
-            "model": model,
-            "messages": messages,
-            "stream": False
-        }
-
-        logging.info(f"Enviando consulta a Open WebUI para el usuario {user_id} (modelo: {model})...")
+        logging.info(f"Enviando consulta a Open WebUI para el usuario {user_id}...")
         response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=120)
-        
+
         if response.status_code == 200:
-            result = response.json()
-            answer = result['choices'][0]['message']['content']
-            
-            # Guardar respuesta en el historial
+            answer = extract_answer(response.json())
+
+            if not answer.strip():
+                bot.reply_to(message, "El modelo devolvió una respuesta vacía. Intenta reformular la consulta.")
+                return
+
             user_history[user_id]["messages"].append({"role": "assistant", "content": answer})
-            
-            # Enviar respuesta al usuario de Telegram (manejando límites de caracteres de Telegram)
+
             if len(answer) > 4000:
                 for i in range(0, len(answer), 4000):
                     bot.send_message(message.chat.id, answer[i:i+4000])
             else:
                 bot.send_message(message.chat.id, answer, reply_markup=main_keyboard())
         else:
-            error_msg = f"Error de Open WebUI ({response.status_code}): {response.text}"
-            logging.error(error_msg)
+            logging.error(f"Error Open WebUI ({response.status_code}): {response.text}")
             bot.reply_to(message, "Lo siento, hubo un problema al conectar con Open WebUI.")
 
     except Exception as e:

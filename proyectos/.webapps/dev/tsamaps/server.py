@@ -1,17 +1,31 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from ddgs import DDGS
 import httpx
 import logging
 import os
+import json
+import math
+import asyncio
+from datetime import datetime, timezone
 from pathlib import Path
 
 OPENWEBUI_URL = "http://host.docker.internal:3000"
 API_KEY       = "sk-86be5033063c4e1488007be92f4b2196"
 MODEL_ID      = "asistente-touron"
 WEB_PREFIX    = "/web "
+
+STATIC_DIR    = Path("/app")
+WIND_JSON     = STATIC_DIR / "wind-global.json"
+WIND_TS_FILE  = STATIC_DIR / "wind-timestamp.json"
+
+# Rejilla España + Portugal + aguas próximas: lat 34–44°N, lon -12–5°E, paso 0.5°
+GRID_LAT1, GRID_LAT2, GRID_DX = 34.0, 44.0, 0.5
+GRID_LON1, GRID_LON2, GRID_DY = -12.0, 5.0, 0.5
+
+WIND_UPDATE_INTERVAL = 3600  # segundos (1 hora)
 
 app = FastAPI()
 
@@ -39,11 +53,116 @@ def search_web(query: str, max_results: int = 5) -> str:
         logging.error(f"Error en búsqueda web: {e}")
         return f"Error al realizar la búsqueda web: {e}"
 
+async def fetch_wind_data():
+    """Descarga viento de Open-Meteo y genera wind-global.json en formato Leaflet-Velocity."""
+    lats = [round(GRID_LAT1 + i * GRID_DX, 1) for i in range(int((GRID_LAT2 - GRID_LAT1) / GRID_DX) + 1)]
+    lons = [round(GRID_LON1 + j * GRID_DY, 1) for j in range(int((GRID_LON2 - GRID_LON1) / GRID_DY) + 1)]
+    nx = len(lons)
+    ny = len(lats)
+
+    lat_str = ",".join(str(x) for x in lats * nx)  # cada lon repite todos los lats
+    # Open-Meteo acepta múltiples coordenadas: repetimos cada lat para cada lon
+    all_lats = []
+    all_lons = []
+    for lon in lons:
+        for lat in lats:
+            all_lats.append(lat)
+            all_lons.append(lon)
+
+    url = (
+        "https://api.open-meteo.com/v1/forecast"
+        f"?latitude={','.join(str(x) for x in all_lats)}"
+        f"&longitude={','.join(str(x) for x in all_lons)}"
+        "&current=wind_speed_10m,wind_direction_10m"
+        "&wind_speed_unit=ms"
+        "&timeformat=unixtime"
+    )
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.get(url)
+        response.raise_for_status()
+        results = response.json()
+
+    # Open-Meteo devuelve lista cuando hay múltiples puntos, objeto si es uno solo
+    if isinstance(results, dict):
+        results = [results]
+
+    # Construir arrays U y V (componentes del viento)
+    # Leaflet-Velocity espera la rejilla en orden: fila por fila, de arriba a abajo (lat mayor a menor)
+    # y de izquierda a derecha (lon menor a mayor)
+    u_data = []
+    v_data = []
+
+    for lon_idx, lon in enumerate(lons):
+        for lat_idx, lat in enumerate(lats):
+            point_idx = lon_idx * ny + lat_idx
+            point = results[point_idx]
+            speed = point.get("current", {}).get("wind_speed_10m", 0) or 0
+            direction = point.get("current", {}).get("wind_direction_10m", 0) or 0
+            # Convertir velocidad + dirección meteorológica a componentes U, V
+            # Dirección meteorológica: de dónde viene el viento (0=N, 90=E...)
+            dir_rad = math.radians(direction)
+            u = -speed * math.sin(dir_rad)  # componente este-oeste
+            v = -speed * math.cos(dir_rad)  # componente norte-sur
+            u_data.append(round(u, 4))
+            v_data.append(round(v, 4))
+
+    now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+    header_base = {
+        "discipline": 0,
+        "disciplineName": "Meteorological products",
+        "gribEdition": 2,
+        "center": 7,
+        "centerName": "US National Weather Service - NCEP(WMC)",
+        "refTime": now_iso,
+        "significanceOfRT": 1,
+        "productStatus": 0,
+        "productType": 1,
+        "parameterCategory": 2,
+        "nx": nx,
+        "ny": ny,
+        "lo1": GRID_LON1,
+        "la1": GRID_LAT2,  # Leaflet-Velocity espera la lat superior primero
+        "lo2": GRID_LON2,
+        "la2": GRID_LAT1,
+        "dx": GRID_DY,
+        "dy": GRID_DX,
+        "parameterUnit": "m.s-1",
+    }
+
+    wind_json = [
+        {
+            "header": {**header_base, "parameterNumber": 2, "parameterNumberName": "U-component_of_wind"},
+            "data": u_data
+        },
+        {
+            "header": {**header_base, "parameterNumber": 3, "parameterNumberName": "V-component_of_wind"},
+            "data": v_data
+        }
+    ]
+
+    WIND_JSON.write_text(json.dumps(wind_json), encoding="utf-8")
+
+    ts = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC")
+    WIND_TS_FILE.write_text(json.dumps({"updated": ts}), encoding="utf-8")
+    logging.info(f"Viento actualizado: {ts} ({nx}x{ny} puntos)")
+
+async def wind_update_loop():
+    while True:
+        try:
+            await fetch_wind_data()
+        except Exception as e:
+            logging.error(f"Error actualizando viento: {e}")
+        await asyncio.sleep(WIND_UPDATE_INTERVAL)
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(wind_update_loop())
+
 @app.post("/chat")
 async def chat(req: ChatRequest):
     messages = req.messages[-10:]
-
-    # Detectar /web en el último mensaje del usuario e inyectar resultados como contexto
     last_user = next((m for m in reversed(messages) if m.get("role") == "user"), None)
     model = MODEL_ID
     if last_user and last_user.get("content", "").lower().startswith(WEB_PREFIX):
@@ -65,7 +184,11 @@ async def chat(req: ChatRequest):
     data = response.json()
     return {"response": data["choices"][0]["message"]["content"]}
 
-STATIC_DIR = Path("/app")
+@app.get("/wind-timestamp")
+async def wind_timestamp():
+    if WIND_TS_FILE.exists():
+        return JSONResponse(json.loads(WIND_TS_FILE.read_text()))
+    return JSONResponse({"updated": None})
 
 @app.get("/{full_path:path}")
 async def serve_static(full_path: str):

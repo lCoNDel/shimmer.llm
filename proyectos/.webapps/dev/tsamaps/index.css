@@ -1166,6 +1166,29 @@ body {
     }
 }
 
+/* ── Wind Legend ─────────────────────────────────────────────────── */
+#wind-legend {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.93);
+    border-radius: 8px;
+    padding: 8px 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: var(--z-header);
+    pointer-events: none;
+}
+
+/* ── MOB Emergency Call Buttons ─────────────────────────────────── */
+#sos-tracking-panel a[href^="tel"] {
+    transition: transform 0.1s, opacity 0.1s;
+}
+#sos-tracking-panel a[href^="tel"]:active {
+    transform: scale(0.93);
+    opacity: 0.75;
+}
+
 /* ── VesselFinder Close Button ───────────────────────────────────── */
 .vessel-close-btn {
     display: flex;
