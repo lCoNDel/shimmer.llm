@@ -44,6 +44,16 @@
     }
 }
 
+/* ---- TABLET (769px–1024px) -------------------------------- */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    #floatingSosContainer {
+        bottom: 20px !important;
+        left: auto !important;
+        right: 60px !important;
+        transform: none !important;
+    }
+}
+
 /* ---- MÓVIL (≤768px) -------------------------------------- */
 @media screen and (max-width: 768px) {
 
@@ -442,4 +452,23 @@
         touch-action: manipulation;
     }
 
+}
+
+/* Pantallas pequeñas (iPhone 12 y similares, ≤430px) */
+@media screen and (max-width: 430px) {
+    .map-controls-bottom-left {
+        gap: 5px;
+        left: 8px;
+    }
+
+    .floating-alarm-toggle {
+        width: 34px;
+        height: 34px;
+        padding: 0.3rem;
+    }
+
+    .floating-alarm-toggle svg {
+        width: 18px;
+        height: 18px;
+    }
 }

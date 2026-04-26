@@ -79,10 +79,58 @@
 
 ---
 
+## tsamaps dev — Corrección de bugs de UI
+
+### Red Náutica — panel de distribuidores
+- Al seleccionar un distribuidor de la lista, el panel de condiciones marítimas no se restauraba aunque estuviera abierto antes de abrir Red Náutica. Causa: `closeSearchPanel()` en el click del card no tenía en cuenta `weatherWasOpen`. Añadido `if (weatherWasOpen) weatherPanel.classList.remove('closed')` en el handler del card (antes solo estaba en el botón X).
+- Al seleccionar un distribuidor, la mitad derecha del mapa quedaba sin renderizar. Causa: Leaflet no recibía notificación del cambio de tamaño del contenedor al cerrar el panel. Añadido `map.invalidateSize({ animate: true })` tras cerrar el panel desde el card.
+
+### Radar de lluvia (RainViewer)
+- Las nubes desaparecían a mitad de la barra de progreso en PC. Causa: el timeout de 400ms para eliminar la capa anterior era insuficiente en desktop (viewport mayor = más tiles a cargar). Solución: la nueva capa arranca con `opacity: 0` y solo se hace visible al evento `load` de Leaflet, eliminando entonces la capa anterior con 200ms de margen.
+- Las nubes desaparecían al acercar el zoom. Causa: `RADAR_MAX_ZOOM = 7` pero RainViewer solo sirve tiles hasta zoom 6 — Leaflet pedía tiles inexistentes y recibía 404. Solución: `RADAR_MAX_ZOOM` bajado a 6, tile layer con `maxNativeZoom: 6, maxZoom: 18` — Leaflet escala los tiles de zoom 6 al hacer zoom in en lugar de pedir tiles inexistentes.
+- Eliminado el bloqueo de zoom del mapa durante el radar (`setMinZoom/setMaxZoom` al activar/desactivar, listener `zoomend`, función `warnRadarZoomLocked` y sus 4 event listeners). Ya no es necesario con `maxNativeZoom`.
+
+### VesselFinder — botón Cerrar
+- En PC, el botón "Cerrar Vessel Finder" se solapaba con la alerta MOB. Subido de `bottom: 30px` a `bottom: 120px` en `index.html`.
+
+### Responsive — botones inferiores
+- **iPad (769px–1024px)**: el botón MOB quedaba centrado horizontalmente con mucho espacio vacío a la derecha. Añadido breakpoint tablet que mueve el MOB a `right: 60px; bottom: 20px` para alinearlo con los botones del bottom-left.
+- **iPhone 12 y pantallas ≤430px**: el último botón de la barra inferior (buscador) se solapaba con el botón MOB. Añadido breakpoint `max-width: 430px` que reduce botones a 34×34px, gap a 5px y margen izquierdo a 8px.
+
+---
+
+## skills / log — Índice de changelogs (CHANGELOG_INDEX.md)
+
+### Motivación
+Los changelogs acumulan sesiones y el agente tenía que leer documentos completos para encontrar contexto relevante. Un índice centralizado permite recuperar solo lo necesario con un grep.
+
+### CHANGELOG_INDEX.md
+- Nuevo archivo `.log/CHANGELOG_INDEX.md` — tabla Markdown con una fila por sección `##` de cada changelog
+- Columnas: `Fecha | Área | Tags | Resumen | Archivo`
+- Orden cronológico inverso (lo más reciente primero)
+- Retroalimentado con todos los changelogs existentes (2026-03-11 → 2026-04-26), 63 entradas
+- Flujo de uso: `grep "radar" CHANGELOG_INDEX.md` → leer solo el archivo indicado en la columna `Archivo`
+
+### Skill fin-sesion actualizada
+- Añadido **Paso 4** al flujo: actualizar `CHANGELOG_INDEX.md` al cierre de cada sesión
+- Una fila por sección `##` nueva, insertada al principio de la tabla
+- Tags derivados del contenido: funciones, componentes, plataformas, tipo de cambio
+
+---
+
+## tsamaps dev — Excluir JSON de viento de git
+
+- `wind-global.json` y `wind-timestamp.json` se regeneran cada hora → git los detectaba como modificados constantemente
+- Creado `.webapps/dev/tsamaps/.gitignore` con ambos archivos excluidos
+- Desindexados del historial git con `git rm --cached` (los archivos permanecen en disco)
+
+---
+
 ## Contexto técnico para agentes
 
-> Archivos modificados: `.webapps/dev/tsamaps/app.js`, `.webapps/dev/tsamaps/server.py`, `.webapps/dev/tsamaps/index.css`, `.webapps/dev/tsamaps/index.html`, `.webapps/dev/tsamaps/responsive.css`
-> Archivos nuevos generados en runtime (no editar manualmente): `.webapps/dev/tsamaps/wind-global.json`, `.webapps/dev/tsamaps/wind-timestamp.json`
+> Archivos modificados: `.webapps/dev/tsamaps/app.js`, `.webapps/dev/tsamaps/server.py`, `.webapps/dev/tsamaps/index.css`, `.webapps/dev/tsamaps/index.html`, `.webapps/dev/tsamaps/responsive.css`, `.agents/skills/fin-sesion/SKILL.md`
+> Archivos nuevos: `.log/CHANGELOG_INDEX.md`, `.webapps/dev/tsamaps/.gitignore`
+> Archivos excluidos de git (runtime): `.webapps/dev/tsamaps/wind-global.json`, `.webapps/dev/tsamaps/wind-timestamp.json`
 
 ### Capa de viento — arquitectura completa
 ```

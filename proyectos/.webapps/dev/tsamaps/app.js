@@ -670,8 +670,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     setTimeout(() => match.marker.openPopup(), 1500);
                 }
 
-                // cierra el panel al seleccionar
+                // cierra el panel al seleccionar y restaura condiciones si estaba abierto
                 closeSearchPanel();
+                if (weatherWasOpen) weatherPanel.classList.remove('closed');
+                map.invalidateSize({ animate: true });
             });
 
             dealerList.appendChild(card);
@@ -1401,7 +1403,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let radarAnimInterval = null;
     let radarRefreshInterval = null;
     let radarAnimPlaying = true;
-    const RADAR_MAX_ZOOM = 7;
+    const RADAR_MAX_ZOOM = 6;
     const RADAR_REFRESH_MS = 5 * 60 * 1000;
 
     // obtiene todos los frames disponibles (pasado + nowcast)
@@ -1437,18 +1439,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const frame = radarFrames[index];
         const tileUrl = `${frame.host}${frame.path}/256/{z}/{x}/{y}/6/1_1.png`;
-        radarLayer = L.tileLayer(tileUrl, {
-            maxZoom: RADAR_MAX_ZOOM, opacity: 0.7, zIndex: 400,
+        const newLayer = L.tileLayer(tileUrl, {
+            maxNativeZoom: RADAR_MAX_ZOOM, maxZoom: 18, opacity: 0, zIndex: 400,
             attribution: '&copy; <a href="https://www.rainviewer.com/api.html">RainViewer</a>',
             errorTileUrl: ''
         });
-        radarLayer.addTo(map);
 
-        // elimina la anterior tras 400ms (tiempo suficiente para que carguen los tiles)
-        clearTimeout(radarLayerPrevTimeout);
-        radarLayerPrevTimeout = setTimeout(() => {
-            if (radarLayerPrev) { map.removeLayer(radarLayerPrev); radarLayerPrev = null; }
-        }, 400);
+        newLayer.once('load', () => {
+            newLayer.setOpacity(0.7);
+            clearTimeout(radarLayerPrevTimeout);
+            radarLayerPrevTimeout = setTimeout(() => {
+                if (radarLayerPrev) { map.removeLayer(radarLayerPrev); radarLayerPrev = null; }
+            }, 200);
+        });
+
+        newLayer.addTo(map);
+        radarLayer = newLayer;
 
         radarUpdateHud(index);
     }
@@ -1512,8 +1518,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 owmLayerBtn.blur();
                 isRadarActive = false;
                 radarFrames = [];
-                map.setMinZoom(4);
-                map.setMaxZoom(18);
                 document.getElementById('radarHud').classList.add('hidden');
             } else {
                 if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
@@ -1540,10 +1544,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 radarAnimIndex = radarFrames.filter(f => f.type === 'past').length - 1;
                 radarAnimPlaying = true;
 
-                const needsZoomOut = map.getZoom() > RADAR_MAX_ZOOM;
-                map.setMinZoom(RADAR_MAX_ZOOM);
-                map.setMaxZoom(RADAR_MAX_ZOOM);
-                if (needsZoomOut) map.setZoom(RADAR_MAX_ZOOM);
 
                 radarShowFrame(radarAnimIndex);
                 radarStartAnim();
@@ -1580,25 +1580,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('radarPlayPauseBtn').textContent = radarAnimPlaying ? '⏸' : '▶';
     });
 
-    // restaura zoom al desactivar el radar
-    map.on('zoomend', () => {
-        if (!isRadarActive) { map.setMinZoom(4); map.setMaxZoom(18); }
-    });
-
-    // aviso de zoom bloqueado mientras el radar está activo
-    let radarZoomWarnCooldown = false;
-    function warnRadarZoomLocked() {
-        if (!isRadarActive || radarZoomWarnCooldown) return;
-        radarZoomWarnCooldown = true;
-        showToast('Zoom Bloqueado — Desactiva Rainviewer', 'toast--centered');
-        setTimeout(() => { radarZoomWarnCooldown = false; }, 3000);
-    }
-    map.getContainer().addEventListener('wheel', warnRadarZoomLocked, { passive: true });
-    map.getContainer().addEventListener('touchstart', (e) => {
-        if (e.touches.length >= 2) warnRadarZoomLocked();
-    }, { passive: true });
-    document.querySelector('.leaflet-control-zoom-in')?.addEventListener('click', warnRadarZoomLocked);
-    document.querySelector('.leaflet-control-zoom-out')?.addEventListener('click', warnRadarZoomLocked);
 
     // 10. regla náutica
 
