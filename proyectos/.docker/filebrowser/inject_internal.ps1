@@ -19,7 +19,6 @@ foreach ($c in $containers) {
     docker exec -d $c sh -c "filebrowser -p $port -r / -a 0.0.0.0 -d /tmp/fb.db > /tmp/fb.log 2>&1"
     
     Write-Host "Listo: http://localhost:$port (Acceso Root Interno)" -ForegroundColor Green
-    Write-Host "Usuario: admin / Pass: adminadmin123" -ForegroundColor Gray
 }
 
 Write-Host "`nRecuerda: El acceso fijo a Volumenes sigue en http://localhost:8000" -ForegroundColor White

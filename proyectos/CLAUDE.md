@@ -17,7 +17,7 @@ Núcleo: **Open WebUI + Docker + Ollama**. Ollama corre en el host Windows; el r
 | Interfaz principal | Open WebUI v0.8.12 | 3000 (prod) / 4000 (dev) |
 | Alternativa | AnythingLLM | 3001 (prod) / 4001 (dev) |
 | LLM local | Ollama (host Windows) | 11434 |
-| Acceso a archivos | Filebrowser | 8000–8002 |
+| Acceso a archivos | Filebrowser (inyectable, sin imagen Docker) | 8001–8002 |
 | Bots | Python — Long Polling | Sin puerto |
 
 Esquema de puertos — consultarlo siempre antes de añadir un nuevo servicio:
@@ -101,8 +101,10 @@ Backlog activo. Prefijo `OK` = ya implementado. Leer antes de planificar trabajo
 │   ├── bots.yml
 │   └── tools.yml
 ├── backup/                 # Scripts de backup de volúmenes
-├── filebrowser/            # Filebrowser inyectable (lanzamiento puntual, no permanente)
-└── openweb/                # Workflows de operación de Open WebUI
+├── filebrowser/            # Filebrowser inyectable — inject_internal.ps1 copia el binario en open-webui (8001) y anything-llm (8002). Sin imagen Docker.
+└── openweb/                # Workflows y recursos de Open WebUI
+    ├── tools/              # Tools Python para Open WebUI
+    └── workflows/          # Procedimientos de operación de Open WebUI
 ```
 Nuevas plataformas de bots → nueva subcarpeta en `.bots/` (ej. `whatsapp/`). Los `.py` van siempre planos dentro de su carpeta de plataforma.
 

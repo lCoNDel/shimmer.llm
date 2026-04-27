@@ -31,6 +31,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
 }
 
 body {
@@ -487,11 +489,12 @@ body {
     transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
-.floating-radio-btn:hover,
-.floating-radio-btn.active {
-    background: var(--brand-primary);
-    color: #fff;
-    box-shadow: 0 2px 14px rgba(0, 118, 214, 0.4);
+@media (hover: hover) {
+    .floating-radio-btn:hover {
+        background: var(--brand-primary);
+        color: #fff;
+        box-shadow: 0 2px 14px rgba(0, 118, 214, 0.4);
+    }
 }
 
 .floating-radio-btn.playing {
@@ -1614,11 +1617,6 @@ body {
     transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
-.floating-chat-btn.active {
-    background: var(--brand-primary);
-    color: #fff;
-    box-shadow: 0 2px 14px rgba(0, 118, 214, 0.4);
-}
 
 @media (hover: hover) {
     .floating-chat-btn:hover {

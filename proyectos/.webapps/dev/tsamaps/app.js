@@ -227,6 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const weatherPanel = document.getElementById('weatherPanel');
     const weatherContent = document.getElementById('weatherContent');
     const loader = document.getElementById('loader');
+    if (window.innerWidth > 768) weatherPanel.classList.remove('closed');
 
     const latlonDisplay = document.getElementById('latlonDisplay');
     const geoBtn = document.getElementById('geoBtn');
@@ -463,7 +464,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.body.classList.remove('mobile-search-active');
         globalSearchResults.classList.add('hidden');
         document.getElementById('radioPanel')?.classList.add('closed');
-        document.getElementById('radioBtn')?.classList.remove('active');
+        if (mobileSearchBtn) mobileSearchBtn.classList.remove('active');
     }
 
     if (mobileSearchBtn) {
@@ -472,13 +473,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             e.stopPropagation();
             const isActive = document.body.classList.toggle('mobile-search-active');
             if (isActive) {
+                mobileSearchBtn.classList.add('active');
                 globalSearchInput.focus();
                 if (isTrafficActive)   { toggleTrafficBtn.click(); }
                 if (isWindLayerActive) { windLayerBtn.click(); }
                 if (isRadarActive)     { owmLayerBtn.click(); }
                 if (isRulerActive)     { rulerBtn.click(); }
                 document.getElementById('radioPanel')?.classList.add('closed');
-                document.getElementById('radioBtn')?.classList.remove('active');
             } else {
                 globalSearchResults.classList.add('hidden');
             }
@@ -498,12 +499,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const radioPanel = document.getElementById('radioPanel');
     const closeRadioBtn = document.getElementById('closeRadioBtn');
 
-    radioBtn.addEventListener('click', () => {
+    radioBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         if (isSosActive) return;
         const isOpen = !radioPanel.classList.contains('closed');
-        radioPanel.classList.toggle('closed');
-        radioBtn.classList.toggle('active', !isOpen);
-        if (!isOpen) { closeChatPanel(); }
+        if (isOpen) {
+            closeRadioPanel();
+        } else {
+            radioPanel.classList.remove('closed');
+            closeChatPanel();
+        }
     });
 
     closeRadioBtn.addEventListener('click', closeRadioPanel);
@@ -556,7 +561,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function closeWeatherPanel() {
         weatherPanel.classList.add('closed');
-        document.getElementById('gpsShortcutBtn')?.classList.remove('active');
+        syncGpsShortcutBtn();
+    }
+
+    function syncGpsShortcutBtn() {
+        const btn = document.getElementById('gpsShortcutBtn');
+        if (!btn) return;
+        btn.classList.toggle('active', isTrackingActive);
     }
 
     function closeRadioPanel() {
@@ -726,6 +737,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (panel === weatherPanel) closeWeatherPanel();
                 else if (panel === sunMoonPanel) closeSunMoonPanel();
                 else if (panel === chatPanel) closeChatPanel();
+                else if (panel === radioPanel) closeRadioPanel();
                 else panel.classList.add('closed');
             }
             currentDeltaY = 0;
@@ -846,7 +858,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 if (isSosActive) return;
                 weatherPanel.classList.remove('closed');
-                gpsShortcutBtn.classList.add('active');
+                syncGpsShortcutBtn();
             }
         });
     }
@@ -869,6 +881,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 gpsMarineRefreshId = null;
             }
             geoBtn.classList.remove('active');
+            syncGpsShortcutBtn();
             document.getElementById('gpsLockMsg').classList.add('hidden');
             geoBtn.innerHTML = `
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -880,9 +893,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             // inicia el seguimiento gps
             const originalHTML = geoBtn.innerHTML;
             geoBtn.innerHTML = 'Buscando...';
-            
+
             isTrackingActive = true;
             geoBtn.classList.add('active');
+            syncGpsShortcutBtn();
             clearInterval(gpsMarineRefreshId);
             gpsMarineRefreshId = setInterval(async () => {
                 if (lastGpsLat !== null && lastGpsLng !== null) {
@@ -931,7 +945,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     isTrackingActive = false;
                     geoBtn.classList.remove('active');
-                            geoBtn.innerHTML = originalHTML;
+                    syncGpsShortcutBtn();
+                    geoBtn.innerHTML = originalHTML;
                     if (trackingWatchId !== null) {
                         navigator.geolocation.clearWatch(trackingWatchId);
                         trackingWatchId = null;
@@ -2448,8 +2463,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const chatInput      = document.getElementById('chatInput');
     const chatSendBtn    = document.getElementById('chatSendBtn');
 
-    let chatHistory      = [];
-    let chatLastActivity = Date.now();
+    let chatHistory        = [];
+    let chatLastActivity   = Date.now();
+    let chatWelcomeShown   = false;
 
     function openChatPanel() {
         if (window.innerWidth <= 768) {
@@ -2459,18 +2475,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeSunMoonPanel();
         }
         chatPanel.classList.remove('closed');
-        chatBtn.classList.add('active');
         if (window.innerWidth > 768) chatInput.focus();
-        if (chatHistory.length === 0) {
+        if (!chatWelcomeShown) {
+            chatWelcomeShown = true;
             const welcomeEl = document.createElement('div');
             welcomeEl.className = 'chat-bubble chat-bubble--assistant';
-            welcomeEl.innerHTML = 'Asistente náutico de <strong>Touron S.A.</strong> — consultas sobre productos, marcas y servicios.<br><br>Usa <strong>/web &lt;consulta&gt;</strong> para buscar información en tiempo real.';
+            welcomeEl.innerHTML = 'Asistente Náutico — consultas sobre productos, marcas y servicios.<br><br>Usa <strong>/web &lt;consulta&gt;</strong> para buscar información en tiempo real.';
             chatMessages.appendChild(welcomeEl);
         }
     }
     function closeChatPanel() {
         chatPanel.classList.add('closed');
-        chatBtn.classList.remove('active');
         chatInput.blur();
     }
 

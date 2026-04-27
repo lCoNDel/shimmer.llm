@@ -4,6 +4,16 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-04-26 | tsamaps, docker | logo, cabecera, ibb | Logo cabecera reemplazado por imagen propia en ibb.co | changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | modal, info, copyright, comercial | Modal Información reescrito: lenguaje comercial, copyright propio, sin referencias Touron | changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | chat, bienvenida, flag, duplicado | chatWelcomeShown flag: mensaje bienvenida solo en primera apertura de sesión | changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | css, tap-highlight, mobile, reset | -webkit-tap-highlight-color: transparent en reset global; elimina efecto cuadrado en móvil | changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | buscador, mobile, led, active | mobileSearchBtn led azul: add/remove active en apertura/cierre | changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | chat, led, active, eliminado | Led azul chatBtn eliminado de CSS y JS | changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | radio, led, active, bug, toggle | Led azul radio eliminado; listener reescrito con closeRadioPanel(); swipe-to-close corregido | changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | gps, led, syncGpsShortcutBtn, isTrackingActive | syncGpsShortcutBtn(): led GPS vinculado a isTrackingActive como única fuente de verdad | changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | weather, mobile, closed, init | Panel condiciones marítimas cerrado por defecto en móvil; desktop lo abre en init | changelog_2026-04-26.md |
+| 2026-04-26 | docker, claude | filebrowser, inyectable, CLAUDE.md | CLAUDE.md actualizado: Filebrowser sin imagen Docker, inject_internal.ps1 | changelog_2026-04-26.md |
 | 2026-04-26 | skills, log | índice, changelog, grep, contexto | CHANGELOG_INDEX.md creado con 63 entradas; skill fin-sesion actualizada con Paso 4 | changelog_2026-04-26.md |
 | 2026-04-26 | tsamaps | gitignore, viento, json, runtime | wind-global.json y wind-timestamp.json excluidos de git con .gitignore + git rm --cached | changelog_2026-04-26.md |
 | 2026-04-26 | tsamaps | radar, rainviewer, zoom, bug, tiles | RADAR_MAX_ZOOM 7→6, maxNativeZoom:6 maxZoom:18, tiles escalados en zoom alto | changelog_2026-04-26.md |

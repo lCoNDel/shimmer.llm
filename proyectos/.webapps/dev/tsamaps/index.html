@@ -28,8 +28,8 @@
     <header class="app-header">
         <div class="logo-container">
             <a id="brandLogoLink" href="https://www.touron.es/" target="_blank" rel="noopener noreferrer">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwP6ECO812KN688mb1LhBvRawScR7tbavVCg&s"
-                    alt="Touron" class="brand-logo-img">
+                <img src="https://i.ibb.co/Jjb560CR/1771356015983.png"
+                    alt="TSA Maps" class="brand-logo-img">
             </a>
             <span class="brand-company-name" style="text-transform: uppercase;">TSA MAPS</span>
             <button id="openGuideBtn"
@@ -247,7 +247,7 @@
             </button>
         </div>
 
-        <aside class="weather-panel" id="weatherPanel">
+        <aside class="weather-panel closed" id="weatherPanel">
             <div class="drawer-handle" aria-hidden="true"></div>
             <div class="panel-header">
                 <h2>Condiciones Marítimas</h2>
@@ -470,32 +470,40 @@
     <div class="info-modal-overlay hidden" id="infoModal">
         <div class="info-modal-content">
             <button class="close-btn" id="closeInfoBtn" aria-label="Cerrar">&times;</button>
-            <h2>TSA Maps</h2>
-            <p style="font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-                <strong>TSA Maps</strong> es una plataforma cartográfica náutica desarrollada para Touron S.A.,
-                que integra datos marítimos en tiempo real, geolocalización y herramientas de navegación sobre carta náutica interactiva.
+
+            <h2 style="margin-bottom:0.6rem;">¿Qué es TSA Maps?</h2>
+            <p style="font-size:0.93rem; line-height:1.7; margin-bottom:1.2rem; color:var(--brand-text-muted);">
+                Una carta náutica interactiva con datos del mar en tiempo real, geolocalización, herramientas de navegación y un asistente con inteligencia artificial — todo integrado en una única aplicación web, sin instalación y desde cualquier dispositivo.
             </p>
 
-            <h3>Funcionalidades</h3>
+            <h3>Inteligencia artificial integrada</h3>
             <ul class="feature-list">
-                <li><strong>Carta náutica:</strong> Capa OpenSeaMap (boyas, luces, marcas de navegación) sobre base CartoDB.</li>
-                <li><strong>Condiciones marítimas:</strong> Oleaje, dirección, periodo, temperatura superficial y ola de viento mediante Open-Meteo Marine API. Se actualizan al tocar el mapa o automáticamente con GPS activo.</li>
-                <li><strong>GPS en tiempo real:</strong> Seguimiento de posición con <code>watchPosition</code>. Centra el mapa y refresca condiciones marinas cada 5 minutos aunque el barco no se mueva.</li>
-                <li><strong>Alarma de fondeo:</strong> Define un radio de seguridad. Alerta sonora y visual si el barco garrea. Integrada en el seguimiento GPS sin polling propio.</li>
-                <li><strong>Hombre al agua (MOB):</strong> Fija la posición del incidente y calcula la distancia en tiempo real desde el GPS. Bloquea el resto de herramientas mientras está activo.</li>
-                <li><strong>Regla náutica:</strong> Mide distancias y rumbos sobre el mapa en millas náuticas.</li>
-                <li><strong>Radar de lluvia:</strong> Animación multi-frame con datos del pasado y nowcast vía RainViewer API.</li>
-                <li><strong>Tráfico marítimo:</strong> Monitorización de buques AIS en tiempo real mediante VesselFinder.</li>
-                <li><strong>Sol y Luna:</strong> Amanecer, atardecer, mediodía solar, fase lunar y horas de luna para el punto activo. Se actualiza al tocar el mapa.</li>
-                <li><strong>Red de distribuidores:</strong> 32 distribuidores de Touron S.A. en España y Portugal con contacto directo, web y localización en mapa.</li>
-                <li><strong>Búsqueda global:</strong> Geocodificación con autosugerencias vía Nominatim (OSM).</li>
-                <li><strong>Radio:</strong> Acceso a más de 90.000 emisoras en streaming vía Radio Browser API.</li>
-                <li><strong>Asistente Náutico:</strong> LLM de Touron S.A. orientado a consultas sobre la empresa, productos y marcas. Puede responder preguntas náuticas generales.</li>
+                <li><strong>Asistente propio con IA local:</strong> TSA Maps incorpora un asistente conversacional basado en un modelo de lenguaje (LLM) desplegado en infraestructura propia. No depende de servicios externos de pago como ChatGPT. El modelo corre en local mediante Ollama y se sirve a través de Open WebUI, al que TSA Maps se conecta de forma transparente para el usuario.</li>
+                <li><strong>Búsqueda web en tiempo real:</strong> El asistente puede consultar Internet en el momento de responder. El servidor intercepta la petición, lanza una búsqueda real (DuckDuckGo), enriquece el contexto con los resultados y se lo entrega al modelo antes de generar la respuesta — todo en una sola interacción para el usuario.</li>
+                <li><strong>Historial de conversación:</strong> Cada sesión mantiene un hilo de conversación con memoria de los últimos intercambios, permitiendo preguntas encadenadas de forma natural.</li>
+            </ul>
+
+            <h3>Datos en tiempo real de múltiples fuentes</h3>
+            <ul class="feature-list">
+                <li><strong>Condiciones marítimas (Open-Meteo Marine API):</strong> Al tocar cualquier punto del mar, la plataforma lanza una petición a la API meteorológica marina y muestra en segundos oleaje, dirección, periodo, temperatura superficial, ola de viento y nivel del mar. Con GPS activo, estos datos se refrescan automáticamente cada 5 minutos siguiendo la posición del barco.</li>
+                <li><strong>Viento en tiempo real (Open-Meteo Forecast API):</strong> El servidor genera cada hora una rejilla de datos de viento que cubre toda la Península Ibérica y aguas próximas — más de 800 puntos geográficos consultados en una única petición. Los datos se transforman en componentes vectoriales y se sirven al mapa como una capa animada de partículas con escala Beaufort.</li>
+                <li><strong>Radar de lluvia (RainViewer API):</strong> Animación meteorológica con múltiples frames del pasado y predicción inmediata (nowcast), sincronizada y sin parpadeos gracias a una gestión precisa de la carga de tiles.</li>
+                <li><strong>Tráfico marítimo (VesselFinder / AIS):</strong> Posición en tiempo real de buques comerciales, pesqueros y embarcaciones de recreo en todo el mundo.</li>
+                <li><strong>Búsqueda geográfica (Nominatim / OpenStreetMap):</strong> Localización instantánea de puertos, rías, ciudades y puntos de interés con sugerencias automáticas mientras se escribe.</li>
+                <li><strong>Radio global (Radio Browser API):</strong> Acceso a más de 90.000 emisoras de todo el mundo en streaming directo.</li>
+            </ul>
+
+            <h3>Infraestructura propia en contenedores</h3>
+            <ul class="feature-list">
+                <li><strong>Servidor dedicado (tsamaps_server):</strong> TSA Maps no es un simple conjunto de archivos HTML. Dispone de un servidor backend propio desarrollado en Python (FastAPI), desplegado en un contenedor Docker aislado, que gestiona la comunicación con todas las APIs, sirve la aplicación y actúa como puente seguro hacia el motor de inteligencia artificial — sin exponer credenciales ni lógica sensible al navegador del usuario.</li>
+                <li><strong>Entornos separados:</strong> La plataforma cuenta con un entorno de desarrollo y uno de producción completamente independientes, cada uno con su propio contenedor y configuración, lo que permite evolucionar la aplicación sin riesgo para el servicio en producción.</li>
+                <li><strong>Sin dependencias de terceros de pago:</strong> Toda la infraestructura — servidor, IA, almacenamiento — corre en hardware propio.</li>
             </ul>
 
             <div class="creator-info">
                 <p><strong>Desarrollador:</strong> Luis Conde</p>
-                <p><strong>Contacto:</strong> <a href="mailto:luis.conde@touronsa.es">luis.conde@touronsa.es</a></p>
+                <p><strong>Contacto:</strong> <a href="mailto:luis.conde.b@gmail.com">luis.conde.b@gmail.com</a></p>
+                <p style="margin-top:0.6rem; font-size:0.85rem; color:var(--brand-text-muted);">© 2026 Luis Conde. Todos los derechos reservados. Queda prohibida la reproducción, distribución, modificación o uso comercial de este software sin autorización expresa del autor.</p>
             </div>
         </div>
     </div>
@@ -531,7 +539,7 @@
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--brand-primary)"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                                 <strong>Red Náutica</strong>
                             </div>
-                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Red oficial de Touron S.A. en España y Portugal. Selecciona cualquier entrada para centrar el mapa en esa ubicación.</span>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Red de Concesionarios en España y Portugal. Selecciona cualquier entrada para centrar el mapa en esa ubicación.</span>
                         </div>
                         <div>
                             <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">

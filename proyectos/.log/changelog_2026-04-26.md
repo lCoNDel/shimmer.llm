@@ -126,11 +126,67 @@ Los changelogs acumulan sesiones y el agente tenía que leer documentos completo
 
 ---
 
+## tsamaps dev — UX, leds de botones y panel de información
+
+### Panel de condiciones marítimas — cerrado por defecto en móvil
+- `index.html`: `<aside class="weather-panel closed">` — arranca con clase `closed`
+- `app.js`: al init, `if (window.innerWidth > 768) weatherPanel.classList.remove('closed')` — en desktop se abre como antes
+
+### Botón GPS — led vinculado a isTrackingActive
+- Nueva función `syncGpsShortcutBtn()`: `btn.classList.toggle('active', isTrackingActive)` — fuente única de verdad del led
+- Sustituye todos los `.classList.add/remove('active')` manuales del `gpsShortcutBtn`
+- Se llama en: `closeWeatherPanel()`, activación GPS, desactivación GPS, error GPS, apertura panel desde gpsShortcutBtn
+- El led solo se enciende cuando GPS activo (Bloqueo GPS o Usar mi ubicación actual), nunca por click en mapa
+
+### Botón Radio — led eliminado, fix toggle
+- Eliminado estado `.floating-radio-btn.active` del CSS — no hay led azul en radio
+- Listener reescrito: `if (isOpen) closeRadioPanel(); else { ... }` — elimina `classList.toggle` con bug de sincronización
+- `e.stopPropagation()` añadido para evitar propagación a listeners superiores
+- `addSwipeToClose`: radio panel añadido al bloque con función dedicada (`closeRadioPanel()`) en lugar del `else` genérico
+
+### Botón Chat — led eliminado
+- Eliminado `.floating-chat-btn.active` del CSS
+- Eliminados `chatBtn.classList.add/remove('active')` de `openChatPanel()` y `closeChatPanel()`
+
+### Botón buscador móvil — led añadido
+- `mobileSearchBtn.classList.add('active')` al activar, `remove('active')` en `closeMobileSearch()`
+- Referencia corregida en `closeMobileSearch()`: usaba `radioBtn` (huérfano), ahora usa `mobileSearchBtn`
+
+### Chat — mensaje de bienvenida una sola vez
+- Flag `chatWelcomeShown` reemplaza `chatHistory.length === 0` — el mensaje solo aparece en la primera apertura de la sesión, independientemente de aperturas/cierres posteriores
+
+### Reset CSS — tap highlight eliminado
+- `* { -webkit-tap-highlight-color: transparent; outline: none; }` — elimina el efecto cuadrado azul/gris al pulsar botones en móvil
+
+### Modal Información — reescritura completa
+- Eliminado titular "TSA Maps" y párrafo introductorio antiguo
+- Nueva estructura: cabecera "¿Qué es TSA Maps?", tres secciones (IA integrada, Datos en tiempo real, Infraestructura en contenedores)
+- Lenguaje comercial orientado a no técnicos con detalles técnicos contextualizados
+- Copyright propio: `© 2026 Luis Conde. Todos los derechos reservados.`
+- Contacto actualizado a `luis.conde.b@gmail.com`
+- Sin referencias a Touron S.A. en el cuerpo del modal
+
+### Texto visible — referencias actualizadas
+- Mensaje bienvenida chat: "Asistente Náutico" (antes "Asistente náutico de Touron S.A.")
+- Manual de uso: "Red de Concesionarios" (antes "Red oficial de Touron S.A.")
+
+### Logo cabecera
+- Reemplazado logo de Touron por imagen propia: `https://i.ibb.co/Jjb560CR/1771356015983.png`
+- `alt` actualizado a "TSA Maps"
+
+### CLAUDE.md — Filebrowser actualizado
+- Stack técnico: `Filebrowser (inyectable, sin imagen Docker) | 8001–8002`
+- Descripción carpeta: referencia a `inject_internal.ps1` y puertos 8001/8002
+- Añadidas subcarpetas `tools/` y `workflows/` en la descripción de `openweb/`
+
+---
+
 ## Contexto técnico para agentes
 
 > Archivos modificados: `.webapps/dev/tsamaps/app.js`, `.webapps/dev/tsamaps/server.py`, `.webapps/dev/tsamaps/index.css`, `.webapps/dev/tsamaps/index.html`, `.webapps/dev/tsamaps/responsive.css`, `.agents/skills/fin-sesion/SKILL.md`
 > Archivos nuevos: `.log/CHANGELOG_INDEX.md`, `.webapps/dev/tsamaps/.gitignore`
 > Archivos excluidos de git (runtime): `.webapps/dev/tsamaps/wind-global.json`, `.webapps/dev/tsamaps/wind-timestamp.json`
+> Archivos modificados (sesión 2): `.webapps/dev/tsamaps/app.js`, `.webapps/dev/tsamaps/index.css`, `.webapps/dev/tsamaps/index.html`, `CLAUDE.md`
 
 ### Capa de viento — arquitectura completa
 ```
