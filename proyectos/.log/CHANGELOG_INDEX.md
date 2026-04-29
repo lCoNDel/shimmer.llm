@@ -4,6 +4,10 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-04-29 | bot, telegram | rag, native, tool-calls, open-webui | Ciclo tool calls RAG client-side: get_model_kb_collections, run_knowledge_search, execute_tool_calls, call_openwebui loop 8 iter | changelog_2026-04-29.md |
+| 2026-04-29 | bot, telegram | citas, chunks, regex, session | Sistema de citas: _session_chunks con índice global, regex [N] en respuesta final para mostrar fuentes reales | changelog_2026-04-29.md |
+| 2026-04-29 | bot, telegram | foto, pendiente, qwen3.5, vision | PENDIENTE: handle_photo roto — modelo test (qwen3.5) no soporta visión; cambiar MODEL_ID a asistente-touron | changelog_2026-04-29.md |
+| 2026-04-29 | bot, telegram | logging, timeout, limpieza, comentarios | timeout 120→300s, logging INFO, comentarios en español, import re movido al top | changelog_2026-04-29.md |
 | 2026-04-26 | tsamaps, docker | logo, cabecera, ibb | Logo cabecera reemplazado por imagen propia en ibb.co | changelog_2026-04-26.md |
 | 2026-04-26 | tsamaps | modal, info, copyright, comercial | Modal Información reescrito: lenguaje comercial, copyright propio, sin referencias Touron | changelog_2026-04-26.md |
 | 2026-04-26 | tsamaps | chat, bienvenida, flag, duplicado | chatWelcomeShown flag: mensaje bienvenida solo en primera apertura de sesión | changelog_2026-04-26.md |
