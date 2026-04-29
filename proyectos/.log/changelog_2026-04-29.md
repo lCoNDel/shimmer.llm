@@ -46,21 +46,11 @@ Open WebUI devuelve referencias `[N]` en el texto final cuando recupera chunks d
 
 ### Ajustes generales
 
-- `MODEL_ID` cambiado a `"test"` (agente de pruebas) — **pendiente cambiar a `"asistente-touron"` para producción**
-- Todos los `timeout` de requests: 120s → 300s
+- `MODEL_ID` cambiado a `"test"` (agente de pruebas, sesión de mañana) → restaurado a `"asistente-touron"` en sesión de tarde
+- Todos los `timeout` de requests: 120s → 300s (sesión de mañana) → 60s (sesión de tarde)
 - `logging.basicConfig(level=logging.INFO)` — se usó DEBUG durante debugging, restaurado a INFO
 - Logging añadido antes y después de la llamada a Open WebUI en `handle_photo`
 - Comentarios en español en todo el archivo
-
-### PENDIENTE — Handler de fotos roto con modelo `test`
-
-**Síntoma:** el bot recibe la foto (confirmado por logging: `Imagen descargada: 57290 bytes`) y la envía a Open WebUI, pero no devuelve respuesta. El bot queda bloqueado esperando.
-
-**Causa identificada:** el modelo `test` usa `qwen3.5:latest` como base (`"base_model_id": "qwen3.5:latest"`), que es **texto únicamente** — no soporta visión. Open WebUI no puede procesar la imagen y no devuelve respuesta coherente.
-
-**No es un bug de código** — el flujo de `handle_photo` es correcto. El problema es la selección del modelo base.
-
-**Acción pendiente:** cambiar `MODEL_ID` de `"test"` a `"asistente-touron"` (o cualquier modelo con capacidad multimodal, ej. `llava`, `minicpm-v`, `qwen2.5-vl`). Una vez restaurado `asistente-touron`, verificar también si el knowledge base sigue correctamente asignado (hay un bug conocido de Open WebUI donde modelos creados en versiones antiguas no guardan correctamente las KB — issues #22213, #17514).
 
 ---
 
@@ -76,7 +66,15 @@ Open WebUI devuelve referencias `[N]` en el texto final cuando recupera chunks d
 
 **Timeouts reducidos:** todos los `requests.post` a Open WebUI bajados de 300s a 60s para evitar que un usuario quede bloqueado demasiado tiempo si Open WebUI no responde.
 
-**Iteraciones de tool calls:** probado con 5, revertido a 8 — el modelo `asistente-touron` necesita hasta 6 iteraciones para consultas complejas sobre el Verado V12.
+**Iteraciones de tool calls:** probado con 5, revertido a 8 — Open WebUI gestiona el RAG en múltiples steps internos (búsqueda semántica, lectura de archivo, refinamiento de query); si el modelo agota el límite antes de completarlos, `call_openwebui()` devuelve `""` y el usuario recibe "El modelo devolvió una respuesta vacía". En logs se observaron hasta 6 steps para consultas complejas sobre el Verado V12.
+
+---
+
+### Mejora de changelogs y skill fin-sesion
+
+**Skill `fin-sesion`** (`proyectos/.claude/commands/fin-sesion.md`) — añadida regla: al documentar cambios críticos (timeouts, límites de iteraciones, flags de control de flujo, constantes estructurales), incluir en el contexto técnico para agentes el motivo técnico y el comportamiento observable si el valor es incorrecto. No aplica a cambios menores o estéticos.
+
+**Contexto técnico para agentes enriquecido** — la sección de límites de operación ahora incluye el impacto real de modificar cada valor, no solo el valor en sí.
 
 ---
 
@@ -98,10 +96,14 @@ MODEL_ID = "asistente-touron"
 - `GET /api/v1/knowledge/` → `{"items": [...], "total": N}` — lista de KBs (paginada)
 - `GET /api/v1/knowledge/{kb_id}` → archivos de una KB específica
 
-**Límites de operación:**
-- Iteraciones tool calls: 8 (máx.) — el modelo puede necesitar hasta 6 para consultas complejas
-- Timeout por llamada a Open WebUI: 60s
-- Peor caso total: 8 × 60s = 8 minutos
+**Límites de operación — críticos:**
+- Iteraciones tool calls: 8 (máx.) — reducir por debajo de 6 corta respuestas complejas; superar 8 sin justificación puede bloquear el worker de Telegram hasta 8 min
+- Timeout por llamada a Open WebUI: 60s — si Open WebUI no responde en ese tiempo, el hilo del worker queda bloqueado; con 2 workers disponibles en pyTelegramBotAPI, el tercer mensaje concurrente se encola sin respuesta
+- Peor caso total: 8 × 60s = 8 minutos bloqueado por usuario
+
+**Comportamiento al agotar iteraciones:**
+- `call_openwebui()` devuelve `""` al salir del bucle sin `finish_reason: stop`
+- El handler lo detecta con `if not answer.strip()` y responde: "El modelo devolvió una respuesta vacía. Intenta reformular la consulta."
 
 **Modelo de datos de chunks:**
 ```python

@@ -54,3 +54,4 @@ Archivos a stagear:
 - **No inventar cambios** — el changelog refleja solo lo que realmente se hizo en la sesión.
 - **Un changelog por día** — si ya existe el del día, actualizar en lugar de crear uno nuevo.
 - **Idioma español** — tanto el changelog como la comunicación con el usuario.
+- **Contexto del "por qué" en cambios críticos** — al documentar cambios de valores o funciones que, si se modifican sin entender el motivo, rompen el servicio (timeouts, límites de iteraciones, flags de control de flujo, constantes estructurales), incluir en la sección `## Contexto técnico para agentes` el motivo técnico y el comportamiento observable si el valor es incorrecto. No aplicar a cambios menores o estéticos.
