@@ -78,7 +78,7 @@
         <div class="guide-spotlight-hole" id="guideTipHole"></div>
         <div class="guide-spotlight-label" id="guideTipLabel">
             <strong>¿Primera vez?</strong>
-            <span>Pulsa este botón para abrir el Manual de Uso</span>
+            <span>¡Accede a nuestro manual de uso!</span>
             <button class="guide-spotlight-dismiss" id="guideTipClose">Entendido</button>
         </div>
     </div>
@@ -334,19 +334,14 @@
                 </h2>
                 <button class="close-btn" id="closeRadioBtn" aria-label="Cerrar radio">&times;</button>
             </div>
-            <div class="radio-controls" style="display:flex; flex-direction:column; gap:0.6rem;">
-                <div style="display:flex; gap:0.5rem;">
-                    <input type="text" id="radioSearchInput" class="search-input"
-                        style="flex:1; padding:0.5rem 0.8rem; font-size:0.85rem; border-radius:20px; border:1px solid rgba(0,118,214,0.2);"
-                        placeholder="Buscar emisora o género...">
+            <div class="radio-controls">
+                <input type="text" id="radioSearchInput" class="search-input radio-search-input"
+                    placeholder="Buscar emisora o género...">
+                <div id="radioResults" class="radio-results">
+                    <p class="empty-state">Más de 90,000 estaciones disponibles</p>
                 </div>
-                <div id="radioResults" class="radio-results"
-                    style="max-height:150px; overflow-y:auto; display:flex; flex-direction:column; gap:0.5rem;">
-                    <p class="empty-state" style="padding:0.5rem;">Más de 90,000 estaciones disponibles</p>
-                </div>
-                <div id="activeRadio" class="active-radio hidden"
-                    style="background:linear-gradient(135deg,rgba(0,118,214,0.05),rgba(0,118,214,0.1)); border:1px solid rgba(0,118,214,0.2); padding:0.6rem 0.8rem; border-radius:12px; display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem; transition:all 0.3s ease;">
-                    <div style="display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+                <div id="activeRadio" class="active-radio hidden">
+                    <div class="radio-now-playing">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="2" y="2" width="20" height="20" rx="4" ry="4"></rect>
@@ -354,14 +349,11 @@
                             <path d="M2 7h20"></path>
                             <path d="M6 10v.01"></path>
                         </svg>
-                        <div id="radioNameDisplay"
-                            style="font-weight:600; color:var(--brand-primary); font-size:0.9rem; max-width:170px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2;">
-                            Estación seleccionada</div>
+                        <div id="radioNameDisplay" class="radio-name">Estación seleccionada</div>
+                        <span id="radioLiveIndicator" class="radio-live-dot hidden"></span>
                     </div>
-                    <div style="display:flex; align-items:center; background:rgba(255,255,255,0.7); border-radius:30px; padding:0.4rem 0.6rem; gap:0.8rem; border:1px solid rgba(0,118,214,0.1);">
-                        <button id="customRadioPlayBtn"
-                            style="background:var(--brand-primary); color:white; border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.2s;"
-                            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <div class="radio-player-bar">
+                        <button id="customRadioPlayBtn" class="radio-play-btn">
                             <svg id="iconPlay" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
                             </svg>
@@ -370,12 +362,9 @@
                                 <rect x="14" y="4" width="4" height="16"></rect>
                             </svg>
                         </button>
-                        <input type="range" id="radioVolumeSlider" min="0" max="1" step="0.01" value="0.5"
-                            style="width:50px; height:4px; border-radius:2px; appearance:none; background:rgba(0,118,214,0.2); cursor:pointer; outline:none;">
-                        <span id="radioVolumeValue"
-                            style="font-size:0.75rem; color:var(--brand-primary); font-weight:600; min-width:35px; text-align:right;">50%</span>
-                        <button id="customRadioMuteBtn"
-                            style="background:transparent; color:var(--brand-text-muted); border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                        <input type="range" id="radioVolumeSlider" class="radio-volume-slider" min="0" max="1" step="0.01" value="0.5">
+                        <span id="radioVolumeValue" class="radio-volume-value">50%</span>
+                        <button id="customRadioMuteBtn" class="radio-mute-btn">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -757,21 +746,30 @@
                 </svg>
             </div>
             <div class="permissions-banner-body">
-                <strong class="permissions-title">Esta app necesita acceso a tu ubicación</strong>
+                <strong class="permissions-title">TSA Maps necesita acceso a tu ubicación</strong>
+                <p style="margin: 0 0 10px; font-size: 0.95rem;">Sin este permiso, las siguientes funciones <strong>no estarán disponibles</strong>:</p>
                 <ul class="permissions-list">
                     <li>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span><strong>MOB — Hombre al Agua</strong></span>
+                    </li>
+                    <li>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                        <span><strong>GPS</strong> — Seguimiento en tiempo real, alarma de fondeo y alerta MOB</span>
+                        <span><strong>Seguimiento en tiempo real</strong></span>
+                    </li>
+                    <li>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span><strong>Alarma de fondeo</strong></span>
                     </li>
                 </ul>
                 <p class="permissions-tip">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    Selecciona <strong>"Permitir siempre"</strong> para que el permiso no expire.
+                    Selecciona <strong>"Permitir siempre"</strong> para que el permiso no expire entre sesiones.
                 </p>
             </div>
             <div class="permissions-banner-actions">
                 <button id="permissionsGrantBtn" class="btn btn-primary">Conceder permisos</button>
-                <button id="permissionsDismissBtn" class="permissions-banner-dismiss">Continuar sin permisos (Se perderá acceso a las funcionalidades principales del aplicativo)</button>
+                <button id="permissionsDismissBtn" class="permissions-banner-dismiss">Continuar sin permisos</button>
             </div>
         </div>
     </div>
