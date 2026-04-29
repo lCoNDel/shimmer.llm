@@ -9,7 +9,7 @@ from ddgs import DDGS
 
 # Bot de Telegram para el asistente náutico de Touron S.A.
 # Conecta con Open WebUI vía API y gestiona el ciclo completo de tool calls
-# para RAG con native function calling (qwen3.5 reformula queries antes de buscar).
+# para RAG con native function calling (el agente reformula queries antes de buscar).
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -18,7 +18,7 @@ TELEGRAM_TOKEN = "8633157162:AAFdIrMs-3jROMEb8jrIQUvi5vHFTUzLKaw"
 OPENWEBUI_API_KEY = "sk-86be5033063c4e1488007be92f4b2196"
 OPENWEBUI_BASE = "http://host.docker.internal:3000"
 OPENWEBUI_URL = f"{OPENWEBUI_BASE}/api/chat/completions"
-MODEL_ID = "test"
+MODEL_ID = "asistente-touron"
 
 # None = acceso abierto; lista de IDs para restringir usuarios
 ALLOWED_USERS = None
@@ -28,8 +28,7 @@ WEB_PREFIX = "/web "
 # --- Utilidades de respuesta ---
 
 def extract_answer(response_json: dict) -> str:
-    # Extrae el texto de la respuesta del modelo en formato OpenAI-compatible.
-    # Usado en handlers de imagen y PDF donde no hay tool calls.
+    # extrae el texto de la respuesta del modelo en formato openai-compatible.
     try:
         content = response_json['choices'][0]['message']['content']
         if not content:
@@ -47,8 +46,7 @@ def extract_answer(response_json: dict) -> str:
 _model_kb_collections = None
 
 def get_model_kb_collections(headers: dict) -> list:
-    # Consulta la API de Open WebUI para obtener los IDs de knowledge bases
-    # asociadas al modelo. Si falla, devuelve lista vacía.
+    # consulta la api de open webui para obtener los ids de knowledge bases asociadas al modelo.
     global _model_kb_collections
     if _model_kb_collections is not None:
         return _model_kb_collections
@@ -77,9 +75,7 @@ _session_chunks: list = []
 _session_chunk_counter: int = 0
 
 def run_knowledge_search(query: str, headers: dict) -> str:
-    # Ejecuta una búsqueda híbrida (semántica + BM25) en las colecciones del modelo.
-    # El índice de cada chunk es global y continuo entre llamadas sucesivas de la misma
-    # sesión, lo que permite rastrear qué chunks cita el modelo en la respuesta final.
+    # ejecuta una búsqueda híbrida (semántica + bm25) en las colecciones del modelo y registra los chunks para el pie de fuentes.
     try:
         collection_names = get_model_kb_collections(headers)
 
@@ -142,8 +138,7 @@ def run_knowledge_search(query: str, headers: dict) -> str:
 
 
 def get_file_content(file_name_or_id: str, headers: dict, max_chars: int = 10000, offset: int = 0) -> str:
-    # Recupera el contenido de un archivo de la KB por nombre o UUID.
-    # Usado cuando el modelo llama a la tool view_knowledge_file para leer un PDF completo.
+    # recupera el contenido de un archivo de la knowledge base por nombre o uuid.
     try:
         collection_names = get_model_kb_collections(headers)
         for kb_id in collection_names:
@@ -174,8 +169,7 @@ def get_file_content(file_name_or_id: str, headers: dict, max_chars: int = 10000
 # --- Ejecución de tool calls ---
 
 def execute_tool_calls(tool_calls: list, headers: dict) -> list:
-    # Recibe la lista de tool calls que el modelo quiere ejecutar y devuelve
-    # los mensajes de resultado en formato esperado por la API (role: "tool").
+    # ejecuta cada tool call del modelo y devuelve los resultados como mensajes role "tool".
     results = []
     for tc in tool_calls:
         tool_id = tc.get("id", "")
@@ -206,10 +200,7 @@ def execute_tool_calls(tool_calls: list, headers: dict) -> list:
 # --- Llamada principal a Open WebUI con bucle de tool calls ---
 
 def call_openwebui(messages: list, headers: dict) -> str:
-    # Envía mensajes a Open WebUI y gestiona el ciclo completo de tool calls.
-    # Con native function calling activo, el modelo (qwen3.5) puede hacer
-    # múltiples búsquedas en la KB antes de generar la respuesta final.
-    # Máximo 8 iteraciones para evitar bucles infinitos.
+    # envía mensajes a open webui y gestiona el ciclo de tool calls hasta obtener la respuesta final (máx. 8 iteraciones).
     global _session_chunks, _session_chunk_counter
     _session_chunks = []
     _session_chunk_counter = 0
@@ -217,7 +208,7 @@ def call_openwebui(messages: list, headers: dict) -> str:
 
     for iteration in range(8):
         payload = {"model": MODEL_ID, "messages": current_messages, "stream": False}
-        response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=300)
+        response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=60)
 
         if response.status_code != 200:
             logging.error(f"Error Open WebUI ({response.status_code}): {response.text[:300]}")
@@ -272,8 +263,7 @@ def call_openwebui(messages: list, headers: dict) -> str:
 # --- Búsqueda web externa (DuckDuckGo) ---
 
 def search_web(query: str, max_results: int = 5) -> str:
-    # Busca en la web vía DuckDuckGo y devuelve los resultados formateados
-    # para que el modelo los use como contexto adicional.
+    # busca en duckduckgo y devuelve los resultados formateados como contexto para el modelo.
     try:
         with DDGS() as ddgs:
             results = list(ddgs.text(query, max_results=max_results))
@@ -316,6 +306,7 @@ web_mode_users = set()
 # --- Teclados inline ---
 
 def main_keyboard():
+    # devuelve el teclado inline principal con los botones de búsqueda web y borrar memoria.
     markup = telebot.types.InlineKeyboardMarkup()
     markup.row(
         telebot.types.InlineKeyboardButton("🌐 Búsqueda Web", callback_data="web_search"),
@@ -324,6 +315,7 @@ def main_keyboard():
     return markup
 
 def web_keyboard():
+    # devuelve el teclado inline con el botón de cancelar búsqueda web.
     markup = telebot.types.InlineKeyboardMarkup()
     markup.row(telebot.types.InlineKeyboardButton("❌ Cancelar Búsqueda", callback_data="cancel_search"))
     return markup
@@ -333,6 +325,7 @@ def web_keyboard():
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
+    # responde al comando /start y /help con el mensaje de bienvenida.
     if ALLOWED_USERS is not None and message.from_user.id not in ALLOWED_USERS:
         return
     bot.send_message(message.chat.id, "Shimmer Iniciado.", reply_markup=telebot.types.ReplyKeyboardRemove())
@@ -422,7 +415,7 @@ def handle_photo(message):
     if user_id not in user_history:
         user_history[user_id] = {"messages": []}
 
-    caption = message.caption or "Describe esta imagen."
+    caption = message.caption or "Analiza esta imagen en detalle."
     bot.send_message(message.chat.id, "🖼️ Imagen recibida, espere por favor...")
     bot.send_chat_action(message.chat.id, 'typing')
 
@@ -443,7 +436,7 @@ def handle_photo(message):
         headers = {"Authorization": f"Bearer {OPENWEBUI_API_KEY}", "Content-Type": "application/json"}
         payload = {"model": MODEL_ID, "messages": [image_message], "stream": False}
         logging.info(f"Enviando imagen a Open WebUI (base64: {len(image_b64)} chars)...")
-        response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=300)
+        response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=60)
         logging.info(f"Respuesta Open WebUI imagen: {response.status_code}")
 
         if response.status_code == 200:
@@ -509,7 +502,7 @@ def handle_document(message):
 
         headers = {"Authorization": f"Bearer {OPENWEBUI_API_KEY}", "Content-Type": "application/json"}
         payload = {"model": MODEL_ID, "messages": messages_pdf, "stream": False}
-        response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=300)
+        response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=60)
 
         if response.status_code == 200:
             answer = extract_answer(response.json())
@@ -535,6 +528,7 @@ def handle_document(message):
 
 @bot.callback_query_handler(func=lambda call: call.data in ["web_search", "cancel_search", "clear_memory", "confirm_clear", "cancel_clear"])
 def handle_callbacks(call):
+    # gestiona los botones inline: búsqueda web, cancelar búsqueda y borrar memoria.
     user_id = call.from_user.id
     bot.answer_callback_query(call.id)
 

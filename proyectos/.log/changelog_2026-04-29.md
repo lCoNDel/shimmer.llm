@@ -64,6 +64,22 @@ Open WebUI devuelve referencias `[N]` en el texto final cuando recupera chunks d
 
 ---
 
+### Sesión de tarde — ajustes y puesta en producción
+
+**`MODEL_ID` restaurado a `"asistente-touron"`** — el bot estaba fallando con 400 `Model not found` porque el contenedor no había sido reiniciado tras el cambio de la sesión anterior. Reiniciado y verificado.
+
+**KB collections vacías en `asistente-touron`** — confirmado en logs: `KB collections del modelo 'asistente-touron': []`. El fallback a `/api/v1/knowledge/` funciona y encuentra la colección correcta (`f3af968c`). **Pendiente:** reasignar manualmente el knowledge base en Open WebUI → Workspace → Models → `asistente-touron` para que el endpoint de modelos devuelva las colecciones directamente.
+
+**Refactorización de comentarios** — todos los comentarios de función reescritos en lenguaje natural y minúsculas. Comentarios de dos líneas reducidos a uno.
+
+**Caption por defecto de fotos** cambiado: `"Describe esta imagen."` → `"Analiza esta imagen en detalle."`
+
+**Timeouts reducidos:** todos los `requests.post` a Open WebUI bajados de 300s a 60s para evitar que un usuario quede bloqueado demasiado tiempo si Open WebUI no responde.
+
+**Iteraciones de tool calls:** probado con 5, revertido a 8 — el modelo `asistente-touron` necesita hasta 6 iteraciones para consultas complejas sobre el Verado V12.
+
+---
+
 ## Contexto técnico para agentes
 
 **Archivo principal:**
@@ -73,7 +89,7 @@ Open WebUI devuelve referencias `[N]` en el texto final cuando recupera chunks d
 ```python
 OPENWEBUI_BASE = "http://host.docker.internal:3000"
 OPENWEBUI_URL = f"{OPENWEBUI_BASE}/api/chat/completions"
-MODEL_ID = "test"  # CAMBIAR a "asistente-touron" en producción
+MODEL_ID = "asistente-touron"
 ```
 
 **APIs Open WebUI usadas:**
@@ -82,10 +98,15 @@ MODEL_ID = "test"  # CAMBIAR a "asistente-touron" en producción
 - `GET /api/v1/knowledge/` → `{"items": [...], "total": N}` — lista de KBs (paginada)
 - `GET /api/v1/knowledge/{kb_id}` → archivos de una KB específica
 
+**Límites de operación:**
+- Iteraciones tool calls: 8 (máx.) — el modelo puede necesitar hasta 6 para consultas complejas
+- Timeout por llamada a Open WebUI: 60s
+- Peor caso total: 8 × 60s = 8 minutos
+
 **Modelo de datos de chunks:**
 ```python
 _session_chunks = [
-    {"index": 1, "doc": "nombre_archivo.pdf", "content": "texto del chunk..."},
+    {"index": 1, "source": "nombre_archivo.pdf", "page": "5"},
     ...
 ]
 ```
