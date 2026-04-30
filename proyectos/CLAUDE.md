@@ -14,7 +14,7 @@ Núcleo: **Open WebUI + Docker + Ollama**. Ollama corre en el host Windows; el r
 
 | Servicio | Tecnología | Puerto |
 |---|---|---|
-| Interfaz principal | Open WebUI v0.8.12 | 3000 (prod) / 4000 (dev) |
+| Interfaz principal | Open WebUI v0.9.2 | 3000 (prod) / 4000 (dev) |
 | Alternativa | AnythingLLM | 3001 (prod) / 4001 (dev) |
 | LLM local | Ollama (host Windows) | 11434 |
 | Acceso a archivos | Filebrowser (inyectable, sin imagen Docker) | 8001–8002 |

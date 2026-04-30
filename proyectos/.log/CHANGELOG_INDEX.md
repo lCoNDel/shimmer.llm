@@ -4,6 +4,10 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-04-30 | tsamaps, backlog | planificación, auditoría, ideas | Auditoría backlog vs app.js; 4 nuevos archivos backlog: calculadora ruta, alertas meteo, declinación magnética, tracking tiempo real | changelog_2026-04-30.md |
+| 2026-04-30 | tsamaps, docker | runtime, start.ps1, stop.ps1, multi-compose | start/stop runtime tsamaps dev amplíados: ahora gestionan open-webui (prod.yml) + asistente_nautico (bots.yml) + tsamaps_server_dev | changelog_2026-04-30.md |
+| 2026-04-30 | claude, config | CLAUDE.md, open-webui, versión | Open WebUI actualizado de v0.8.12 a v0.9.2 en CLAUDE.md | changelog_2026-04-30.md |
+| 2026-04-30 | docs, onedrive | memoria.html, tabla, separador | Eliminada tabla "Componentes principales" y hr duplicado de 00_memoria.html (OneDrive, fuera de git) | changelog_2026-04-30.md |
 | 2026-04-29 | bot, telegram | rag, native, tool-calls, open-webui | Ciclo tool calls RAG client-side: get_model_kb_collections, run_knowledge_search, execute_tool_calls, call_openwebui loop 8 iter | changelog_2026-04-29.md |
 | 2026-04-29 | bot, telegram | citas, chunks, regex, session | Sistema de citas: _session_chunks con índice global, regex [N] en respuesta final para mostrar fuentes reales | changelog_2026-04-29.md |
 | 2026-04-29 | bot, telegram | foto, pendiente, qwen3.5, vision | PENDIENTE: handle_photo roto — modelo test (qwen3.5) no soporta visión; cambiar MODEL_ID a asistente-touron | changelog_2026-04-29.md |

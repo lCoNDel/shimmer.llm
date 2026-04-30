@@ -1,0 +1,23 @@
+tsamaps — Declinación magnética en la regla náutica
+====================================================
+
+Mejora de precisión para la regla náutica existente. Obtiene automáticamente
+la declinación magnética de la zona según las coordenadas del centro del mapa.
+
+La declinación en España varía entre -1° y +2° aprox. Sin este dato, el rumbo
+magnético que marca la brújula del barco no coincide con el rumbo verdadero calculado
+en la carta.
+
+API: NOAA World Magnetic Model
+- Endpoint: https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination
+- Gratuita, sin clave, devuelve JSON
+- Parámetros: lat, lon, fecha actual
+- Resultado: valor de declinación en grados
+
+UI propuesta:
+- En el panel de la regla, mostrar junto al rumbo verdadero (°V) el equivalente
+  magnético (°M) con la declinación aplicada: "Rumbo: 045°V (047°M)"
+- Pequeño indicador "Dec: +2.1°E" para transparencia
+
+Referencia:
+- Regla náutica: app.js (buscar rulerBtn)

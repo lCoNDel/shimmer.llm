@@ -1,0 +1,34 @@
+tsamaps — Compartir posición en tiempo real (tracking)
+=======================================================
+
+El usuario activa "compartir mi posición" y obtiene un enlace único.
+Quien abre ese enlace ve el barco moviéndose en tiempo real sobre el mapa,
+sin necesidad de cuenta ni instalación.
+
+Casos de uso:
+- Familia en tierra sigue la travesía
+- Coordinación entre barcos de una flotilla
+- Regatas y seguimiento de flota
+
+Diferente de hob_compartir_posicion.txt (que es emergencia puntual vía WhatsApp).
+Esto es sesión continua con actualización en tiempo real.
+
+Arquitectura propuesta:
+- Backend: WebSocket en FastAPI (ya disponible en server.py)
+- Sesión identificada por token aleatorio (UUID)
+- Emisor: la app en el barco envía posición GPS cada N segundos por WS
+- Receptor: página /track/{token} con mapa Leaflet en modo lectura
+- Sin autenticación. El token es el secreto; expiración configurable (ej. 12h)
+
+Alternativa más simple (sin WebSocket):
+- Polling HTTP: el emisor hace POST de posición cada 10s a FastAPI → guardado en memoria/Redis
+- El receptor hace GET cada 10s y actualiza el marcador en el mapa
+
+Plan de implementación:
+1. Endpoint FastAPI: POST /track/{token}/position + GET /track/{token}/position
+2. Página /track/{token}: mapa Leaflet standalone, polling cada 10s
+3. En app.js: botón "Compartir posición" → genera token → muestra enlace + QR
+
+Referencia:
+- Servidor FastAPI: .webapps/dev/tsamaps/server.py
+- HOB / compartir posición puntual: .backlog/hob_compartir_posicion.txt

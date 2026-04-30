@@ -1,0 +1,25 @@
+tsamaps — Alertas meteorológicas automáticas
+=============================================
+
+Consulta periódica (cada 15-30 min) de condiciones en la posición guardada del barco.
+Si viento > umbral configurable o altura de ola > umbral → alerta visual y sonora en la app.
+
+Complementa la alarma de fondeo existente. Pensado para uso en puerto o fondeo durante la noche.
+
+API: Open-Meteo (ya en uso para la capa de viento). Sin coste, sin clave.
+Variables útiles: wind_speed_10m, wave_height (Marine API).
+
+Umbrales propuestos por defecto:
+- Viento: 20 kt (fuerza 5 Beaufort)
+- Ola: 1.5 m
+
+UI propuesta:
+- Toggle en el panel de condiciones marítimas o en la alarma de fondeo
+- Campos configurables de umbral
+- Alerta: toast prominente + sonido de alarma (mismo sistema que anchor alarm)
+- Opción de notificación Push (requiere Service Worker)
+
+Referencia:
+- Alarma de fondeo: app.js (buscar anchorBtn / anchor alarm)
+- Capa de viento / Open-Meteo: server.py (fetch_wind_data)
+- Panel de condiciones: app.js (weatherPanel)

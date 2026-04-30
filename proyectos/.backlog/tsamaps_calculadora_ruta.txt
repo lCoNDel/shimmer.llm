@@ -1,0 +1,21 @@
+tsamaps — Calculadora de ruta náutica
+======================================
+
+Extensión de la regla náutica existente. El usuario traza una ruta
+con múltiples waypoints sobre el mapa y la app calcula:
+
+- Distancia total en millas náuticas (Haversine, ya disponible en la regla)
+- ETA según velocidad crucero configurable por el usuario
+- Consumo estimado de combustible según parámetros del barco (introducidos una sola vez,
+  guardados en localStorage)
+
+Sin API externa. Cálculo geométrico puro en el frontend.
+
+UI propuesta:
+- Panel lateral con tabla de waypoints (número, coordenadas, distancia parcial)
+- Campo "velocidad crucero" y "consumo L/h" configurables
+- Totales al pie: distancia total, tiempo estimado, combustible total
+
+Referencia:
+- Regla náutica actual: app.js (buscar rulerBtn / ruler)
+- Sistema de waypoints guardados: .backlog/funciones_opensea.txt
