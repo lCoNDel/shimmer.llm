@@ -20,20 +20,20 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-velocity@1.9.0/dist/leaflet-velocity.min.css" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="index.css?v=9">
-    <link rel="stylesheet" href="responsive.css?v=5">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="responsive.css">
 </head>
 
 <body>
     <header class="app-header">
         <div class="logo-container">
-            <a href="https://www.touron.es/" target="_blank" rel="noopener noreferrer">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwP6ECO812KN688mb1LhBvRawScR7tbavVCg&s"
-                    alt="Touron" class="brand-logo-img">
+            <a id="brandLogoLink" href="https://www.touron.es/" target="_blank" rel="noopener noreferrer">
+                <img src="https://i.ibb.co/Jjb560CR/1771356015983.png"
+                    alt="TSA Maps" class="brand-logo-img">
             </a>
             <span class="brand-company-name" style="text-transform: uppercase;">TSA MAPS</span>
             <button id="openGuideBtn"
-                style="background:none; border:none; cursor:pointer; color:var(--brand-primary); margin-left:10px; display:flex; align-items:center;"
+                style="background:none; border:none; cursor:pointer; color:var(--brand-primary); margin-left:10px; display:flex; align-items:center; position:relative;"
                 title="Manual de Uso / Guía">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -73,6 +73,16 @@
         </nav>
     </header>
 
+    <!-- Spotlight de bienvenida — destaca el botón Manual (?) -->
+    <div id="guideTip" class="guide-spotlight hidden">
+        <div class="guide-spotlight-hole" id="guideTipHole"></div>
+        <div class="guide-spotlight-label" id="guideTipLabel">
+            <strong>¿Primera vez?</strong>
+            <span>¡Accede a nuestro manual de uso!</span>
+            <button class="guide-spotlight-dismiss" id="guideTipClose">Entendido</button>
+        </div>
+    </div>
+
     <main class="app-container">
 
 
@@ -89,7 +99,7 @@
 
         <!-- VesselFinder Close Button (visible only while traffic mode is active) -->
         <div id="vesselCloseBar" class="hidden"
-            style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: var(--z-search); pointer-events: auto;">
+            style="position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); z-index: var(--z-search); pointer-events: auto;">
             <button id="vesselCloseBtn" class="vessel-close-btn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -128,7 +138,7 @@
 
             <!-- Floating Wind Layer Button -->
             <div class="floating-wind-container">
-                <button class="floating-alarm-toggle" id="windLayerBtn" data-tooltip="Capa de Viento Animada (GFS)">
+                <button class="floating-alarm-toggle" id="windLayerBtn" data-tooltip="Capa de Viento">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path
@@ -185,7 +195,7 @@
 
             <!-- Floating Ruler -->
             <div class="floating-ruler-container">
-                <button class="floating-alarm-toggle" id="rulerBtn" data-tooltip="Regla Náutica (Medir distancias y rumbos)">
+                <button class="floating-alarm-toggle" id="rulerBtn" data-tooltip="Regla Náutica">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"></path>
@@ -237,7 +247,7 @@
             </button>
         </div>
 
-        <aside class="weather-panel" id="weatherPanel">
+        <aside class="weather-panel closed" id="weatherPanel">
             <div class="drawer-handle" aria-hidden="true"></div>
             <div class="panel-header">
                 <h2>Condiciones Marítimas</h2>
@@ -324,19 +334,14 @@
                 </h2>
                 <button class="close-btn" id="closeRadioBtn" aria-label="Cerrar radio">&times;</button>
             </div>
-            <div class="radio-controls" style="display:flex; flex-direction:column; gap:0.6rem;">
-                <div style="display:flex; gap:0.5rem;">
-                    <input type="text" id="radioSearchInput" class="search-input"
-                        style="flex:1; padding:0.5rem 0.8rem; font-size:0.85rem; border-radius:20px; border:1px solid rgba(0,118,214,0.2);"
-                        placeholder="Buscar emisora o género...">
+            <div class="radio-controls">
+                <input type="text" id="radioSearchInput" class="search-input radio-search-input"
+                    placeholder="Buscar emisora o género...">
+                <div id="radioResults" class="radio-results">
+                    <p class="empty-state">Más de 90,000 estaciones disponibles</p>
                 </div>
-                <div id="radioResults" class="radio-results"
-                    style="max-height:150px; overflow-y:auto; display:flex; flex-direction:column; gap:0.5rem;">
-                    <p class="empty-state" style="padding:0.5rem;">Más de 90,000 estaciones disponibles</p>
-                </div>
-                <div id="activeRadio" class="active-radio hidden"
-                    style="background:linear-gradient(135deg,rgba(0,118,214,0.05),rgba(0,118,214,0.1)); border:1px solid rgba(0,118,214,0.2); padding:0.6rem 0.8rem; border-radius:12px; display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem; transition:all 0.3s ease;">
-                    <div style="display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+                <div id="activeRadio" class="active-radio hidden">
+                    <div class="radio-now-playing">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="2" y="2" width="20" height="20" rx="4" ry="4"></rect>
@@ -344,14 +349,11 @@
                             <path d="M2 7h20"></path>
                             <path d="M6 10v.01"></path>
                         </svg>
-                        <div id="radioNameDisplay"
-                            style="font-weight:600; color:var(--brand-primary); font-size:0.9rem; max-width:170px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2;">
-                            Estación seleccionada</div>
+                        <div id="radioNameDisplay" class="radio-name">Estación seleccionada</div>
+                        <span id="radioLiveIndicator" class="radio-live-dot hidden"></span>
                     </div>
-                    <div style="display:flex; align-items:center; background:rgba(255,255,255,0.7); border-radius:30px; padding:0.4rem 0.6rem; gap:0.8rem; border:1px solid rgba(0,118,214,0.1);">
-                        <button id="customRadioPlayBtn"
-                            style="background:var(--brand-primary); color:white; border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.2s;"
-                            onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <div class="radio-player-bar">
+                        <button id="customRadioPlayBtn" class="radio-play-btn">
                             <svg id="iconPlay" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
                             </svg>
@@ -360,12 +362,9 @@
                                 <rect x="14" y="4" width="4" height="16"></rect>
                             </svg>
                         </button>
-                        <input type="range" id="radioVolumeSlider" min="0" max="1" step="0.01" value="0.5"
-                            style="width:50px; height:4px; border-radius:2px; appearance:none; background:rgba(0,118,214,0.2); cursor:pointer; outline:none;">
-                        <span id="radioVolumeValue"
-                            style="font-size:0.75rem; color:var(--brand-primary); font-weight:600; min-width:35px; text-align:right;">50%</span>
-                        <button id="customRadioMuteBtn"
-                            style="background:transparent; color:var(--brand-text-muted); border:none; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                        <input type="range" id="radioVolumeSlider" class="radio-volume-slider" min="0" max="1" step="0.01" value="0.5">
+                        <span id="radioVolumeValue" class="radio-volume-value">50%</span>
+                        <button id="customRadioMuteBtn" class="radio-mute-btn">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -454,38 +453,46 @@
     <script src="https://cdn.jsdelivr.net/npm/suncalc/suncalc.js"></script>
 
     <!-- Custom JS -->
-    <script src="app.js?v=19"></script>
+    <script src="app.js"></script>
 
     <!-- Information Modal -->
     <div class="info-modal-overlay hidden" id="infoModal">
         <div class="info-modal-content">
             <button class="close-btn" id="closeInfoBtn" aria-label="Cerrar">&times;</button>
-            <h2>TSA Maps</h2>
-            <p style="font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-                <strong>TSA Maps</strong> es una plataforma cartográfica náutica desarrollada para Touron S.A.,
-                que integra datos marítimos en tiempo real, geolocalización y herramientas de navegación sobre carta náutica interactiva.
+
+            <h2 style="margin-bottom:0.6rem;">¿Qué es TSA Maps?</h2>
+            <p style="font-size:0.93rem; line-height:1.7; margin-bottom:1.2rem; color:var(--brand-text-muted);">
+                Una carta náutica interactiva con datos del mar en tiempo real, geolocalización, herramientas de navegación y un asistente con inteligencia artificial — todo integrado en una única aplicación web, sin instalación y desde cualquier dispositivo.
             </p>
 
-            <h3>Funcionalidades</h3>
+            <h3>Inteligencia artificial integrada</h3>
             <ul class="feature-list">
-                <li><strong>Carta náutica:</strong> Capa OpenSeaMap (boyas, luces, marcas de navegación) sobre base CartoDB.</li>
-                <li><strong>Condiciones marítimas:</strong> Oleaje, dirección, periodo, temperatura superficial y ola de viento mediante Open-Meteo Marine API. Se actualizan al tocar el mapa o automáticamente con GPS activo.</li>
-                <li><strong>GPS en tiempo real:</strong> Seguimiento de posición con <code>watchPosition</code>. Centra el mapa y refresca condiciones marinas cada 5 minutos aunque el barco no se mueva.</li>
-                <li><strong>Alarma de fondeo:</strong> Define un radio de seguridad. Alerta sonora y visual si el barco garrea. Integrada en el seguimiento GPS sin polling propio.</li>
-                <li><strong>Hombre al agua (MOB):</strong> Fija la posición del incidente y calcula la distancia en tiempo real desde el GPS. Bloquea el resto de herramientas mientras está activo.</li>
-                <li><strong>Regla náutica:</strong> Mide distancias y rumbos sobre el mapa en millas náuticas.</li>
-                <li><strong>Radar de lluvia:</strong> Animación multi-frame con datos del pasado y nowcast vía RainViewer API.</li>
-                <li><strong>Tráfico marítimo:</strong> Monitorización de buques AIS en tiempo real mediante VesselFinder.</li>
-                <li><strong>Sol y Luna:</strong> Amanecer, atardecer, mediodía solar, fase lunar y horas de luna para el punto activo. Se actualiza al tocar el mapa.</li>
-                <li><strong>Red de distribuidores:</strong> 32 distribuidores de Touron S.A. en España y Portugal con contacto directo, web y localización en mapa.</li>
-                <li><strong>Búsqueda global:</strong> Geocodificación con autosugerencias vía Nominatim (OSM).</li>
-                <li><strong>Radio:</strong> Acceso a más de 90.000 emisoras en streaming vía Radio Browser API.</li>
-                <li><strong>Asistente Náutico:</strong> LLM de Touron S.A. orientado a consultas sobre la empresa, productos y marcas. Puede responder preguntas náuticas generales.</li>
+                <li><strong>Asistente propio con IA local:</strong> TSA Maps incorpora un asistente conversacional basado en un modelo de lenguaje (LLM) desplegado en infraestructura propia. No depende de servicios externos de pago como ChatGPT. El modelo corre en local mediante Ollama y se sirve a través de Open WebUI, al que TSA Maps se conecta de forma transparente para el usuario.</li>
+                <li><strong>Búsqueda web en tiempo real:</strong> El asistente puede consultar Internet en el momento de responder. El servidor intercepta la petición, lanza una búsqueda real (DuckDuckGo), enriquece el contexto con los resultados y se lo entrega al modelo antes de generar la respuesta — todo en una sola interacción para el usuario.</li>
+                <li><strong>Historial de conversación:</strong> Cada sesión mantiene un hilo de conversación con memoria de los últimos intercambios, permitiendo preguntas encadenadas de forma natural.</li>
+            </ul>
+
+            <h3>Datos en tiempo real de múltiples fuentes</h3>
+            <ul class="feature-list">
+                <li><strong>Condiciones marítimas (Open-Meteo Marine API):</strong> Al tocar cualquier punto del mar, la plataforma lanza una petición a la API meteorológica marina y muestra en segundos oleaje, dirección, periodo, temperatura superficial, ola de viento y nivel del mar. Con GPS activo, estos datos se refrescan automáticamente cada 5 minutos siguiendo la posición del barco.</li>
+                <li><strong>Viento en tiempo real (Open-Meteo Forecast API):</strong> El servidor genera cada hora una rejilla de datos de viento que cubre toda la Península Ibérica y aguas próximas — más de 800 puntos geográficos consultados en una única petición. Los datos se transforman en componentes vectoriales y se sirven al mapa como una capa animada de partículas con escala Beaufort.</li>
+                <li><strong>Radar de lluvia (RainViewer API):</strong> Animación meteorológica con múltiples frames del pasado y predicción inmediata (nowcast), sincronizada y sin parpadeos gracias a una gestión precisa de la carga de tiles.</li>
+                <li><strong>Tráfico marítimo (VesselFinder / AIS):</strong> Posición en tiempo real de buques comerciales, pesqueros y embarcaciones de recreo en todo el mundo.</li>
+                <li><strong>Búsqueda geográfica (Nominatim / OpenStreetMap):</strong> Localización instantánea de puertos, rías, ciudades y puntos de interés con sugerencias automáticas mientras se escribe.</li>
+                <li><strong>Radio global (Radio Browser API):</strong> Acceso a más de 90.000 emisoras de todo el mundo en streaming directo.</li>
+            </ul>
+
+            <h3>Infraestructura propia en contenedores</h3>
+            <ul class="feature-list">
+                <li><strong>Servidor dedicado (tsamaps_server):</strong> TSA Maps no es un simple conjunto de archivos HTML. Dispone de un servidor backend propio desarrollado en Python (FastAPI), desplegado en un contenedor Docker aislado, que gestiona la comunicación con todas las APIs, sirve la aplicación y actúa como puente seguro hacia el motor de inteligencia artificial — sin exponer credenciales ni lógica sensible al navegador del usuario.</li>
+                <li><strong>Entornos separados:</strong> La plataforma cuenta con un entorno de desarrollo y uno de producción completamente independientes, cada uno con su propio contenedor y configuración, lo que permite evolucionar la aplicación sin riesgo para el servicio en producción.</li>
+                <li><strong>Sin dependencias de terceros de pago:</strong> Toda la infraestructura — servidor, IA, almacenamiento — corre en hardware propio.</li>
             </ul>
 
             <div class="creator-info">
                 <p><strong>Desarrollador:</strong> Luis Conde</p>
-                <p><strong>Contacto:</strong> <a href="mailto:luis.conde@touronsa.es">luis.conde@touronsa.es</a></p>
+                <p><strong>Contacto:</strong> <a href="mailto:luis.conde.b@gmail.com">luis.conde.b@gmail.com</a></p>
+                <p style="margin-top:0.6rem; font-size:0.85rem; color:var(--brand-text-muted);">© 2026 Luis Conde. Todos los derechos reservados. Queda prohibida la reproducción, distribución, modificación o uso comercial de este software sin autorización expresa del autor.</p>
             </div>
         </div>
     </div>
@@ -509,9 +516,27 @@
                 <div style="background: rgba(0,118,214,0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid var(--brand-primary);">
                     <div style="display:flex; flex-direction:column; gap:0.9rem;">
 
-                        <div><strong>Buscador</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Busca puertos, ciudades o rías. El mapa vuela a la ubicación con autosugerencias en tiempo real.</span></div>
-                        <div><strong>Red Náutica</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Red oficial de Touron S.A. en España y Portugal. Selecciona cualquier entrada para centrar el mapa en esa ubicación.</span></div>
-                        <div><strong>Puntos Favoritos</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Clic derecho en el mapa (o pulsación larga en móvil) para guardar un punto con nombre. Toca el marcador para eliminarlo.</span></div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--brand-primary)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <strong>Buscador</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Busca puertos, ciudades o rías. El mapa vuela a la ubicación con autosugerencias en tiempo real.</span>
+                        </div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--brand-primary)"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <strong>Red Náutica</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Red de Concesionarios en España y Portugal. Selecciona cualquier entrada para centrar el mapa en esa ubicación.</span>
+                        </div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--brand-primary)"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <strong>Puntos Favoritos</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Clic derecho en el mapa (o pulsación larga en móvil) para guardar un punto con nombre. Toca el marcador para eliminarlo.</span>
+                        </div>
 
                     </div>
                 </div>
@@ -520,9 +545,27 @@
                 <div style="background: rgba(0,118,214,0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #0099cc;">
                     <div style="display:flex; flex-direction:column; gap:0.9rem;">
 
-                        <div><strong>Condiciones Marítimas</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Toca cualquier punto del mapa para consultar altura de oleaje, periodo, dirección, temperatura superficial y ola de viento.</span></div>
-                        <div><strong>GPS</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Abre el panel de condiciones marítimas para el punto activo. Desde ahí puedes activar el seguimiento GPS en tiempo real para centrar el mapa en tu posición.</span></div>
-                        <div><strong>Sol &amp; Luna</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Amanecer, atardecer, mediodía solar, fase lunar y orto/ocaso de luna para el punto activo. Se actualiza al tocar el mapa.</span></div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#0099cc"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <strong>Condiciones Marítimas</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Toca cualquier punto del mapa para consultar altura de oleaje, periodo, dirección, temperatura superficial y ola de viento.</span>
+                        </div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#0099cc"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                <strong>GPS</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Abre el panel de condiciones marítimas para el punto activo. Desde ahí puedes activar el seguimiento GPS en tiempo real para centrar el mapa en tu posición.</span>
+                        </div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#0099cc"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                                <strong>Sol &amp; Luna</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Amanecer, atardecer, mediodía solar, fase lunar y orto/ocaso de luna para el punto activo. Se actualiza al tocar el mapa.</span>
+                        </div>
 
                     </div>
                 </div>
@@ -531,9 +574,27 @@
                 <div style="background: rgba(0,118,214,0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #8e44ad;">
                     <div style="display:flex; flex-direction:column; gap:0.9rem;">
 
-                        <div><strong>Tráfico Marítimo</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Posición en tiempo real de embarcaciones (AIS) vía VesselFinder.</span></div>
-                        <div><strong>Radar de Lluvia</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Animación multi-frame con historial reciente y nowcast. Incluye HUD de control de reproducción.</span></div>
-                        <div><strong>Capa de Viento</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Flujo de viento animado en tiempo real con datos GFS de cobertura global.</span></div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8e44ad"><path d="M2 21c.6.5 1.2 1 2.5 1 1.4 0 2.5-.5 3.5-1 .5-.5 1.3-1 2.5-1s2 .5 2.5 1c.6.5 1.2 1 2.5 1 1.4 0 2.5-.5 3.5-1 .5-.5 1.3-1 2.5-1s2 .5 2.5 1c.6.5 1.2 1 2.5 1h1"/><path d="M19.38 20A11.6 11.6 0 0 0 21 14l-9-4-9 4c0 2.2.5 4.1 1.62 6"/><path d="M12 10V2"/><path d="M12 4h6"/></svg>
+                                <strong>Tráfico Marítimo</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Posición en tiempo real de embarcaciones (AIS) vía VesselFinder.</span>
+                        </div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8e44ad"><path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9"/><path d="m13 14-2 4h3l-2 4"/></svg>
+                                <strong>Radar de Lluvia</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Animación multi-frame con historial reciente y nowcast. Incluye HUD de control de reproducción.</span>
+                        </div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#8e44ad"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>
+                                <strong>Capa de Viento</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Flujo de viento animado en tiempo real con datos Open-Meteo. Cobertura España y Portugal.</span>
+                        </div>
 
                     </div>
                 </div>
@@ -542,16 +603,40 @@
                 <div style="background: rgba(0,118,214,0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #2ecc71;">
                     <div style="display:flex; flex-direction:column; gap:0.9rem;">
 
-                        <div><strong>Regla Náutica</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Toca origen y destino sobre el mapa. Muestra la distancia en millas náuticas y el rumbo en grados. Un tercer toque reinicia la medición.</span></div>
-                        <div><strong>Alarma de Fondeo</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Fija el punto de fondeo y define un radio de seguridad. Alerta sonora y visual si el barco garrea. Requiere GPS activo.</span></div>
-                        <div><strong>Hombre al Agua (MOB)</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Fija la posición del incidente y calcula la distancia en tiempo real desde el GPS. Bloquea el resto de herramientas mientras está activo. Requiere confirmación para desactivar.</span></div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#2ecc71"><path d="M21 21L15 15M3 3l6 6M15 3v6h6M3 21h6v-6"/><path d="M15 15l-6-6"/></svg>
+                                <strong>Regla Náutica</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Toca origen y destino sobre el mapa. Muestra la distancia en millas náuticas y el rumbo en grados. Un tercer toque reinicia la medición.</span>
+                        </div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#2ecc71"><circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></svg>
+                                <strong>Alarma de Fondeo</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Fija el punto de fondeo y define un radio de seguridad. Alerta sonora y visual si el barco garrea. Requiere GPS activo.</span>
+                        </div>
+                        <div>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#ff4757"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>
+                                <strong>Hombre al Agua (MOB)</strong>
+                            </div>
+                            <span style="font-size:0.88rem;color:var(--brand-text-muted);">Fija la posición del incidente y calcula la distancia en tiempo real desde el GPS. Bloquea el resto de herramientas mientras está activo. Requiere confirmación para desactivar.</span>
+                        </div>
 
                     </div>
                 </div>
 
                 <!-- Radio -->
                 <div style="background: rgba(0,118,214,0.05); padding: 1.2rem; border-radius: 8px; border-left: 4px solid #1abc9c;">
-                    <div><strong>Radio Global</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">Acceso a más de 90.000 emisoras en streaming vía RadioBrowser. Busca por nombre, género o país.</span></div>
+                    <div>
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#1abc9c"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                            <strong>Radio Global</strong>
+                        </div>
+                        <span style="font-size:0.88rem;color:var(--brand-text-muted);">Acceso a más de 90.000 emisoras en streaming vía RadioBrowser. Busca por nombre, género o país.</span>
+                    </div>
                 </div>
 
                 <!-- Asistente Náutico IA -->
@@ -559,8 +644,11 @@
                     <div style="display:flex; flex-direction:column; gap:0.9rem;">
 
                         <div>
-                            <strong>Asistente Náutico</strong>
-                            <span style="display:inline-block; margin-left:0.5rem; font-size:0.7rem; font-weight:700; background:#f39c12; color:#000; padding:0.1rem 0.4rem; border-radius:4px; vertical-align:middle;">IA</span><br>
+                            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:#f39c12"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                                <strong>Asistente Náutico</strong>
+                                <span style="font-size:0.7rem; font-weight:700; background:#f39c12; color:#000; padding:0.1rem 0.4rem; border-radius:4px;">IA</span>
+                            </div>
                             <span style="font-size:0.88rem;color:var(--brand-text-muted);">Asistente náutico de <strong style="color:var(--brand-text);">Touron S.A.</strong> basado en un LLM. Orientado a consultas sobre la empresa — productos, marcas, equipo y contacto — aunque puede responder preguntas náuticas generales.</span>
                         </div>
                         <div><strong>Límites y responsabilidad</strong><br><span style="font-size:0.88rem;color:var(--brand-text-muted);">No sustituye consultas al personal especializado de Touron y puede cometer errores.</span></div>
@@ -658,21 +746,30 @@
                 </svg>
             </div>
             <div class="permissions-banner-body">
-                <strong class="permissions-title">Esta app necesita acceso a tu ubicación</strong>
+                <strong class="permissions-title">TSA Maps necesita acceso a tu ubicación</strong>
+                <p style="margin: 0 0 10px; font-size: 0.95rem;">Sin este permiso, las siguientes funciones <strong>no estarán disponibles</strong>:</p>
                 <ul class="permissions-list">
                     <li>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <span><strong>MOB — Hombre al Agua</strong></span>
+                    </li>
+                    <li>
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                        <span><strong>GPS</strong> — Seguimiento en tiempo real, alarma de fondeo y alerta MOB</span>
+                        <span><strong>Seguimiento en tiempo real</strong></span>
+                    </li>
+                    <li>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span><strong>Alarma de fondeo</strong></span>
                     </li>
                 </ul>
                 <p class="permissions-tip">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    Selecciona <strong>"Permitir siempre"</strong> para que el permiso no expire.
+                    Selecciona <strong>"Permitir siempre"</strong> para que el permiso no expire entre sesiones.
                 </p>
             </div>
             <div class="permissions-banner-actions">
                 <button id="permissionsGrantBtn" class="btn btn-primary">Conceder permisos</button>
-                <button id="permissionsDismissBtn" class="permissions-banner-dismiss">Continuar sin permisos (Se perderá acceso a las funcionalidades principales del aplicativo)</button>
+                <button id="permissionsDismissBtn" class="permissions-banner-dismiss">Continuar sin permisos</button>
             </div>
         </div>
     </div>

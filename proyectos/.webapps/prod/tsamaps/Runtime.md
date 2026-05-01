@@ -9,8 +9,8 @@ Esta skill proporciona indicaciones para gestionar el servidor web local del pro
 
 ## Funciones
 
-1.  **Iniciar Servidor**: Levanta el contenedor `tsamaps_server_prod` (Docker) en el puerto 5050 y abre el túnel ngrok.
-2.  **Detener Servidor**: Para el contenedor y cierra el túnel ngrok.
+1.  **Iniciar Servidor**: Levanta `open-webui` (prod.yml), `asistente_nautico` (bots.yml) y `tsamaps_server_prod` (proxy.yml) en ese orden, y abre el túnel ngrok en el puerto 5050.
+2.  **Detener Servidor**: Para los tres contenedores y cierra el túnel ngrok.
 
 ## Instrucciones de Uso
 

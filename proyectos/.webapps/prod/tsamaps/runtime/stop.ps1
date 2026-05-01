@@ -1,8 +1,15 @@
-$composeFile = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\proxy.yml"
+$proxyCompose = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\proxy.yml"
+$prodCompose  = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\prod.yml"
+$botsCompose  = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\bots.yml"
 
 Write-Host "Deteniendo tsamaps_server_prod..."
-docker compose -f $composeFile stop tsamaps_server_prod
-Write-Host "Servidor detenido."
+docker compose -f $proxyCompose stop tsamaps_server_prod
+
+Write-Host "Deteniendo asistente_nautico..."
+docker compose -f $botsCompose stop asistente_nautico
+
+Write-Host "Deteniendo open-webui..."
+docker compose -f $prodCompose stop open-webui
 
 Stop-Process -Name ngrok -Force -ErrorAction SilentlyContinue
 Write-Host "Túnel ngrok cerrado."

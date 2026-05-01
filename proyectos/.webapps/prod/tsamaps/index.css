@@ -31,6 +31,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
 }
 
 body {
@@ -371,6 +373,11 @@ body {
     font-weight: 600;
 }
 
+.panel-header .close-btn {
+    position: static;
+    font-size: 1.5rem;
+}
+
 .close-btn {
     background: transparent;
     border: none;
@@ -482,11 +489,12 @@ body {
     transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
-.floating-radio-btn:hover,
-.floating-radio-btn.active {
-    background: var(--brand-primary);
-    color: #fff;
-    box-shadow: 0 2px 14px rgba(0, 118, 214, 0.4);
+@media (hover: hover) {
+    .floating-radio-btn:hover {
+        background: var(--brand-primary);
+        color: #fff;
+        box-shadow: 0 2px 14px rgba(0, 118, 214, 0.4);
+    }
 }
 
 .floating-radio-btn.playing {
@@ -521,6 +529,144 @@ body {
     transform: translateY(-10px);
     opacity: 0;
     pointer-events: none;
+}
+
+.radio-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.radio-search-input {
+    width: 100%;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 118, 214, 0.2);
+    box-sizing: border-box;
+}
+
+.radio-results {
+    max-height: 150px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.active-radio {
+    background: linear-gradient(135deg, rgba(0, 118, 214, 0.05), rgba(0, 118, 214, 0.1));
+    border: 1px solid rgba(0, 118, 214, 0.2);
+    border-radius: 12px;
+    padding: 0.75rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.radio-now-playing {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.radio-name {
+    flex: 1;
+    font-weight: 600;
+    color: var(--brand-primary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.radio-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2ecc71;
+    flex-shrink: 0;
+    animation: radio-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes radio-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+.radio-player-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(0, 118, 214, 0.12);
+    border-radius: 30px;
+    padding: 0.4rem 0.75rem;
+}
+
+.radio-play-btn {
+    background: var(--brand-primary);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+}
+
+.radio-play-btn:hover { transform: scale(1.08); }
+.radio-play-btn:active { transform: scale(0.95); }
+
+.radio-volume-slider {
+    flex: 1;
+    min-width: 0;
+    height: 4px;
+    border-radius: 2px;
+    appearance: none;
+    background: rgba(0, 118, 214, 0.2);
+    cursor: pointer;
+    outline: none;
+}
+
+.radio-volume-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--brand-primary);
+    cursor: pointer;
+}
+
+.radio-volume-value {
+    font-size: 0.75rem;
+    color: var(--brand-primary);
+    font-weight: 600;
+    min-width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.radio-mute-btn {
+    background: transparent;
+    color: var(--brand-text-muted);
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color 0.2s;
 }
 
 /* Sun/Moon Panel */
@@ -652,6 +798,7 @@ body {
     flex-direction: column;
     padding: 2rem 1.5rem;
 }
+
 
 .search-container {
     margin-bottom: 1.5rem;
@@ -857,7 +1004,7 @@ body {
 .feature-list li {
     margin-bottom: 1rem;
     line-height: 1.6;
-    padding-left: 1.8rem;
+    padding-left: 0;
     position: relative;
     font-size: 0.95rem;
     color: var(--brand-text-muted);
@@ -868,7 +1015,7 @@ body {
 }
 
 .feature-list li::before {
-    content: '⚓';
+    content: '';
     position: absolute;
     left: 0;
     top: 2px;
@@ -913,6 +1060,8 @@ body {
     color: var(--brand-text-muted);
     cursor: pointer;
     line-height: 1;
+    display: flex;
+    align-items: center;
     transition: color 0.2s;
     font-weight: 300;
 }
@@ -1158,6 +1307,29 @@ body {
     }
 }
 
+/* ── Wind Legend ─────────────────────────────────────────────────── */
+#wind-legend {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.93);
+    border-radius: 8px;
+    padding: 8px 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    z-index: var(--z-header);
+    pointer-events: none;
+}
+
+/* ── MOB Emergency Call Buttons ─────────────────────────────────── */
+#sos-tracking-panel a[href^="tel"] {
+    transition: transform 0.1s, opacity 0.1s;
+}
+#sos-tracking-panel a[href^="tel"]:active {
+    transform: scale(0.93);
+    opacity: 0.75;
+}
+
 /* ── VesselFinder Close Button ───────────────────────────────────── */
 .vessel-close-btn {
     display: flex;
@@ -1182,6 +1354,64 @@ body {
 .vessel-close-btn:hover {
     background: rgba(232, 65, 24, 0.85);
     transform: translateY(-2px);
+}
+
+/* ── Guide Spotlight (bienvenida → botón Manual) ────────────────── */
+.guide-spotlight {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-tooltip);
+    pointer-events: all;
+    animation: spotlightFadeIn 0.4s ease forwards;
+}
+.guide-spotlight.hidden { display: none; }
+
+/* recorte circular — posicionado por JS con top/left/width/height */
+.guide-spotlight-hole {
+    position: absolute;
+    border-radius: 50%;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.72);
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+/* etiqueta de texto debajo del recorte — posicionada por JS */
+.guide-spotlight-label {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    color: #ffffff;
+    max-width: 260px;
+}
+.guide-spotlight-label strong {
+    font-size: 1rem;
+    font-weight: 700;
+}
+.guide-spotlight-label span {
+    font-size: 0.82rem;
+    opacity: 0.88;
+    line-height: 1.45;
+}
+.guide-spotlight-dismiss {
+    margin-top: 6px;
+    background: #ffffff;
+    color: #1a1a1a;
+    border: none;
+    border-radius: 20px;
+    padding: 7px 22px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.guide-spotlight-dismiss:hover { background: #e2e8f0; }
+
+@keyframes spotlightFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 /* ── Toast Notifications ─────────────────────────────────────────── */
@@ -1342,11 +1572,12 @@ body {
 
 .permissions-list li {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap: 8px;
     font-size: 0.95rem;
     color: #3a4a5c;
+    text-align: left;
 }
 
 .permissions-list li svg {
@@ -1525,11 +1756,6 @@ body {
     transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
-.floating-chat-btn.active {
-    background: var(--brand-primary);
-    color: #fff;
-    box-shadow: 0 2px 14px rgba(0, 118, 214, 0.4);
-}
 
 @media (hover: hover) {
     .floating-chat-btn:hover {
@@ -1545,7 +1771,7 @@ body {
     top: 50%;
     left: 16px;
     transform: translateY(-50%);
-    width: 340px;
+    width: 410px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -1571,7 +1797,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
-    max-height: 280px;
+    max-height: 438px;
     overflow-y: auto;
     padding-right: 0.2rem;
 }

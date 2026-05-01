@@ -28,4 +28,4 @@ services:
     working_dir: /app
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    command: sh -c "pip install fastapi uvicorn httpx -q && uvicorn server:app --host 0.0.0.0 --port 5050"
+    command: sh -c "pip install fastapi uvicorn httpx ddgs -q && uvicorn server:app --host 0.0.0.0 --port 5050"
