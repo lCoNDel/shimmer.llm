@@ -4,4 +4,5 @@ Referencia: https://docs.openwebui.com/tutorials/integrations/onedrive-sharepoin
 
 Requiere registrar una app en Azure Entra ID, conceder permisos de Graph (Files.Read, Sites.Read.All, etc.) y añadir variables de entorno al compose. Además hay que activarlo desde el Admin Panel — las variables solas no bastan.
 
-Pendiente: hablar con Viviana para las credenciales Azure y la URL exacta del tenant de SharePoint. Probar primero en dev antes de tocar prod. HTTPS obligatorio en producción.
+
+OK: Solo es necesario desplegar el aplicativo en Azure.

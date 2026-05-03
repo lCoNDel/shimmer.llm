@@ -195,17 +195,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 1. inicialización del mapa (vista inicial: mediterráneo español)
     const map = L.map('map', {
-        zoomControl: false, // se mueve al panel inferior derecho
+        zoomControl: false,
         attributionControl: false,
         maxBounds: [[-90, -180], [90, 180]],
         maxBoundsViscosity: 1.0,
         minZoom: 4
     }).setView([39.5, 2.5], 7);
 
-    // control de zoom abajo a la derecha
-    L.control.zoom({
-        position: 'bottomright'
-    }).addTo(map);
 
     // 2. capa base del mapa (cartodb positron, tema claro)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -227,7 +223,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const weatherPanel = document.getElementById('weatherPanel');
     const weatherContent = document.getElementById('weatherContent');
     const loader = document.getElementById('loader');
-    if (window.innerWidth > 768) weatherPanel.classList.remove('closed');
+    const isTabletPortrait = window.innerWidth > 768 && window.innerWidth <= 1024 && window.matchMedia('(orientation: portrait)').matches;
+    if (window.innerWidth > 768 && !isTabletPortrait) weatherPanel.classList.remove('closed');
 
     const latlonDisplay = document.getElementById('latlonDisplay');
     const geoBtn = document.getElementById('geoBtn');
@@ -293,11 +290,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, duration);
     }
 
-    // Muestra el tooltip de una herramienta al activarla y lo oculta a los 2.5s
-    function showToolLabel(btn) {
-        btn.classList.add('tooltip-active');
-        setTimeout(() => btn.classList.remove('tooltip-active'), 2500);
-    }
 
     // Feedback al intentar consultar condiciones con herramienta activa (no se repite hasta 3s después)
     let _toolBlockFeedbackTimer = null;
@@ -1374,7 +1366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (isTrafficActive) {
             toggleTrafficBtn.classList.add('active');
-            showToolLabel(toggleTrafficBtn);
+
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
             closeRadioPanel();
 
@@ -1548,7 +1540,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (isRulerActive) { rulerBtn.click(); }
 
                 owmLayerBtn.classList.add('active');
-                showToolLabel(owmLayerBtn);
+
                 isRadarActive = true;
 
                 const frames = await getRainViewerFrames();
@@ -2497,7 +2489,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeSunMoonPanel();
         }
         chatPanel.classList.remove('closed');
-        if (window.innerWidth > 768) chatInput.focus();
+        if (!window.matchMedia('(pointer: coarse)').matches) chatInput.focus();
         if (!chatWelcomeShown) {
             chatWelcomeShown = true;
             const welcomeEl = document.createElement('div');
@@ -2570,5 +2562,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     chatSendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+
+    screen.orientation?.addEventListener('change', () => {
+        setTimeout(() => map.invalidateSize(), 300);
+    });
 
 });

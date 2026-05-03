@@ -195,17 +195,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 1. inicialización del mapa (vista inicial: mediterráneo español)
     const map = L.map('map', {
-        zoomControl: false, // se mueve al panel inferior derecho
+        zoomControl: false,
         attributionControl: false,
         maxBounds: [[-90, -180], [90, 180]],
         maxBoundsViscosity: 1.0,
         minZoom: 4
     }).setView([39.5, 2.5], 7);
 
-    // control de zoom abajo a la derecha
-    L.control.zoom({
-        position: 'bottomright'
-    }).addTo(map);
 
     // 2. capa base del mapa (cartodb positron, tema claro)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -227,7 +223,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const weatherPanel = document.getElementById('weatherPanel');
     const weatherContent = document.getElementById('weatherContent');
     const loader = document.getElementById('loader');
-    if (window.innerWidth > 768) weatherPanel.classList.remove('closed');
+    const isTabletPortrait = window.innerWidth > 768 && window.innerWidth <= 1024 && window.matchMedia('(orientation: portrait)').matches;
+    if (window.innerWidth > 768 && !isTabletPortrait) weatherPanel.classList.remove('closed');
 
     const latlonDisplay = document.getElementById('latlonDisplay');
     const geoBtn = document.getElementById('geoBtn');
@@ -263,8 +260,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     let gpsMarineRefreshId = null; // intervalo de refresco de datos marinos durante GPS
     let lastGpsLat = null;
     let lastGpsLng = null;
+    let lastRequestedLat = null;
+    let lastRequestedLng = null;
     const GPS_MARINE_REFRESH_MS = 5 * 60 * 1000; // refresca condiciones cada 5 min
 
+
+    // cierra un panel genérico añadiéndole 'closed'; opcionalmente desactiva su botón
+    function closePanel(panelEl, btnEl = null) {
+        panelEl.classList.add('closed');
+        if (btnEl) {
+            btnEl.classList.remove('active');
+            btnEl.blur();
+        }
+    }
+
+    // helper de debounce: retrasa fn ms milisegundos, cancelando llamadas anteriores
+    function debounce(fn, ms) {
+        let timer = null;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn(...args), ms);
+        };
+    }
 
     // muestra una notificación toast
     function showToast(message, extraClass = '') {
@@ -293,11 +310,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, duration);
     }
 
-    // Muestra el tooltip de una herramienta al activarla y lo oculta a los 2.5s
-    function showToolLabel(btn) {
-        btn.classList.add('tooltip-active');
-        setTimeout(() => btn.classList.remove('tooltip-active'), 2500);
-    }
 
     // Feedback al intentar consultar condiciones con herramienta activa (no se repite hasta 3s después)
     let _toolBlockFeedbackTimer = null;
@@ -516,12 +528,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     addSwipeToClose(radioPanel);
 
+    const debouncedFetchSuggestions = debounce((query) => fetchSuggestions(query), 600);
+
     globalSearchInput.addEventListener('input', (e) => {
         const query = e.target.value;
         globalSearchClearBtn.classList.toggle('hidden', !query);
-        if (globalSearchTimeout) clearTimeout(globalSearchTimeout);
         if (!query) { globalSearchResults.classList.add('hidden'); return; }
-        globalSearchTimeout = setTimeout(() => fetchSuggestions(query), 600);
+        debouncedFetchSuggestions(query);
     });
 
     globalSearchInput.addEventListener('keydown', (e) => {
@@ -561,7 +574,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     function closeWeatherPanel() {
-        weatherPanel.classList.add('closed');
+        closePanel(weatherPanel);
         syncGpsShortcutBtn();
     }
 
@@ -572,18 +585,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function closeRadioPanel() {
-        radioPanel.classList.add('closed');
-        radioBtn.classList.remove('active');
+        closePanel(radioPanel, radioBtn);
     }
 
     function closeSearchPanel() {
-        searchPanel.classList.add('closed');
+        closePanel(searchPanel);
     }
 
     function closeSunMoonPanel() {
-        sunMoonPanel.classList.add('closed');
-        sunMoonBtn.classList.remove('active');
-        sunMoonBtn.blur();
+        closePanel(sunMoonPanel, sunMoonBtn);
     }
 
     document.getElementById('closeWeatherBtn').addEventListener('click', closeWeatherPanel);
@@ -605,6 +615,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+
+    // elimina todos los markers de distribuidores del mapa y vacía el array
+    function clearDealerMarkers() {
+        dealerMarkers.forEach(m => map.removeLayer(m.marker));
+        dealerMarkers = [];
+    }
 
     // inicializa marcadores y lista de distribuidores
     function initDealers() {
@@ -898,12 +914,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             isTrackingActive = true;
             geoBtn.classList.add('active');
             syncGpsShortcutBtn();
-            clearInterval(gpsMarineRefreshId);
-            gpsMarineRefreshId = setInterval(async () => {
-                if (lastGpsLat !== null && lastGpsLng !== null) {
-                    try { await fetchMarineWeatherAnalysis(lastGpsLat, lastGpsLng); } catch (_) {}
-                }
-            }, GPS_MARINE_REFRESH_MS);
+            if (!gpsMarineRefreshId) {
+                gpsMarineRefreshId = setInterval(async () => {
+                    if (lastGpsLat !== null && lastGpsLng !== null) {
+                        try { await fetchMarineWeatherAnalysis(lastGpsLat, lastGpsLng); } catch (_) {}
+                    }
+                }, GPS_MARINE_REFRESH_MS);
+            }
 
             trackingWatchId = navigator.geolocation.watchPosition(
                 async (position) => {
@@ -969,8 +986,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 7. datos meteorológicos marinos (open-meteo)
     async function fetchMarineWeatherAnalysis(lat, lng) {
-        window.lastRequestedLat = lat;
-        window.lastRequestedLng = lng;
+        lastRequestedLat = lat;
+        lastRequestedLng = lng;
 
         // solicita oleaje, viento, temperatura de superficie y nivel del mar
         const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&current=swell_wave_height,swell_wave_direction,swell_wave_period,wind_wave_height&hourly=sea_surface_temperature,sea_level_height_msl`;
@@ -1126,8 +1143,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         sunMoonBtn.classList.add('active');
         closeChatPanel();
         // coordenadas en orden de prioridad
-        const lat = lastGpsLat ?? window.lastRequestedLat ?? map.getCenter().lat;
-        const lng = lastGpsLng ?? window.lastRequestedLng ?? map.getCenter().lng;
+        const lat = lastGpsLat ?? lastRequestedLat ?? map.getCenter().lat;
+        const lng = lastGpsLng ?? lastRequestedLng ?? map.getCenter().lng;
         try {
             computeSunMoon(lat, lng);
         } catch (e) {
@@ -1227,13 +1244,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // debounce de búsqueda de radio
-    let radioSearchTimeout = null;
+    const debouncedSearchRadio = debounce((query) => {
+        if (query.trim().length >= 2) searchRadioStations(query);
+    }, 600);
 
     function handleRadioInput(e) {
         const query = e.target.value;
-
-        // cancela el timeout anterior
-        if (radioSearchTimeout) clearTimeout(radioSearchTimeout);
 
         if (query.trim().length === 0) {
             radioResults.innerHTML = '<p class="empty-state" style="padding: 0.5rem; font-size: 0.9rem;">Busca una estación para escuchar.</p>';
@@ -1245,21 +1261,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             radioResults.innerHTML = '<p style="padding: 0.5rem; text-align: center; font-size: 0.9rem; color: var(--brand-text-muted);">Escribiendo...</p>';
         }
 
-        // espera 600ms tras el último carácter
-        radioSearchTimeout = setTimeout(() => {
-            if (query.trim().length >= 2) {
-                searchRadioStations(query);
-            }
-        }, 600);
+        debouncedSearchRadio(query);
     }
 
     radioSearchInput.addEventListener('input', handleRadioInput);
     radioSearchInput.addEventListener('keyup', (e) => {
         // fuerza búsqueda al presionar enter
-        if (e.key === 'Enter') {
-            if (radioSearchTimeout) clearTimeout(radioSearchTimeout);
-            searchRadioStations(radioSearchInput.value);
-        }
+        if (e.key === 'Enter') searchRadioStations(radioSearchInput.value);
     });
 
     // controles personalizados de radio
@@ -1374,7 +1382,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (isTrafficActive) {
             toggleTrafficBtn.classList.add('active');
-            showToolLabel(toggleTrafficBtn);
+
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
             closeRadioPanel();
 
@@ -1548,7 +1556,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (isRulerActive) { rulerBtn.click(); }
 
                 owmLayerBtn.classList.add('active');
-                showToolLabel(owmLayerBtn);
+
                 isRadarActive = true;
 
                 const frames = await getRainViewerFrames();
@@ -2497,7 +2505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeSunMoonPanel();
         }
         chatPanel.classList.remove('closed');
-        if (window.innerWidth > 768) chatInput.focus();
+        if (!window.matchMedia('(pointer: coarse)').matches) chatInput.focus();
         if (!chatWelcomeShown) {
             chatWelcomeShown = true;
             const welcomeEl = document.createElement('div');
@@ -2507,7 +2515,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     function closeChatPanel() {
-        chatPanel.classList.add('closed');
+        closePanel(chatPanel);
         chatInput.blur();
     }
 
@@ -2570,5 +2578,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     chatSendBtn.addEventListener('click', sendMessage);
     chatInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+
+    screen.orientation?.addEventListener('change', () => {
+        setTimeout(() => map.invalidateSize(), 300);
+    });
 
 });

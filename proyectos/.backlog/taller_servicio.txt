@@ -1,5 +1,0 @@
-Consulta de Boletines - OK
-
-Cruzar Datos telemetria G3 - OK
-
-Asistente para Taller - Puede ayudar a orientar al técnico o dar pistas clave pero es poco probable que de con la solución en el contexto actual, se usa un argot muy diferente al mencionado en los manuales y es clave para el agente que la persona que lo opera conozca el detalle de la documentación, tecnicismos, referencias etc. Si el técnico no es capaz de lanzar un prompt adecuado que permita al agente cruzar datos con el manual de forma eficiente las respuestas serán muy confusas

@@ -11,10 +11,6 @@
     display: none;
 }
 
-/* Ocultar botón radio header en desktop (ya está en el mapa) */
-#radioMobileBtn {
-    display: none;
-}
 
 
 /* ---- TABLET (≤1024px) ------------------------------------ */
@@ -25,6 +21,10 @@
 
     .weather-panel {
         width: 300px;
+    }
+
+    .weather-grid {
+        gap: 0.6rem;
     }
 
     .search-panel {
@@ -51,6 +51,48 @@
         left: auto !important;
         right: 60px !important;
         transform: none !important;
+    }
+}
+
+/* ---- TABLET PORTRAIT (769px–1024px, vertical) ------------ */
+/* El panel de condiciones marítimas se comporta como en móvil:
+   oculto por defecto, accesible mediante el botón GPS flotante. */
+@media screen and (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+
+    .floating-gps-btn {
+        display: flex;
+    }
+
+    .weather-panel {
+        position: fixed;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-height: 75vh;
+        overflow-y: auto;
+        border-radius: 16px 16px 0 0;
+        border: none;
+        border-top: 1px solid var(--brand-accent);
+        padding: 0.5rem 1.2rem 1.5rem;
+    }
+
+    .weather-panel.closed {
+        transform: translateY(100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .floating-gps-btn {
+        touch-action: manipulation;
+    }
+
+    .floating-gps-btn:focus:not(.active) {
+        background: rgba(255, 255, 255, 0.95) !important;
+        color: var(--brand-text) !important;
+        box-shadow: none !important;
+        outline: none !important;
     }
 }
 
@@ -227,10 +269,6 @@
     }
 
 
-    /* -- Ocultar zoom de Leaflet en mobile (el mapa se hace zoom con pellizco) -- */
-    .leaflet-control-zoom {
-        display: none !important;
-    }
 
     /* -- SOS: mover a la derecha, alineado con las herramientas -- */
     #floatingSosContainer {
@@ -450,6 +488,76 @@
     .btn,
     .close-btn {
         touch-action: manipulation;
+    }
+
+}
+
+/* ---- TABLET LANDSCAPE (769px–1366px, orientación horizontal) ------------- */
+/* Samsung Tab S7 FE y similares: viewport ~800px alto. Sin este bloque los
+   drawers (75–80vh) y los botones con bottom fijo quedan cortados o fuera
+   de pantalla al girar el dispositivo.                                        */
+@media screen and (min-width: 769px) and (max-width: 1366px) and (orientation: landscape) {
+
+    body {
+        height: 100dvh;
+    }
+
+    /* Drawers: reducir altura máxima para que quepan en viewport corto */
+    .weather-panel {
+        max-height: calc(100dvh - 80px);
+        overflow-y: auto;
+    }
+
+    /* Alarma de fondeo: visible en tablet landscape — mantener posicionamiento
+       desktop (absolute sobre su contenedor), no sobreescribir con fixed */
+    .floating-alarm-container {
+        display: flex;
+    }
+
+    /* Botones flotantes inferiores: subir para no quedar fuera del viewport */
+    #floatingSosContainer {
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    .map-controls-bottom-left {
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .leaflet-bottom {
+        padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Radar HUD: bajar top para que no solape con el header */
+    .radar-hud {
+        top: 80px;
+    }
+}
+
+/* ---- MÓVIL LANDSCAPE (alto ≤500px, horizontal) --------------------------- */
+/* En landscape móvil el ancho supera 768px pero el alto es pequeño (~400px).
+   Usamos max-height para distinguirlo de tablet landscape.                    */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+
+    body {
+        height: 100dvh;
+    }
+
+    /* Mostrar botón GPS y comportamiento drawer como en móvil portrait */
+    .floating-gps-btn {
+        display: flex;
+        left: 112px;
+        right: auto;
+        top: 12px;
+    }
+
+    .floating-chat-btn {
+        left: 62px;
+        right: auto;
+        transform: none;
+    }
+
+    .floating-radio-btn {
+        left: 12px;
     }
 
 }
