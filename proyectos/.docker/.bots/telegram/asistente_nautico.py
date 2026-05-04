@@ -29,7 +29,10 @@ SYSTEM_PROMPT = (
     "Eres el asistente náutico de Touron S.A. Antes de responder cualquier pregunta técnica "
     "sobre motores, mantenimiento, repuestos, manuales o productos, DEBES llamar a la herramienta "
     "`query_knowledge_files` para buscar en la base de conocimiento. "
-    "No respondas de memoria si la pregunta puede tener respuesta en los documentos."
+    "No respondas de memoria si la pregunta puede tener respuesta en los documentos. "
+    "Cuando llames a `query_knowledge_files`, usa siempre count=15. "
+    "Al redactar la respuesta, cita el nombre del documento fuente entre paréntesis al final de cada párrafo o afirmación, "
+    "por ejemplo: (Verado V12 ES.pdf) o (875_Sundeck_ES.pdf). Usa el nombre exacto que aparece en los resultados de búsqueda."
 )
 
 
@@ -190,8 +193,8 @@ def execute_tool_calls(tool_calls: list, headers: dict) -> list:
 
         logging.info(f"Tool call: '{name}', args: {args}")
 
-        if name == "view_knowledge_file":
-            # El modelo quiere leer el texto completo de un archivo
+        if name in ("view_knowledge_file", "view_file"):
+            # El modelo quiere leer el texto completo de un archivo (por UUID o nombre)
             file_id = args.get("file_id", args.get("filename", ""))
             max_chars = args.get("max_chars", 10000)
             offset = args.get("offset", 0)
@@ -383,9 +386,9 @@ def handle_web_command(message):
             return
         if len(answer) > 4000:
             for i in range(0, len(answer), 4000):
-                bot.send_message(message.chat.id, answer[i:i+4000])
+                bot.send_message(message.chat.id, answer[i:i+4000], parse_mode='Markdown')
         else:
-            bot.reply_to(message, answer)
+            bot.reply_to(message, answer, parse_mode='Markdown')
     except Exception as e:
         logging.exception("Error en /web")
         bot.reply_to(message, f"Ocurrió un error inesperado: {str(e)}")
@@ -456,9 +459,9 @@ def handle_photo(message):
             user_history[user_id]["messages"].append({"role": "assistant", "content": answer})
             if len(answer) > 4000:
                 for i in range(0, len(answer), 4000):
-                    bot.send_message(message.chat.id, answer[i:i+4000])
+                    bot.send_message(message.chat.id, answer[i:i+4000], parse_mode='Markdown')
             else:
-                bot.reply_to(message, answer)
+                bot.reply_to(message, answer, parse_mode='Markdown')
         else:
             logging.error(f"Error Open WebUI imagen ({response.status_code}): {response.text[:300]}")
             bot.reply_to(message, "Lo siento, hubo un problema al procesar la imagen.")
@@ -521,9 +524,9 @@ def handle_document(message):
             user_history[user_id]["messages"].append({"role": "assistant", "content": answer})
             if len(answer) > 4000:
                 for i in range(0, len(answer), 4000):
-                    bot.send_message(message.chat.id, answer[i:i+4000], reply_markup=main_keyboard())
+                    bot.send_message(message.chat.id, answer[i:i+4000], parse_mode='Markdown', reply_markup=main_keyboard())
             else:
-                bot.send_message(message.chat.id, answer, reply_markup=main_keyboard())
+                bot.send_message(message.chat.id, answer, parse_mode='Markdown', reply_markup=main_keyboard())
         else:
             bot.reply_to(message, "Error al procesar el documento.")
 
@@ -629,9 +632,9 @@ def handle_message(message):
         # Telegram tiene límite de 4096 caracteres por mensaje
         if len(answer) > 4000:
             for i in range(0, len(answer), 4000):
-                bot.send_message(message.chat.id, answer[i:i+4000])
+                bot.send_message(message.chat.id, answer[i:i+4000], parse_mode='Markdown')
         else:
-            bot.send_message(message.chat.id, answer, reply_markup=main_keyboard())
+            bot.send_message(message.chat.id, answer, parse_mode='Markdown', reply_markup=main_keyboard())
 
     except Exception as e:
         logging.exception("Error procesando mensaje")

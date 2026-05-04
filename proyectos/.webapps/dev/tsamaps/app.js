@@ -561,7 +561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (isSosActive) return;
         weatherWasOpen = !weatherPanel.classList.contains('closed');
         searchPanel.classList.remove('closed');
-        searchInput.focus();
+        if (window.innerWidth > 768) searchInput.focus();
         map.invalidateSize({ animate: true });
         closeChatPanel();
         closeWeatherPanel();

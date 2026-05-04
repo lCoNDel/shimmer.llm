@@ -179,3 +179,78 @@ El historial del usuario se persiste en memoria durante la sesión del contenedo
 
 **count:5 en query_knowledge_files vs k:15 en Open WebUI:**
 El argumento `count` que pasa el modelo en la tool call es una sugerencia, pero el número real de chunks devueltos lo controla el pipeline de Open WebUI (reranker top-k=15). En los logs de esta sesión se observó que con `count:5` se devolvieron 4 chunks — el reranker filtró por score. Si se necesitan más chunks por búsqueda, no basta con subir `count` en el bot; hay que revisar el threshold de score en el reranker de Open WebUI.
+
+---
+
+## asistente_nautico — Mejoras RAG (segunda sesión 2026-05-04)
+
+### count:15 forzado en SYSTEM_PROMPT
+
+El modelo usaba `count:5` por defecto al llamar `query_knowledge_files`. Añadida instrucción explícita en `SYSTEM_PROMPT`: `"Cuando llames a query_knowledge_files, usa siempre count=15."` El modelo lo respeta — confirmado en logs (`count:15` en todas las tool calls posteriores). El número real de chunks devueltos sigue dependiendo del reranker (threshold 0.3), no del count.
+
+**Verificado:** con query larga y específica se alcanzaron 15 chunks en una sola búsqueda. Scores: 0.988 → 0.532 (último chunk raspando el threshold).
+
+### `view_file` mapeada en execute_tool_calls
+
+El modelo llamaba ocasionalmente `view_file` (tool nativa de Open WebUI) que el bot no implementaba. Identificado en `builtin.py` del contenedor `open-webui`: `view_file(file_id, offset, max_chars)` espera UUID del archivo, igual que `view_knowledge_file`. Añadido como alias en `execute_tool_calls`:
+
+```python
+if name in ("view_knowledge_file", "view_file"):
+```
+
+### Citas de fuente inline en respuestas
+
+Añadida instrucción en `SYSTEM_PROMPT` para que el modelo cite el nombre del documento entre paréntesis al final de cada párrafo: `(Verado V12 ES.pdf)`. Permite al usuario identificar de qué documento proviene cada afirmación cuando se consultan múltiples fuentes simultáneamente.
+
+Alternativa descartada: citas numéricas `[1]`, `[2]` — el modelo las usaba correctamente pero el usuario no podía relacionar el número con la página sin leer el footer.
+
+### parse_mode='Markdown' en mensajes de Telegram
+
+Activado `parse_mode='Markdown'` (v1) en todos los `bot.send_message` y `bot.reply_to` que envían respuestas del modelo. Los mensajes de sistema (errores, confirmaciones) se dejan sin parse_mode para evitar fallos por caracteres especiales.
+
+MarkdownV2 descartado: requiere escapar `.`, `(`, `)`, `-`, `!` — inviable con respuestas generadas por LLM.
+
+---
+
+## tsamaps (dev) — UX móvil
+
+### Teclado no se abre al abrir Red Náutica en móvil
+
+En `app.js`, el `searchInput.focus()` al abrir el panel de distribuidores se ejecutaba siempre, abriendo el teclado virtual en móvil/tablet. Condicionado a `window.innerWidth > 768`:
+
+```js
+if (window.innerWidth > 768) searchInput.focus();
+```
+
+En desktop el comportamiento no cambia. En móvil/tablet el panel se abre sin activar el teclado — solo se abre si el usuario toca el input manualmente.
+
+---
+
+## Contexto técnico para agentes (actualización)
+
+**SYSTEM_PROMPT actual completo:**
+```python
+SYSTEM_PROMPT = (
+    "Eres el asistente náutico de Touron S.A. Antes de responder cualquier pregunta técnica "
+    "sobre motores, mantenimiento, repuestos, manuales o productos, DEBES llamar a la herramienta "
+    "`query_knowledge_files` para buscar en la base de conocimiento. "
+    "No respondas de memoria si la pregunta puede tener respuesta en los documentos. "
+    "Cuando llames a `query_knowledge_files`, usa siempre count=15. "
+    "Al redactar la respuesta, cita el nombre del documento fuente entre paréntesis al final de cada párrafo o afirmación, "
+    "por ejemplo: (Verado V12 ES.pdf) o (875_Sundeck_ES.pdf). Usa el nombre exacto que aparece en los resultados de búsqueda."
+)
+```
+
+**Por qué count=15 en el SYSTEM_PROMPT y no hardcodeado en run_knowledge_search:**
+El `count` lo pasa el modelo como argumento en la tool call — el bot no lo controla directamente. `run_knowledge_search` ya tiene `k: 15` hardcodeado para la llamada al reranker, pero el modelo decide cuántos pedir. Sin la instrucción en el SYSTEM_PROMPT, el modelo elige `count:5` por defecto.
+
+**Por qué el número de chunks real no coincide siempre con count=15:**
+El reranker filtra por score (threshold 0.3 en Admin Panel). Con queries genéricas o cortas, pocos chunks superan el threshold — se devuelven 4-6 aunque se pidan 15. Con queries largas y específicas (muchos términos del dominio), más chunks superan el threshold — se alcanzan los 15. El techo real es el `reranker top-k` de Open WebUI (actualmente 15).
+
+**Builtin tools de Open WebUI relevantes para RAG (de `/app/backend/open_webui/tools/builtin.py`):**
+- `query_knowledge_files(query, count)` — búsqueda híbrida semántica+BM25
+- `view_knowledge_file(file_id, offset, max_chars)` — lectura por UUID
+- `view_file(file_id, offset, max_chars)` — igual, alias más genérico
+- `search_knowledge_files(query, knowledge_id, count)` — búsqueda por nombre de archivo
+- `list_knowledge_bases(count, skip)` — lista KBs accesibles
+- Si el modelo llama otras tools no implementadas en el bot, caen en el handler genérico de búsqueda y devuelven "No se encontró query en los argumentos".
