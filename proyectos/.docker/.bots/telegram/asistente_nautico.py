@@ -41,16 +41,9 @@ def extract_answer(response_json: dict) -> str:
 
 # --- RAG: discovery de knowledge bases ---
 
-# Caché de IDs de colecciones del modelo. Se rellena en la primera llamada
-# y se reutiliza durante toda la vida del proceso para evitar requests repetidas.
-_model_kb_collections = None
-
 def get_model_kb_collections(headers: dict) -> list:
     # consulta la api de open webui para obtener los ids de knowledge bases asociadas al modelo.
-    global _model_kb_collections
-    if _model_kb_collections is not None:
-        return _model_kb_collections
-
+    # sin caché — consulta siempre para reflejar cambios en la KB sin reiniciar el bot.
     try:
         resp = requests.get(f"{OPENWEBUI_BASE}/api/v1/models/model?id={MODEL_ID}", headers=headers, timeout=15)
         if resp.status_code == 200:
@@ -58,12 +51,10 @@ def get_model_kb_collections(headers: dict) -> list:
             knowledge = data.get("meta", {}).get("knowledge", [])
             ids = [kb["id"] for kb in knowledge if isinstance(kb, dict) and kb.get("id")]
             logging.info(f"KB collections del modelo '{MODEL_ID}': {ids}")
-            _model_kb_collections = ids
             return ids
     except Exception as e:
         logging.warning(f"Error obteniendo KB collections del modelo: {e}")
 
-    _model_kb_collections = []
     return []
 
 
@@ -79,9 +70,8 @@ def run_knowledge_search(query: str, headers: dict) -> str:
     try:
         collection_names = get_model_kb_collections(headers)
 
-        # Fallback: si el modelo no tiene colecciones en su config, intentar listarlas
+        # Fallback: si el modelo no tiene colecciones en su config, listarlas directamente
         if not collection_names:
-            logging.warning("Sin colecciones KB — intentando con /api/v1/knowledge/")
             kb_resp = requests.get(f"{OPENWEBUI_BASE}/api/v1/knowledge/", headers=headers, timeout=15)
             if kb_resp.status_code == 200:
                 kbs = kb_resp.json()
@@ -102,7 +92,7 @@ def run_knowledge_search(query: str, headers: dict) -> str:
         ret_resp = requests.post(
             f"{OPENWEBUI_BASE}/api/v1/retrieval/query/collection",
             headers=headers,
-            json={"collection_names": collection_names, "query": query, "k": 6, "hybrid": True},
+            json={"collection_names": collection_names, "query": query, "k": 15, "hybrid": True},
             timeout=60
         )
 
@@ -141,6 +131,16 @@ def get_file_content(file_name_or_id: str, headers: dict, max_chars: int = 10000
     # recupera el contenido de un archivo de la knowledge base por nombre o uuid.
     try:
         collection_names = get_model_kb_collections(headers)
+        if not collection_names:
+            kb_resp = requests.get(f"{OPENWEBUI_BASE}/api/v1/knowledge/", headers=headers, timeout=15)
+            if kb_resp.status_code == 200:
+                kbs = kb_resp.json()
+                items = kbs if isinstance(kbs, list) else kbs.get("items", [])
+                for kb in items:
+                    if isinstance(kb, str):
+                        collection_names.append(kb)
+                    elif isinstance(kb, dict) and kb.get("id"):
+                        collection_names.append(kb["id"])
         for kb_id in collection_names:
             kb_resp = requests.get(f"{OPENWEBUI_BASE}/api/v1/knowledge/{kb_id}", headers=headers, timeout=15)
             if kb_resp.status_code != 200:
