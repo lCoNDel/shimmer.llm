@@ -24,6 +24,14 @@ MODEL_ID = "asistente-touron"
 ALLOWED_USERS = None
 WEB_PREFIX = "/web "
 
+# System prompt inyectado en cada conversación para forzar el uso de RAG
+SYSTEM_PROMPT = (
+    "Eres el asistente náutico de Touron S.A. Antes de responder cualquier pregunta técnica "
+    "sobre motores, mantenimiento, repuestos, manuales o productos, DEBES llamar a la herramienta "
+    "`query_knowledge_files` para buscar en la base de conocimiento. "
+    "No respondas de memoria si la pregunta puede tener respuesta en los documentos."
+)
+
 
 # --- Utilidades de respuesta ---
 
@@ -605,7 +613,8 @@ def handle_message(message):
         messages = user_history[user_id]["messages"][-10:]
 
         logging.info(f"Enviando consulta a Open WebUI para el usuario {user_id}...")
-        answer = call_openwebui(messages, headers)
+        messages_with_system = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
+        answer = call_openwebui(messages_with_system, headers)
 
         if answer is None:
             bot.reply_to(message, "Lo siento, hubo un problema al conectar con Open WebUI.")

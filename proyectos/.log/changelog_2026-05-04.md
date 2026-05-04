@@ -50,6 +50,99 @@ El log `"Sin colecciones KB — intentando con /api/v1/knowledge/"` se eliminó 
 
 ---
 
+---
+
+## Open WebUI — Investigación RAG con agentes externos (GPT-5.4 nano)
+
+### Diagnóstico del problema
+
+Sesión de investigación extensa sobre el comportamiento del RAG de Open WebUI con modelos externos (GPT-5.4 nano). Se analizaron logs en tiempo real de ChromaDB/hybrid search para identificar causas raíz.
+
+### Hallazgos críticos: Native Function Calling (NFC)
+
+El comportamiento del RAG varía drásticamente según el valor de NFC en la configuración del agente:
+
+| NFC | Chunks recuperados | Comportamiento |
+|---|---|---|
+| **Default** | 15 (correcto) | Open WebUI controla el pipeline RAG — respeta Top K y reranker del Admin Panel |
+| **ON explícito** | 1 (incorrecto) | GPT toma control de la tool call y llama `query_knowledge_files` con `top_k=1` implícito, ignorando el Admin Panel |
+| **OFF** | 0 | Sin agentic tools — el modelo no puede llamar `crear_documento` ni ninguna otra tool |
+
+**Configuración correcta para GPT-5.4 nano: NFC = Default**
+
+### Hallazgo: modelo base vs agente
+
+Múltiples síntomas confusos (model dice "no tengo herramientas", ignora KB, no llama tools) se explicaron por estar chateando con el **modelo base GPT-5.4 nano directamente** en lugar del agente configurado en Workspace → Models. Al seleccionar el agente correcto, todas las tools funcionaron correctamente.
+
+### Query generation model: qwen3:1.7b problemático
+
+El modelo configurado en Admin Panel → Documents → Query Generation Model era `qwen3:1.7b`. Se identificó que:
+- Corrige nombres propios de marca: "Verado" → "verano" (Mercury Marine brand)
+- Genera queries vacías `[[]]` intermitentemente por queries mal generadas
+- Demasiado pequeño para dominio técnico náutico con terminología específica
+
+**Fix aplicado en template:** añadir instrucción de preservar nombres propios. Modelo pendiente de cambiar a uno de mayor capacidad.
+
+### RAG_SYSTEM_CONTEXT=true — probado y revertido
+
+Se añadió `RAG_SYSTEM_CONTEXT=true` a `prod.yml` para inyectar el contexto RAG en el system message en lugar del user message. Revertido por preferencia del usuario. El archivo `prod.yml` queda sin cambios netos respecto al commit anterior.
+
+### Propuesta de RAG template bilingüe
+
+Template propuesto para Admin Panel → Documents → RAG Template (pendiente de aplicar por el usuario):
+- `{{MESSAGES:END:1}}` en lugar de `{{MESSAGES:END:6}}` — solo analiza el último mensaje
+- 2 queries forzadas: primera en inglés, segunda en español
+- Límite de 5 palabras por query
+- Instrucción de preservar nombres propios
+
+### Web search: Tavily + DDGS investigados
+
+- **Tavily**: 2 queries paralelas (`asyncio.gather`), 10 resultados por query → 20 fuentes totales. Extracción de contenido ocurre en la API de Tavily, no en el loader de Open WebUI.
+- **DDGS**: meta-buscador que agrega Google, Bing, DDG, Yandex, etc. Sin API key. En algunas instalaciones usa Bing en segundo plano ([issue #16080](https://github.com/open-webui/open-webui/issues/16080)).
+- **SearXNG**: opción self-hosted gratuita, agrega 70+ motores. Pendiente de evaluar añadir al stack.
+
+---
+
+## asistente_nautico — System prompt para forzar RAG
+
+### Problema
+
+El bot enviaba la consulta del usuario al modelo `asistente-touron` sin system prompt propio. El modelo de Open WebUI tiene un system prompt configurado en la interfaz, pero al llamar la API directamente el modelo no siempre decide llamar a `query_knowledge_files` — responde de memoria si considera que puede hacerlo.
+
+Síntoma observado: logs del bot mostraban `Enviando consulta a Open WebUI` pero sin ningún `[iter N] tool_calls:` posterior. Open WebUI devolvía 200 pero el modelo respondía sin RAG.
+
+### Solución
+
+Añadida constante `SYSTEM_PROMPT` en `asistente_nautico.py` que se inyecta al inicio de cada llamada a `call_openwebui` sin persistirse en el historial del usuario:
+
+```python
+SYSTEM_PROMPT = (
+    "Eres el asistente náutico de Touron S.A. Antes de responder cualquier pregunta técnica "
+    "sobre motores, mantenimiento, repuestos, manuales o productos, DEBES llamar a la herramienta "
+    "`query_knowledge_files` para buscar en la base de conocimiento. "
+    "No respondas de memoria si la pregunta puede tener respuesta en los documentos."
+)
+```
+
+En `handle_message`, el system prompt se antepone a los mensajes del historial en cada llamada:
+
+```python
+messages_with_system = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
+answer = call_openwebui(messages_with_system, headers)
+```
+
+El historial `user_history[user_id]["messages"]` no incluye el system prompt — se aplica en vuelo en cada petición. El botón "Borrar Memoria" sigue funcionando sin afectar al system prompt.
+
+### Resultado verificado en logs
+
+Con el fix activo, el modelo hizo 4 iteraciones de tool calls para la query "mantenimientos de un Verado V12":
+- Iter 1: query EN → 4 chunks
+- Iter 2: query ES general → 4 chunks
+- Iter 3: query ES específica (300h) → 4 chunks
+- Iter 4: `view_knowledge_file` sobre `Verado V12 ES.pdf` → lectura directa del PDF
+
+---
+
 ## Contexto técnico para agentes
 
 **Archivos modificados:**
@@ -64,6 +157,12 @@ El log `"Sin colecciones KB — intentando con /api/v1/knowledge/"` se eliminó 
 - `.claude/commands/filebrowser.md`
 - `.claude/ops/` — 9 scripts `.ps1`
 
+**NFC Default vs ON en GPT — por qué importa:**
+Con NFC=ON explícito, GPT-5.4 nano llama a `query_knowledge_files` como tool call propia y pasa `top_k` implícito de 1, ignorando completamente el Top K=30 y reranker=15 del Admin Panel. Con NFC=Default, Open WebUI mantiene control del pipeline RAG y respeta la configuración. Este comportamiento está documentado en [issue #15173](https://github.com/open-webui/open-webui/issues/15173) y [#21164](https://github.com/open-webui/open-webui/issues/21164).
+
+**RAG template actual (Admin Panel → Documents):**
+Plantilla original `{{MESSAGES:END:6}}` con instrucción adicional de preservar nombres propios. Pendiente migrar a versión bilingüe EN/ES con `END:1` y límite de 5 palabras.
+
 **Por qué el modelo `asistente-touron` no tiene KB asignada:**
 Es intencionado. El bot fuerza el uso de `query_knowledge_files` como tool call explícita en lugar del RAG nativo de Open WebUI. El fallback a `/api/v1/knowledge/` lista todas las KBs disponibles en la instancia y usa esas colecciones. `KB collections del modelo: []` en los logs es normal, no un error.
 
@@ -74,3 +173,9 @@ El reranker de Open WebUI está configurado para devolver máximo 15 chunks. Ped
 1. `get_model_kb_collections()` → consulta `/api/v1/models/model?id=asistente-touron` → devuelve `[]`
 2. Fallback → consulta `/api/v1/knowledge/` → obtiene lista de KBs (`245f2ffa`, `ea80e4f0`, ...)
 3. Búsqueda sobre esas colecciones con `k: 15, hybrid: True`
+
+**Por qué el SYSTEM_PROMPT se inyecta en vuelo y no se guarda en user_history:**
+El historial del usuario se persiste en memoria durante la sesión del contenedor. Si el system prompt se guardase en `user_history`, los 10 mensajes de contexto (`messages[-10:]`) podrían incluirlo varias veces al acumularse. Al inyectarlo en vuelo (`[{"role": "system", ...}] + messages`), siempre aparece exactamente una vez al inicio de cada llamada a la API, independientemente de la longitud del historial.
+
+**count:5 en query_knowledge_files vs k:15 en Open WebUI:**
+El argumento `count` que pasa el modelo en la tool call es una sugerencia, pero el número real de chunks devueltos lo controla el pipeline de Open WebUI (reranker top-k=15). En los logs de esta sesión se observó que con `count:5` se devolvieron 4 chunks — el reranker filtró por score. Si se necesitan más chunks por búsqueda, no basta con subir `count` en el bot; hay que revisar el threshold de score en el reranker de Open WebUI.
