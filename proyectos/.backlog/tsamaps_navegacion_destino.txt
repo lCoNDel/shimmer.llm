@@ -1,0 +1,27 @@
+tsamaps — Navegación a Destino (rumbo activo)
+=============================================
+
+Nueva función de navegación activa con GPS. Requiere bloqueo GPS activo en todo momento.
+
+Flujo:
+- Activar modo navegación (botón en toolbar)
+- Tocar el mapa para fijar el punto de destino
+- El sistema muestra en tiempo real: distancia restante (NM), rumbo verdadero (°V)
+  y rumbo magnético (°M) con declinación aplicada, actualizados con cada tick GPS
+- Línea naranja barco → destino que se redibuja en tiempo real
+- Panel flotante con los datos de navegación y botón cancelar
+- Al llegar a ~0.05 NM del destino: aviso "¡Destino alcanzado!"
+
+Integración con sistemas existentes:
+- Reutilizar getBearing() y fetchDeclination() de la regla náutica
+- Hook en updateBoatMarker() para actualizar distancia/rumbo en cada tick GPS
+- Patrón gpsAutoStartedBy para activar GPS automáticamente si no está activo
+- MOB tiene prioridad absoluta — desactiva navegación si se activa
+- Desactiva modos incompatibles (regla, radar, viento, tráfico)
+
+Referencia de código:
+- getBearing(): app.js línea ~1623
+- fetchDeclination(): app.js línea ~1634
+- updateBoatMarker(): app.js línea ~323
+- Patrón panel flotante: MOB (app.js línea ~2267)
+- Patrón gpsAutoStartedBy: app.js línea ~259

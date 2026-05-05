@@ -798,13 +798,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 rulerPolyline = L.polyline(rulerPoints, { color: '#ff7800', weight: 3 }).addTo(map);
                 const distanceMeters = map.distance(rulerPoints[0], rulerPoints[1]);
                 const distanceNM = (distanceMeters / 1852).toFixed(2);
-                const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, rulerPoints[1].lat, rulerPoints[1].lng).toFixed(0);
-                rulerTooltip.setLatLng(rulerPoints[1]).setContent(`
-                    <div style="text-align: center; font-family: 'Outfit', sans-serif;">
-                        <div style="font-weight: 600; font-size: 1.1rem; color: #ff7800;">${distanceNM} NM</div>
-                        <div style="font-size: 0.85rem; color: #555;">Rumbo: ${bearing}°</div>
-                    </div>
-                `);
+                const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, rulerPoints[1].lat, rulerPoints[1].lng);
+                rulerTooltip.setLatLng(rulerPoints[1]).setContent(buildRulerContent(distanceNM, bearing, rulerDeclination));
             }
             return;
         }
@@ -1619,6 +1614,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let rulerMarkers = [];
     let rulerTooltip = null;
     let rulerHoverLine = null;
+    let rulerDeclination = null; // declinación magnética cacheada al activar la regla
 
     function getBearing(startLat, startLng, destLat, destLng) {
         const startLatRad = startLat * Math.PI / 180;
@@ -1635,6 +1631,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         return (brngDeg + 360) % 360;
     }
 
+    async function fetchDeclination(lat, lng) {
+        try {
+            const today = new Date();
+            const url = `https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination?lat1=${lat}&lon1=${lng}&resultFormat=json&startYear=${today.getFullYear()}&startMonth=${today.getMonth()+1}&startDay=${today.getDate()}`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+            return data?.result?.[0]?.declination ?? null;
+        } catch {
+            return null;
+        }
+    }
+
+    function buildRulerContent(distanceNM, bearingTrue, declination) {
+        const bearingMag = declination !== null
+            ? ((bearingTrue - declination + 360) % 360).toFixed(0)
+            : null;
+        const decLabel = declination !== null
+            ? `Dec: ${declination >= 0 ? '+' : ''}${declination.toFixed(1)}°${declination >= 0 ? 'E' : 'W'}`
+            : '';
+        const rumboLine = bearingMag !== null
+            ? `Rumbo: ${parseFloat(bearingTrue).toFixed(0)}°V (${bearingMag}°M)`
+            : `Rumbo: ${parseFloat(bearingTrue).toFixed(0)}°`;
+
+        return `
+            <div style="text-align: center; font-family: 'Outfit', sans-serif;">
+                <div style="font-weight: 600; font-size: 1.1rem; color: #ff7800;">${distanceNM} NM</div>
+                <div style="font-size: 0.85rem; color: #555;">${rumboLine}</div>
+                ${decLabel ? `<div style="font-size: 0.75rem; color: #999; margin-top:2px;">${decLabel}</div>` : ''}
+            </div>
+        `;
+    }
+
     function clearRuler() {
         if (rulerPolyline) map.removeLayer(rulerPolyline);
         if (rulerHoverLine) map.removeLayer(rulerHoverLine);
@@ -1645,6 +1673,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         rulerMarkers = [];
         rulerPoints = [];
         rulerTooltip = null;
+        rulerDeclination = null;
     }
 
     rulerBtn.addEventListener('click', () => {
@@ -1657,10 +1686,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
             closeRadioPanel();
 
-            // Si el tráfico marítimo u otros modos están activos, los cerramos
             if (isTrafficActive) { toggleTrafficBtn.click(); }
             if (isWindLayerActive) { windLayerBtn.click(); }
             if (isRadarActive) { owmLayerBtn.click(); }
+
+            // obtener declinación magnética del centro del mapa al activar
+            const center = map.getCenter();
+            fetchDeclination(center.lat, center.lng).then(dec => { rulerDeclination = dec; });
 
         } else {
             rulerBtn.classList.remove('active');
@@ -1673,20 +1705,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     map.on('mousemove', (e) => {
         if (!isRulerActive || rulerPoints.length !== 1) return;
 
-        // actualiza línea de previsualización
         rulerHoverLine.setLatLngs([rulerPoints[0], e.latlng]);
 
-        // actualiza el popup con distancia y rumbo
         const distanceMeters = map.distance(rulerPoints[0], e.latlng);
         const distanceNM = (distanceMeters / 1852).toFixed(2);
-        const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, e.latlng.lat, e.latlng.lng).toFixed(0);
+        const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, e.latlng.lat, e.latlng.lng);
 
-        rulerTooltip.setLatLng(e.latlng).setContent(`
-            <div style="text-align: center; font-family: 'Outfit', sans-serif;">
-                <div style="font-weight: 600; font-size: 1.1rem; color: #ff7800;">${distanceNM} NM</div>
-                <div style="font-size: 0.85rem; color: #555;">Rumbo: ${bearing}°</div>
-            </div>
-        `);
+        rulerTooltip.setLatLng(e.latlng).setContent(buildRulerContent(distanceNM, bearing, rulerDeclination));
     });
 
     // 11. waypoints personalizados

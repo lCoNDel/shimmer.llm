@@ -3,13 +3,14 @@ title: Document Generator
 author: shimmer
 description: Genera documentos Word (.docx), Excel (.xlsx), CSV, TXT, MD, JSON y XML descargables desde el chat.
 requirements: python-docx, openpyxl
-version: 0.8.0
+version: 0.9.0
 """
 
 import base64
 import io
 import csv
 import json
+import re
 import xml.dom.minidom
 from docx import Document
 from fastapi.responses import HTMLResponse
@@ -17,9 +18,30 @@ from openpyxl import Workbook
 from pydantic import BaseModel
 
 
+def _add_inline_runs(para, text: str):
+    tokens = re.split(r'(\*\*.*?\*\*|\*.*?\*)', text)
+    for token in tokens:
+        if token.startswith("**") and token.endswith("**"):
+            para.add_run(token[2:-2]).bold = True
+        elif token.startswith("*") and token.endswith("*"):
+            para.add_run(token[1:-1]).italic = True
+        elif token:
+            para.add_run(token)
+
+
+def _add_paragraph_with_inline(doc, text: str, style: str = None):
+    para = doc.add_paragraph(style=style) if style else doc.add_paragraph()
+    _add_inline_runs(para, text)
+    return para
+
+
 def _download_iframe(b64: str, filename: str, mime: str) -> HTMLResponse:
-    ext = filename.rsplit(".", 1)[-1].upper()
+    parts = filename.rsplit(".", 1)
+    ext = parts[-1].upper() if len(parts) > 1 else "FILE"
     size_kb = round(len(base64.b64decode(b64)) / 1024, 1)
+    # dos variantes del nombre: una para el html y otra para el atributo js — evita xss y rotura de string
+    filename_html = filename.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+    filename_js = filename.replace("\\", "\\\\").replace('"', '\\"')
 
     icons = {
         "DOCX": "📄", "XLSX": "📊", "CSV": "📋",
@@ -33,6 +55,7 @@ def _download_iframe(b64: str, filename: str, mime: str) -> HTMLResponse:
     color = colors.get(ext, "#4F46E5")
 
     html = f"""<!DOCTYPE html>
+<!-- tarjeta de descarga renderizada como iframe en el chat de open webui -->
 <html>
 <head>
 <style>
@@ -46,6 +69,7 @@ def _download_iframe(b64: str, filename: str, mime: str) -> HTMLResponse:
     display: flex;
     align-items: center;
     gap: 14px;
+    width: fit-content;
     background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
@@ -82,11 +106,11 @@ def _download_iframe(b64: str, filename: str, mime: str) -> HTMLResponse:
 <body>
 <div class="card">
   <div class="icon">{icon}</div>
-  <div class="info">
-    <div class="filename">{filename}</div>
-    <div class="meta">{ext} · {size_kb} KB · Listo para descargar</div>
-  </div>
   <button class="btn" onclick="download()">⬇ Descargar</button>
+  <div class="info">
+    <div class="filename">{filename_html}</div>
+    <div class="meta">{ext} · {size_kb} KB</div>
+  </div>
 </div>
 <script>
 function download() {{
@@ -98,7 +122,7 @@ function download() {{
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "{filename}";
+  a.download = "{filename_js}";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -131,8 +155,34 @@ class Tools:
         :param filename: Nombre del archivo sin extensión.
         """
         doc = Document()
-        for line in content.split("\n"):
-            line = line.strip()
+        lines = content.split("\n")
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+
+            if line.startswith("|") and line.endswith("|"):
+                table_lines = []
+                while i < len(lines) and lines[i].strip().startswith("|"):
+                    table_lines.append(lines[i].strip())
+                    i += 1
+                # excluir la fila separadora |---|---| que markdown requiere pero word no
+                rows = [r for r in table_lines if not re.match(r'^\|[\s\-:| ]+\|$', r)]
+                if rows:
+                    cols = [c.strip() for c in rows[0].strip("|").split("|")]
+                    table = doc.add_table(rows=len(rows), cols=len(cols))
+                    table.style = "Table Grid"
+                    for r_idx, row_line in enumerate(rows):
+                        cells = [c.strip() for c in row_line.strip("|").split("|")]
+                        for c_idx, cell_text in enumerate(cells):
+                            if c_idx < len(table.rows[r_idx].cells):
+                                cell = table.rows[r_idx].cells[c_idx]
+                                cell.paragraphs[0].clear()
+                                _add_inline_runs(cell.paragraphs[0], cell_text)
+                                if r_idx == 0:
+                                    for run in cell.paragraphs[0].runs:
+                                        run.bold = True
+                continue
+
             if line.startswith("# "):
                 doc.add_heading(line[2:], level=1)
             elif line.startswith("## "):
@@ -140,9 +190,10 @@ class Tools:
             elif line.startswith("### "):
                 doc.add_heading(line[4:], level=3)
             elif line.startswith("- ") or line.startswith("* "):
-                doc.add_paragraph(line[2:], style="List Bullet")
+                _add_paragraph_with_inline(doc, line[2:], style="List Bullet")
             elif line:
-                doc.add_paragraph(line)
+                _add_paragraph_with_inline(doc, line)
+            i += 1
 
         buffer = io.BytesIO()
         doc.save(buffer)
@@ -154,12 +205,15 @@ class Tools:
         """
         Genera un archivo Excel (.xlsx) a partir de datos en formato CSV.
         La primera fila se trata como cabecera en negrita.
-        :param data: Datos CSV. Ejemplo: "Nombre,Edad\nAlice,30\nBob,25"
+        Usa ; como separador de columnas para evitar conflictos con comas en el contenido.
+        :param data: Datos CSV con ; como separador. Los campos que contengan ; deben ir entre comillas dobles.
+                     Ejemplo: "Nombre;Skills\nAlice;\"Python;Java\"\nBob;SQL"
         :param filename: Nombre del archivo sin extensión.
         """
         wb = Workbook()
         ws = wb.active
-        for i, row in enumerate(csv.reader(io.StringIO(data))):
+        # ; como separador porque las celdas pueden contener comas (listas, precios, nombres)
+        for i, row in enumerate(csv.reader(io.StringIO(data), delimiter=";")):
             ws.append(row)
             if i == 0:
                 for cell in ws[1]:
@@ -174,7 +228,8 @@ class Tools:
     def generate_csv(self, data: str, filename: str = "documento") -> HTMLResponse:
         """
         Genera un archivo CSV descargable.
-        :param data: Datos CSV. Ejemplo: "Nombre,Edad\nAlice,30\nBob,25"
+        Usa ; como separador de columnas para evitar conflictos con comas en el contenido.
+        :param data: Datos CSV con ; como separador. Ejemplo: "Nombre;Edad\nAlice;30\nBob;25"
         :param filename: Nombre del archivo sin extensión.
         """
         b64 = base64.b64encode(data.encode("utf-8")).decode("utf-8")
@@ -207,8 +262,8 @@ class Tools:
         try:
             parsed = json.loads(data)
             formatted = json.dumps(parsed, ensure_ascii=False, indent=2)
-        except json.JSONDecodeError:
-            formatted = data
+        except json.JSONDecodeError as e:
+            formatted = f"// JSON inválido: {e}\n{data}"
 
         b64 = base64.b64encode(formatted.encode("utf-8")).decode("utf-8")
         return _download_iframe(b64, filename.replace(" ", "_") + ".json", "application/json;charset=utf-8")

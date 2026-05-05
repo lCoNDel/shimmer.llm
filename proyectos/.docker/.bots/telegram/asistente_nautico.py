@@ -32,7 +32,7 @@ SYSTEM_PROMPT = (
     "No respondas de memoria si la pregunta puede tener respuesta en los documentos. "
     "Cuando llames a `query_knowledge_files`, usa siempre count=15. "
     "Al redactar la respuesta, cita el nombre del documento fuente entre paréntesis al final de cada párrafo o afirmación, "
-    "por ejemplo: (Verado V12 ES.pdf) o (875_Sundeck_ES.pdf). Usa el nombre exacto que aparece en los resultados de búsqueda."
+    "por ejemplo: (Documento1.pdf) o (Documento2.pdf). Usa el nombre exacto que aparece en los resultados de búsqueda."
 )
 
 
@@ -71,12 +71,7 @@ def get_model_kb_collections(headers: dict) -> list:
 
 # --- RAG: búsqueda en la knowledge base ---
 
-# Chunks recuperados en la sesión actual, con índice global para rastrear citas.
-# Se reinician al inicio de cada llamada a call_openwebui().
-_session_chunks: list = []
-_session_chunk_counter: int = 0
-
-def run_knowledge_search(query: str, headers: dict) -> str:
+def run_knowledge_search(query: str, headers: dict, session_chunks: list, session_chunk_counter: list) -> str:
     # ejecuta una búsqueda híbrida (semántica + bm25) en las colecciones del modelo y registra los chunks para el pie de fuentes.
     try:
         collection_names = get_model_kb_collections(headers)
@@ -118,15 +113,13 @@ def run_knowledge_search(query: str, headers: dict) -> str:
         if not docs:
             return "No se encontraron resultados relevantes en la base de conocimiento."
 
-        global _session_chunk_counter
         chunks = []
         for doc, meta in zip(docs, metadatas):
-            _session_chunk_counter += 1
-            idx = _session_chunk_counter
+            session_chunk_counter[0] += 1
+            idx = session_chunk_counter[0]
             source = meta.get("name", meta.get("source", "Desconocido"))
             page = meta.get("page_label", meta.get("page", ""))
-            # Registrar chunk para el footer de fuentes al final de la respuesta
-            _session_chunks.append({"index": idx, "source": source, "page": page})
+            session_chunks.append({"index": idx, "source": source, "page": page})
             page_str = f" (p. {page})" if page else ""
             chunks.append(f"[{idx}] {source}{page_str}:\n{doc}")
 
@@ -179,7 +172,7 @@ def get_file_content(file_name_or_id: str, headers: dict, max_chars: int = 10000
 
 # --- Ejecución de tool calls ---
 
-def execute_tool_calls(tool_calls: list, headers: dict) -> list:
+def execute_tool_calls(tool_calls: list, headers: dict, session_chunks: list, session_chunk_counter: list) -> list:
     # ejecuta cada tool call del modelo y devuelve los resultados como mensajes role "tool".
     results = []
     for tc in tool_calls:
@@ -194,15 +187,13 @@ def execute_tool_calls(tool_calls: list, headers: dict) -> list:
         logging.info(f"Tool call: '{name}', args: {args}")
 
         if name in ("view_knowledge_file", "view_file"):
-            # El modelo quiere leer el texto completo de un archivo (por UUID o nombre)
             file_id = args.get("file_id", args.get("filename", ""))
             max_chars = args.get("max_chars", 10000)
             offset = args.get("offset", 0)
             content = get_file_content(file_id, headers, max_chars, offset)
         else:
-            # Para cualquier otra tool de búsqueda, extraer la query y buscar en KB
             query = args.get("query", args.get("q", args.get("search_query", "")))
-            content = run_knowledge_search(query, headers) if query else "No se encontró query en los argumentos."
+            content = run_knowledge_search(query, headers, session_chunks, session_chunk_counter) if query else "No se encontró query en los argumentos."
 
         results.append({"role": "tool", "tool_call_id": tool_id, "content": content})
     return results
@@ -212,9 +203,8 @@ def execute_tool_calls(tool_calls: list, headers: dict) -> list:
 
 def call_openwebui(messages: list, headers: dict) -> str:
     # envía mensajes a open webui y gestiona el ciclo de tool calls hasta obtener la respuesta final (máx. 8 iteraciones).
-    global _session_chunks, _session_chunk_counter
-    _session_chunks = []
-    _session_chunk_counter = 0
+    session_chunks: list = []
+    session_chunk_counter: list = [0]
     current_messages = list(messages)
 
     for iteration in range(8):
@@ -235,13 +225,12 @@ def call_openwebui(messages: list, headers: dict) -> str:
                 logging.warning(f"content vacío (finish_reason={finish_reason})")
 
             # Añadir footer de fuentes si hubo búsquedas en KB
-            if content.strip() and _session_chunks:
+            if content.strip() and session_chunks:
                 cited = set(int(m) for m in re.findall(r'\[(\d+)\]', content))
                 seen = set()
                 unique = []
                 if cited:
-                    # El modelo usó referencias [N] explícitas: mostrar solo esas páginas
-                    for c in _session_chunks:
+                    for c in session_chunks:
                         if c["index"] in cited:
                             key = (c["source"], c["page"])
                             if key not in seen:
@@ -249,8 +238,7 @@ def call_openwebui(messages: list, headers: dict) -> str:
                                 page_str = f" (p. {c['page']})" if c["page"] else ""
                                 unique.append(f"{c['source']}{page_str}")
                 else:
-                    # Sin referencias inline: mostrar documentos únicos consultados
-                    for c in _session_chunks:
+                    for c in session_chunks:
                         if c["source"] not in seen:
                             seen.add(c["source"])
                             unique.append(c["source"])
@@ -263,7 +251,7 @@ def call_openwebui(messages: list, headers: dict) -> str:
         tool_calls = choice["message"].get("tool_calls", [])
         logging.info(f"[iter {iteration+1}] tool_calls: {json.dumps(tool_calls, ensure_ascii=False)}")
 
-        tool_results = execute_tool_calls(tool_calls, headers)
+        tool_results = execute_tool_calls(tool_calls, headers, session_chunks, session_chunk_counter)
         current_messages.append({"role": "assistant", "content": "", "tool_calls": tool_calls})
         current_messages.extend(tool_results)
 
@@ -632,9 +620,16 @@ def handle_message(message):
         # Telegram tiene límite de 4096 caracteres por mensaje
         if len(answer) > 4000:
             for i in range(0, len(answer), 4000):
-                bot.send_message(message.chat.id, answer[i:i+4000], parse_mode='Markdown')
+                chunk = answer[i:i+4000]
+                try:
+                    bot.send_message(message.chat.id, chunk, parse_mode='Markdown')
+                except Exception:
+                    bot.send_message(message.chat.id, chunk)
         else:
-            bot.send_message(message.chat.id, answer, parse_mode='Markdown', reply_markup=main_keyboard())
+            try:
+                bot.send_message(message.chat.id, answer, parse_mode='Markdown', reply_markup=main_keyboard())
+            except Exception:
+                bot.send_message(message.chat.id, answer, reply_markup=main_keyboard())
 
     except Exception as e:
         logging.exception("Error procesando mensaje")
