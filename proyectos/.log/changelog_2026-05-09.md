@@ -92,6 +92,29 @@ El endpoint de logout cambió de GET a POST. **No afecta a Shimmer** — ningún
 
 ---
 
+## Open WebUI — query_knowledge.py: file_filter por archivo
+
+### Nuevo parámetro opcional `file_filter`
+
+Añadido parámetro `file_filter: str = ""` a la tool `query_knowledge.py` (v1.1.0 → v1.2.0).
+
+**Motivación:** con file context y knowledge deshabilitados en Open WebUI, el RAG nativo no actúa. La tool buscaba siempre en toda la KB sin posibilidad de restringir por archivo. Ahora el usuario puede indicar explícitamente un archivo en el chat y el LLM lo pasa como `file_filter`.
+
+**Comportamiento:**
+- Sin `file_filter`: busca en toda la KB (comportamiento anterior intacto)
+- Con `file_filter="Verado V12"`: llama a `/api/v1/knowledge/{KB_ID}/files`, busca coincidencia parcial por nombre, construye `file-{uuid}` y busca solo en esa colección
+- Sin match: devuelve lista de archivos disponibles para que el LLM pueda orientar al usuario
+- Error en la llamada API: cae silenciosamente a búsqueda en KB completa
+
+**Cómo activarlo:** el usuario escribe algo como *"busca en el Verado V12: intervalos de mantenimiento"*. El LLM extrae el nombre y llama `query_knowledge(query="...", file_filter="Verado V12")`.
+
+**Limitación conocida:** si se añaden nuevas KBs, hay que hardcodear su UUID en `COLLECTION_IDS` del `.py`. Alternativa futura: listar todas las KBs automáticamente via `/api/v1/knowledge/` — no implementado por no ser necesario aún.
+
+**Por qué Open WebUI usa colecciones separadas por archivo:**
+Cada archivo subido a Open WebUI tiene su propia colección ChromaDB con nombre `file-{uuid}`. Las KBs tienen colección propia con el UUID de la KB. El RAG nativo filtra pasando solo los `collection_names` del archivo mencionado con `#` a `query_collection()`. La tool replica este mecanismo resolviendo el nombre dinámicamente via API.
+
+---
+
 ## Contexto técnico para agentes
 
 **Archivos modificados:**
@@ -120,4 +143,10 @@ El endpoint de logout cambió de GET a POST. **No afecta a Shimmer** — ningún
 El contenedor del bot usa `python:3.11-slim`. La librería `primp` (dependencia de `ddgs`) se instala como wheel precompilado — el wheel para Linux x86_64 no incluye el backend Google. Open WebUI sí lo soporta porque su imagen base tiene una versión diferente de `primp` con ese backend disponible. Solución pendiente: no hay workaround sencillo sin cambiar la imagen base del bot.
 
 **KB collection ID activo:**
-`68e000dc-79a8-4b0f-a74d-eb9f63ce1b92` — Manuales Mercury. Si se reindexa la KB, este ID cambia y hay que actualizarlo en `query_knowledge.py` (línea `COLLECTION_IDS`).
+`68e000dc-79a8-4b0f-a74d-eb9f63ce1b92` — Manuales Mercury. Si se reindexa la KB, este ID cambia y hay que actualizarlo en `query_knowledge.py` (constante `KB_ID`).
+
+**query_knowledge.py v1.2.0 — detalles de implementación:**
+- `KB_ID` extraído como constante separada (antes solo en `COLLECTION_IDS`)
+- `file_filter` resuelve nombre → `file-{uuid}` via `GET /api/v1/knowledge/{KB_ID}/files` con el token del usuario (`__user__.get("token")`)
+- Coincidencia parcial case-insensitive: `file_filter.lower() in f.get("name", "").lower()`
+- Si se añaden nuevas KBs: añadir su UUID a `COLLECTION_IDS` y crear lógica de selección si se quiere `file_filter` entre KBs distintas

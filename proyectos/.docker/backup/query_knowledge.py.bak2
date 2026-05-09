@@ -2,21 +2,21 @@
 title: Knowledge Search
 author: Luis Conde
 description: Busca en todas las bases de conocimiento disponibles usando busqueda hibrida (semantica + BM25). Llamar dos veces por pregunta: una en espanol y otra en ingles.
-version: 1.2.0
+version: 1.1.0
 requirements:
 """
 
 import logging
 import re
-import httpx
 from typing import Callable, Any
 
 log = logging.getLogger(__name__)
 
 COUNT = 15
 MIN_CHUNK_CHARS = 150  # chunks con menos caracteres son portadas, índices o páginas en blanco
-KB_ID = "68e000dc-79a8-4b0f-a74d-eb9f63ce1b92"  # Manuales Mercury
-COLLECTION_IDS = [KB_ID]
+COLLECTION_IDS = [
+    "68e000dc-79a8-4b0f-a74d-eb9f63ce1b92",  # Manuales Mercury
+]
 
 
 class Tools:
@@ -26,7 +26,6 @@ class Tools:
     async def query_knowledge(
         self,
         query: str,
-        file_filter: str = "",
         __request__=None,
         __user__: dict = {},
         __event_emitter__: Callable[[Any], None] = None,
@@ -36,7 +35,6 @@ class Tools:
         Llamar DOS veces por pregunta: primero con la query en espanol, luego con la query en ingles.
 
         :param query: Query de busqueda, 3-6 palabras clave. Sin frases completas ni palabras de relleno.
-        :param file_filter: Opcional. Si el usuario menciona explicitamente un archivo ("busca en el Verado V12", "solo en el 400R"), extraer el nombre y pasarlo aqui. Si la pregunta es general, omitir.
         :return: Chunks relevantes de las bases de conocimiento.
         """
         if __request__ is None:
@@ -49,37 +47,11 @@ class Tools:
             if not embedding_function:
                 return "Error: funcion de embeddings no configurada."
 
-            collection_ids = COLLECTION_IDS
-
-            if file_filter:
-                base_url = str(__request__.base_url).rstrip("/")
-                token = __user__.get("token", "")
-                headers = {"Authorization": f"Bearer {token}"}
-                try:
-                    resp = httpx.get(
-                        f"{base_url}/api/v1/knowledge/{KB_ID}/files",
-                        headers=headers,
-                        timeout=10,
-                    )
-                    files = resp.json().get("files", [])
-                    match = next(
-                        (f for f in files if file_filter.lower() in f.get("name", "").lower()),
-                        None,
-                    )
-                    if match:
-                        collection_ids = [f"file-{match['id']}"]
-                        log.info(f"[query_knowledge] file_filter='{file_filter}' -> {collection_ids[0]}")
-                    else:
-                        available = ", ".join(f.get("name", "") for f in files)
-                        return f"No se encontro ningun archivo que coincida con '{file_filter}'. Archivos disponibles: {available}"
-                except Exception as e:
-                    log.warning(f"[query_knowledge] Error resolviendo file_filter: {e}. Usando KB completa.")
-
-            log.info(f"[query_knowledge] query='{query}' collections={collection_ids}")
+            log.info(f"[query_knowledge] query='{query}'")
 
             results = await query_collection(
                 __request__,
-                collection_names=collection_ids,
+                collection_names=COLLECTION_IDS,
                 queries=[query],
                 embedding_function=embedding_function,
                 k=COUNT,
