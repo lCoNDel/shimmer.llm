@@ -92,7 +92,8 @@ Creada la herramienta `.docker/openweb/tools/query_knowledge.py` que reemplaza c
 **Configuración en el agente (Open WebUI):**
 - Bloque **Built-in Knowledge**: desactivado
 - Tool **query_knowledge**: activada en el Workspace del agente
-- Modo FC: Default (no Native) — en Native, `view_knowledge_file` reaparece como tool del sistema
+- Modo FC: **Native** — mejor calidad de tool calls con qwen3:9b
+- **Herramientas integradas**: todas desactivadas en la plantilla del agente (parámetros avanzados) — así `view_knowledge_file` no aparece en el espacio de herramientas aunque el modo sea Native. `query_knowledge` es la única tool disponible.
 
 ### System prompt del agente `asistente-touron` (no versionado en git)
 

@@ -10,6 +10,3 @@ docker compose -f $botsCompose stop asistente_nautico
 
 Write-Host "Deteniendo open-webui..."
 docker compose -f $prodCompose stop open-webui
-
-Stop-Process -Name ngrok -Force -ErrorAction SilentlyContinue
-Write-Host "Túnel ngrok cerrado."

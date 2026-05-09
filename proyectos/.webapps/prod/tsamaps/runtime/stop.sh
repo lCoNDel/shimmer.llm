@@ -14,7 +14,3 @@ if [ -n "$PID_NODE" ]; then
 else
   echo "No había proceso Node en puerto 5050."
 fi
-
-# Cerrar ngrok si está corriendo
-powershell.exe -Command "Stop-Process -Name ngrok -Force -ErrorAction SilentlyContinue"
-echo "Túnel ngrok cerrado (o no estaba activo)."

@@ -1,8 +1,8 @@
 """
 title: Calculadora
 author: lconde
-description: Calculadora precisa — expresiones aritméticas, conversiones náuticas, IVA y márgenes comerciales.
-version: 1.0.0
+description: Calculadora precisa — expresiones aritméticas, conversiones náuticas/temperatura/área, IVA y márgenes comerciales.
+version: 1.1.0
 """
 
 import math
@@ -23,8 +23,17 @@ _ALIASES = {
     "liter": "l", "liters": "l", "litre": "l", "litres": "l", "litro": "l", "litros": "l",
     "kilogram": "kg", "kilograms": "kg", "kilogramo": "kg", "kilogramos": "kg",
     "pound": "lb", "pounds": "lb", "libra": "lb", "libras": "lb",
+    # temperatura
+    "celsius": "c", "grados celsius": "c", "grado celsius": "c", "°c": "c",
+    "fahrenheit": "f", "grados fahrenheit": "f", "grado fahrenheit": "f", "°f": "f",
+    "kelvin": "k", "kelvins": "k",
+    # área
+    "square meter": "m2", "square meters": "m2", "metro cuadrado": "m2", "metros cuadrados": "m2", "m²": "m2",
+    "square foot": "ft2", "square feet": "ft2", "pie cuadrado": "ft2", "pies cuadrados": "ft2", "ft²": "ft2",
+    "square centimeter": "cm2", "square centimeters": "cm2", "centímetro cuadrado": "cm2", "centímetros cuadrados": "cm2", "cm²": "cm2",
 }
 
+# conversiones lineales (factor multiplicador); temperatura usa función propia
 _CONVERSIONS = {
     ("nm",     "km"):     1.852,
     ("km",     "nm"):     0.539957,
@@ -36,11 +45,30 @@ _CONVERSIONS = {
     ("l",      "gal"):    0.264172,
     ("kg",     "lb"):     2.20462,
     ("lb",     "kg"):     0.453592,
+    # área
+    ("m2",     "ft2"):    10.7639,
+    ("ft2",    "m2"):     0.092903,
+    ("m2",     "cm2"):    10000,
+    ("cm2",    "m2"):     0.0001,
+    ("ft2",    "cm2"):    929.030,
+    ("cm2",    "ft2"):    0.00107639,
+}
+
+# conversiones de temperatura (no lineales — función propia)
+_TEMP_CONVERSIONS = {
+    ("c", "f"): lambda v: v * 9 / 5 + 32,
+    ("f", "c"): lambda v: (v - 32) * 5 / 9,
+    ("c", "k"): lambda v: v + 273.15,
+    ("k", "c"): lambda v: v - 273.15,
+    ("f", "k"): lambda v: (v - 32) * 5 / 9 + 273.15,
+    ("k", "f"): lambda v: (v - 273.15) * 9 / 5 + 32,
 }
 
 _UNIT_LABELS = {
     "nm": "NM", "km": "km", "knots": "nudos", "kmh": "km/h",
     "ft": "ft", "m": "m", "gal": "gal", "l": "L", "kg": "kg", "lb": "lb",
+    "c": "°C", "f": "°F", "k": "K",
+    "m2": "m²", "ft2": "ft²", "cm2": "cm²",
 }
 
 
@@ -103,9 +131,9 @@ class Tools:
 
     def convert(self, value: float, from_unit: str, to_unit: str) -> str:
         """
-        Converts between nautical and common units.
-        Supported: nm/km, knots/kmh, ft/m, gal/l, kg/lb.
-        Examples: convert(12, "nm", "km"), convert(25, "knots", "kmh"), convert(100, "l", "gal")
+        Converts between nautical, common, temperature and area units.
+        Supported: nm/km, knots/kmh, ft/m, gal/l, kg/lb, C/F/K, m2/ft2/cm2.
+        Examples: convert(12, "nm", "km"), convert(25, "knots", "kmh"), convert(100, "c", "f"), convert(50, "m2", "ft2")
         :param value: numeric value to convert
         :param from_unit: source unit (accepts Spanish and English names)
         :param to_unit: target unit (accepts Spanish and English names)
@@ -113,16 +141,22 @@ class Tools:
         f = _ALIASES.get(from_unit.lower().strip(), from_unit.lower().strip())
         t = _ALIASES.get(to_unit.lower().strip(), to_unit.lower().strip())
 
-        factor = _CONVERSIONS.get((f, t))
-        if factor is None:
-            supported = ", ".join(f"{a}→{b}" for a, b in _CONVERSIONS)
-            return f"Conversión no soportada: {from_unit} → {to_unit}. Disponibles: {supported}"
-
-        result = value * factor
         f_label = _UNIT_LABELS.get(f, f)
         t_label = _UNIT_LABELS.get(t, t)
 
-        # decimales según la unidad destino
+        # temperatura — conversión no lineal
+        temp_fn = _TEMP_CONVERSIONS.get((f, t))
+        if temp_fn is not None:
+            result = temp_fn(value)
+            return f"{_fmt(value, 2)} {f_label} = {_fmt(result, 2)} {t_label}"
+
+        # conversión lineal
+        factor = _CONVERSIONS.get((f, t))
+        if factor is None:
+            supported = ", ".join(f"{a}→{b}" for a, b in list(_CONVERSIONS) + list(_TEMP_CONVERSIONS))
+            return f"Conversión no soportada: {from_unit} → {to_unit}. Disponibles: {supported}"
+
+        result = value * factor
         decimals = 0 if t in ("ft", "lb") and result > 100 else 3
         return f"{_fmt(value, 3).rstrip('0').rstrip(',')} {f_label} = {_fmt(result, decimals)} {t_label}"
 

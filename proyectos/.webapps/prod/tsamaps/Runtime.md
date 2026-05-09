@@ -9,8 +9,8 @@ Esta skill proporciona indicaciones para gestionar el servidor web local del pro
 
 ## Funciones
 
-1.  **Iniciar Servidor**: Levanta `open-webui` (prod.yml), `asistente_nautico` (bots.yml) y `tsamaps_server_prod` (proxy.yml) en ese orden, y abre el túnel ngrok en el puerto 5050.
-2.  **Detener Servidor**: Para los tres contenedores y cierra el túnel ngrok.
+1.  **Iniciar Servidor**: Levanta `open-webui` (prod.yml), `asistente_nautico` (bots.yml) y `tsamaps_server_prod` (proxy.yml) en ese orden.
+2.  **Detener Servidor**: Para los tres contenedores.
 
 ## Instrucciones de Uso
 
@@ -29,8 +29,8 @@ powershell -File "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.webapps
 
 ## Comportamiento esperado del agente
 
-- **Iniciar**: ejecutar `start.ps1` con la herramienta PowerShell usando la ruta absoluta Windows exacta mostrada arriba. Un solo comando lanza Docker + ngrok — no hay pasos separados.
-- **Detener**: ejecutar `stop.ps1` con la herramienta PowerShell usando la ruta absoluta Windows exacta mostrada arriba. Para Docker y cierra ngrok en un solo paso.
+- **Iniciar**: ejecutar `start.ps1` con la herramienta PowerShell usando la ruta absoluta Windows exacta mostrada arriba.
+- **Detener**: ejecutar `stop.ps1` con la herramienta PowerShell usando la ruta absoluta Windows exacta mostrada arriba.
 - Usar **siempre rutas absolutas Windows** (`C:\Users\...`). Las rutas relativas (`./runtime/...`) fallan porque la herramienta PowerShell no hereda el directorio de trabajo del proyecto.
 - No usar `bash` ni `.sh` para estas operaciones — PowerShell con `.ps1` es el método correcto en este entorno Windows.
 - No verificar el estado HTTP con curl — se asume que el script funciona correctamente.

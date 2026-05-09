@@ -1,6 +1,6 @@
 # tsamaps-prod — Gestión del servidor tsamaps PROD
 
-Gestiona únicamente el contenedor `tsamaps_server_prod` y el túnel ngrok (puerto 5050).
+Gestiona únicamente el contenedor `tsamaps_server_prod` (puerto 5050).
 
 ## Comportamiento esperado del agente
 

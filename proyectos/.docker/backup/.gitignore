@@ -1,0 +1,4 @@
+# Ignorar backups de volúmenes Docker
+*.tar.gz
+*.tar
+*.zip

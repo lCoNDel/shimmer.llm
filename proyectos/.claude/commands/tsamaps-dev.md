@@ -1,6 +1,6 @@
 # tsamaps-dev — Gestión del servidor tsamaps DEV
 
-Gestiona únicamente el contenedor `tsamaps_server_dev` y el túnel ngrok (puerto 5050).
+Gestiona únicamente el contenedor `tsamaps_server_dev` (puerto 5050).
 
 ## Comportamiento esperado del agente
 

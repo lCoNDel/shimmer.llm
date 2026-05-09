@@ -1,0 +1,36 @@
+IDEAS — Tools Open WebUI (capacidades estilo ChatGPT)
+Origen: sesión 2026-05-08
+======================================================
+
+PENDIENTES DE IMPLEMENTAR
+--------------------------
+
+fetch_url
+  - Descarga el contenido de una URL y lo devuelve al agente
+  - Detectar Content-Type: si es HTML → extraer texto limpio (httpx + BeautifulSoup)
+  - Si es PDF → parsear con pypdf (misma lógica que doc_reader.py)
+  - Una sola tool que maneje ambos casos
+  - Requirements: httpx, beautifulsoup4, pypdf
+
+code_run
+  - Ejecuta código Python en sandbox dentro del contenedor y devuelve el output al chat
+  - El usuario ve código + resultado en la misma conversación (igual que intérprete ChatGPT)
+  - Opciones: subprocess restringido o exec() con captura de stdout/stderr
+  - OJO seguridad: solo activar en agentes con usuarios de confianza
+
+erp_query
+  - Consultas al ERP Libra (Oracle) desde el chat
+  - Requiere definir qué datos son consultables y por quién
+  - Pendiente de diseño — depende de la disponibilidad de API o conector Libra
+
+DESCARTADAS / YA CUBIERTAS
+----------------------------
+
+calculadora      → ya existe tool en Open WebUI
+image_analyze    → soportado nativamente con modelos multimodales (sin tool custom necesaria)
+memory           → Open WebUI tiene memoria nativa + bot Telegram tiene memoria propia
+generate_image   → ya existe Agente GPT Image
+web_search       → implementado en .docker/openweb/tools/web_search.py (2026-05-08)
+query_knowledge  → implementado en .docker/openweb/tools/query_knowledge.py (2026-05-07)
+doc_reader       → implementado en .docker/openweb/tools/doc_reader.py (2026-05-07)
+sharepoint_search → diseñado, pendiente → ver .backlog/rag_sharepoint/

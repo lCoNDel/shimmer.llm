@@ -154,6 +154,8 @@ class Tools:
         :param content: Texto o markdown (# título, ## sección, - lista).
         :param filename: Nombre del archivo sin extensión.
         """
+        content = content.encode("utf-16", errors="surrogatepass").decode("utf-16")
+        filename = filename.encode("utf-16", errors="surrogatepass").decode("utf-16")
         doc = Document()
         lines = content.split("\n")
         i = 0
@@ -183,14 +185,22 @@ class Tools:
                                         run.bold = True
                 continue
 
-            if line.startswith("# "):
+            if re.match(r'^-{3,}$', line):
+                i += 1
+                continue
+            elif line.startswith("# "):
                 doc.add_heading(line[2:], level=1)
             elif line.startswith("## "):
                 doc.add_heading(line[3:], level=2)
             elif line.startswith("### "):
                 doc.add_heading(line[4:], level=3)
+            elif line.startswith("> "):
+                para = doc.add_paragraph(style="Quote") if "Quote" in [s.name for s in doc.styles] else doc.add_paragraph()
+                _add_inline_runs(para, line[2:])
             elif line.startswith("- ") or line.startswith("* "):
                 _add_paragraph_with_inline(doc, line[2:], style="List Bullet")
+            elif re.match(r'^\d+\.\s', line):
+                _add_paragraph_with_inline(doc, re.sub(r'^\d+\.\s', '', line), style="List Number")
             elif line:
                 _add_paragraph_with_inline(doc, line)
             i += 1

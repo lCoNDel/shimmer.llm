@@ -77,7 +77,7 @@ proyectos/
 ├── .docs/      # Documentación de servicios
 ├── .agents/    # Skills y agentes
 ├── .log/       # Changelogs de sesión por proyecto (ACTIVO — leer antes de modificar)
-├── .tunnel/    # Accesos rápidos ngrok para exponer servicios
+├── .tunnel/    # Accesos rápidos para exponer servicios (Tailscale)
 └── .webapps/   # Proyectos web del ecosistema Shimmer
 ```
 
@@ -123,8 +123,7 @@ Un único archivo por día. Si en la sesión se trabajó en varios proyectos, el
 ### `.tunnel/`
 ```
 .tunnel/
-├── ngrok/          # Accesos directos a app y config de ngrok
-└── openweb.bat     # Expone Open WebUI vía ngrok
+└── openweb.bat     # Expone Open WebUI (legacy)
 ```
 
 ### `.webapps/`

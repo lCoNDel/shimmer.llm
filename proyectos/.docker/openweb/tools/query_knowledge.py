@@ -1,12 +1,11 @@
 """
 title: Knowledge Search
-author: shimmer
-description: Busca en todas las bases de conocimiento disponibles usando búsqueda híbrida (semántica + BM25). Lanza dos queries —una en español y otra en inglés— de forma secuencial para maximizar la cobertura de resultados.
-version: 9.0.0
+author: Luis Conde
+description: Busca en todas las bases de conocimiento disponibles usando busqueda hibrida (semantica + BM25). Llamar dos veces por pregunta: una en espanol y otra en ingles.
+version: 1.0.0
 requirements:
 """
 
-import asyncio
 import logging
 import re
 from typing import Callable, Any
@@ -15,8 +14,7 @@ log = logging.getLogger(__name__)
 
 COUNT = 15
 COLLECTION_IDS = [
-    "ea80e4f0-ac8a-49c5-8025-9b7dc1ee763e",  # Manuales Mercury
-    "245f2ffa-13ce-4c98-97fa-a6d2efdcf885",  # G3
+    "68e000dc-79a8-4b0f-a74d-eb9f63ce1b92",  # Manuales Mercury
 ]
 
 
@@ -26,19 +24,17 @@ class Tools:
 
     async def query_knowledge(
         self,
-        query_es: str,
-        query_en: str,
+        query: str,
         __request__=None,
         __user__: dict = {},
         __event_emitter__: Callable[[Any], None] = None,
     ) -> str:
         """
-        Busca información en las bases de conocimiento. SIEMPRE llama a esta herramienta antes de responder preguntas técnicas sobre motores, mantenimiento, repuestos, manuales o productos.
-        Lanza dos búsquedas para maximizar resultados. No llames a ninguna otra herramienta de conocimiento.
+        Busca informacion en las bases de conocimiento. SIEMPRE llama a esta herramienta antes de responder preguntas tecnicas sobre motores, mantenimiento, repuestos, manuales o productos.
+        Llamar DOS veces por pregunta: primero con la query en espanol, luego con la query en ingles.
 
-        :param query_es: Consulta de búsqueda en español. Debe ser corta y precisa (3-6 palabras clave).
-        :param query_en: La misma consulta traducida al inglés. Debe ser corta y precisa (3-6 palabras clave).
-        :return: Chunks de texto relevantes encontrados en las bases de conocimiento.
+        :param query: Query de busqueda, 3-6 palabras clave. Sin frases completas ni palabras de relleno.
+        :return: Chunks relevantes de las bases de conocimiento.
         """
         if __request__ is None:
             return "Error: contexto de request no disponible."
@@ -48,51 +44,43 @@ class Tools:
 
             embedding_function = __request__.app.state.EMBEDDING_FUNCTION
             if not embedding_function:
-                return "Error: función de embeddings no configurada."
+                return "Error: funcion de embeddings no configurada."
 
-            log.info(f"[query_knowledge] ES='{query_es}' EN='{query_en}'")
+            log.info(f"[query_knowledge] query='{query}'")
 
-            results_es = await query_collection(
+            results = await query_collection(
                 __request__,
                 collection_names=COLLECTION_IDS,
-                queries=[query_es],
+                queries=[query],
                 embedding_function=embedding_function,
                 k=COUNT,
             )
 
-            results_en = await query_collection(
-                __request__,
-                collection_names=COLLECTION_IDS,
-                queries=[query_en],
-                embedding_function=embedding_function,
-                k=COUNT,
-            )
+            if not results or "documents" not in results:
+                return "No se encontraron resultados relevantes en las bases de conocimiento."
 
-            seen = set()
+            documents = results.get("documents", [[]])[0]
+            metadatas = results.get("metadatas", [[]])[0]
+            distances = results.get("distances", [[]])[0]
+
             chunks = []
-            for query_results in (results_es, results_en):
-                if not query_results or "documents" not in query_results:
-                    continue
-                documents = query_results.get("documents", [[]])[0]
-                metadatas = query_results.get("metadatas", [[]])[0]
-                for doc, meta in zip(documents, metadatas):
-                    doc = re.sub(r'Filename:.*?(?=\n|$)', '', doc, flags=re.IGNORECASE).strip()
-                    doc = re.sub(r'Title:.*?(?=\n|$)', '', doc, flags=re.IGNORECASE).strip()
-                    doc = re.sub(r'Source:.*?(?=\n|$)', '', doc, flags=re.IGNORECASE).strip()
-                    doc = re.sub(r'\n{3,}', '\n\n', doc).strip()
-                    key = doc[:120]
-                    if key not in seen:
-                        seen.add(key)
-                        chunks.append({
-                            "text": doc,
-                            "source": meta.get("name", meta.get("source", "Desconocido")),
-                            "page": meta.get("page_label", meta.get("page", "")),
-                        })
+            for idx, (doc, meta) in enumerate(zip(documents, metadatas)):
+                doc = re.sub(r'Filename:.*?(?=\n|$)', '', doc, flags=re.IGNORECASE).strip()
+                doc = re.sub(r'Title:.*?(?=\n|$)', '', doc, flags=re.IGNORECASE).strip()
+                doc = re.sub(r'Source:.*?(?=\n|$)', '', doc, flags=re.IGNORECASE).strip()
+                doc = re.sub(r'\n{3,}', '\n\n', doc).strip()
+                score = distances[idx] if idx < len(distances) else None
+                chunks.append({
+                    "text": doc,
+                    "source": meta.get("name", meta.get("source", "Desconocido")),
+                    "page": meta.get("page_label", meta.get("page", "")),
+                    "score": score,
+                })
 
             if not chunks:
                 return "No se encontraron resultados relevantes en las bases de conocimiento."
 
-            log.info(f"[query_knowledge] {len(chunks)} chunks devueltos")
+            log.info(f"[query_knowledge] query='{query}' -> {len(chunks)} chunks")
 
             lines = []
             for i, c in enumerate(chunks, 1):
@@ -106,7 +94,8 @@ class Tools:
                 if key not in seen_sources:
                     seen_sources.add(key)
                     page_str = f" (p. {c['page']})" if c.get("page") else ""
-                    sources.append(f"📄 {c['source']}{page_str}")
+                    score_str = f" [score: {c['score']:.3f}]" if c.get("score") is not None else ""
+                    sources.append(f"📄 {c['source']}{page_str}{score_str}")
 
             footer = "\n\n---\nAL FINAL DE TU RESPUESTA CITA OBLIGATORIAMENTE:\n" + "\n".join(sources)
 
