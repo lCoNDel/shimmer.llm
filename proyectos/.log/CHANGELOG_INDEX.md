@@ -4,6 +4,26 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-05-10 | tsamaps, infraestructura | https, tailscale, gps, tls, certificados | HTTPS con Tailscale en tsamaps: certificados TLS en .docker/certs/, uvicorn con ssl, GPS móvil operativo | changelog_2026-05-10.md |
+| 2026-05-09 | bot, telegram | system-prompt, rag, identidad, touron | System prompt completo con identidad corporativa, equipo y productos; bot autónomo sin depender del agente Open WebUI | changelog_2026-05-09.md |
+| 2026-05-09 | openweb, tools | read_g3, read_file, generate_doc, renombrado | Nueva tool read_g3.py (CSV Mercury G3); doc_reader→read_file, doc_gen→generate_doc; calculadora v1.1 con temperatura y área | changelog_2026-05-09.md |
+| 2026-05-09 | openweb, docker | open-webui, v0.9.4, upgrade, backup | Open WebUI actualizado a v0.9.4; backup volumen 2,3 GB; query_knowledge v1.2 con file_filter por archivo | changelog_2026-05-09.md |
+| 2026-05-08 | infraestructura | tailscale, ngrok, migracion, scripts | ngrok jubilado y eliminado de todos los scripts y docs; Tailscale gestiona el túnel | changelog_2026-05-08.md |
+| 2026-05-08 | openweb, tools | query_knowledge, scores, web_search, citas | query_knowledge v0.9 con scores ChromaDB en footer; nueva tool web_search.py custom con DDGS google backend | changelog_2026-05-08.md |
+| 2026-05-08 | docs, onedrive | presentacion, memoria, html | presentación.html: fases sin fechas, eliminada Fase 5, nuevo layout análisis económico; 00_memoria.html: sección compromisos | changelog_2026-05-08.md |
+| 2026-05-07 | openweb, tools | query_knowledge, rag-custom, built-in, chroma | Nueva tool query_knowledge.py: reemplaza Built-in Knowledge, queries secuenciales, footer citas embebido | changelog_2026-05-07.md |
+| 2026-05-07 | openweb, tools | doc_reader, doc_gen, renombrado, ddgs | Nueva tool doc_reader.py; generacion_documentos→doc_gen; DDGS_BACKEND=google en prod.yml | changelog_2026-05-07.md |
+| 2026-05-05 | bot, telegram | race-condition, session-chunks, markdown-fallback | _session_chunks convertida a variable local; fallback Markdown→texto plano en send_message | changelog_2026-05-05.md |
+| 2026-05-05 | openweb, tools | generacion_documentos, docx, tablas, xss | Negrita/cursiva inline en DOCX; tablas Markdown en Word; 5 bug fixes (XSS, Excel delimiter, JSON inválido) | changelog_2026-05-05.md |
+| 2026-05-05 | tsamaps | declinacion, noaa, regla-nautica, app.js | Rumbo magnético en regla náutica via API NOAA; fetchDeclination cacheada por sesión | changelog_2026-05-05.md |
+| 2026-05-05 | openweb, tools | calculadora, nueva-tool | Nueva tool calculadora.py: calculate, convert (10 unidades), vat IVA, margin margen | changelog_2026-05-05.md |
+| 2026-05-04 | claude, ops | commands, ps1, toggle, scripts | 5 nuevos commands Claude (.claude/commands/); carpeta .claude/ops/ con 9 scripts PowerShell de toggle start/stop | changelog_2026-05-04.md |
+| 2026-05-04 | bot, telegram | rag, cache-colecciones, top-k, view_file | Eliminado caché KB collections; top-k 6→15; view_file alias; citas inline; parse_mode Markdown | changelog_2026-05-04.md |
+| 2026-05-04 | openweb | nfc, gpt, rag-pipeline, query-generation | NFC=Default correcto para GPT; qwen3:1.7b problemático como query model; RAG template bilingüe propuesto | changelog_2026-05-04.md |
+| 2026-05-03 | tsamaps | responsive, tablet, breakpoints, orientacion | 4 nuevos breakpoints (tablet portrait/landscape, móvil landscape); pointer:fine fix táctil Samsung; invalidateSize orientación | changelog_2026-05-03.md |
+| 2026-05-03 | tsamaps | refactor, debounce, closePanel, limpieza | closePanel() genérica; debounce() helper; clearDealerMarkers(); tooltips eliminados; variables globales→módulo | changelog_2026-05-03.md |
+| 2026-05-01 | openweb | rag, bge-m3, reranker, chunking | Tuning RAG: chunk 512→384, reranker bge-reranker-v2-m3, threshold 0.3→0.45; PDF Loader Page vs Single documentado | changelog_2026-05-01.md |
+| 2026-05-01 | openweb | uploads, chromadb, limpieza, backlog | Regla operativa: no borrar manualmente /data/; backlog limpieza uploads con scripts comunidad | changelog_2026-05-01.md |
 | 2026-04-30 | tsamaps, backlog | planificación, auditoría, ideas | Auditoría backlog vs app.js; 4 nuevos archivos backlog: calculadora ruta, alertas meteo, declinación magnética, tracking tiempo real | changelog_2026-04-30.md |
 | 2026-04-30 | tsamaps, docker | runtime, start.ps1, stop.ps1, multi-compose | start/stop runtime tsamaps dev amplíados: ahora gestionan open-webui (prod.yml) + asistente_nautico (bots.yml) + tsamaps_server_dev | changelog_2026-04-30.md |
 | 2026-04-30 | claude, config | CLAUDE.md, open-webui, versión | Open WebUI actualizado de v0.8.12 a v0.9.2 en CLAUDE.md | changelog_2026-04-30.md |

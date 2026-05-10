@@ -11,10 +11,11 @@ services:
       - "5050:5050"
     volumes:
       - ../../.webapps/dev/tsamaps:/app
+      - ../../.docker/certs:/certs:ro
     working_dir: /app
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    command: sh -c "pip install fastapi uvicorn httpx ddgs -q && uvicorn server:app --host 0.0.0.0 --port 5050"
+    command: sh -c "pip install fastapi uvicorn httpx ddgs -q && uvicorn server:app --host 0.0.0.0 --port 5050 --ssl-certfile /certs/pc-luis.bandicoot-stairs.ts.net.crt --ssl-keyfile /certs/pc-luis.bandicoot-stairs.ts.net.key"
 
   # servidor web tsamaps PROD + proxy hacia open webui (sin auth para el usuario final)
   tsamaps_server_prod:
@@ -25,7 +26,8 @@ services:
       - "5050:5050"
     volumes:
       - ../../.webapps/prod/tsamaps:/app
+      - ../../.docker/certs:/certs:ro
     working_dir: /app
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    command: sh -c "pip install fastapi uvicorn httpx ddgs -q && uvicorn server:app --host 0.0.0.0 --port 5050"
+    command: sh -c "pip install fastapi uvicorn httpx ddgs -q && uvicorn server:app --host 0.0.0.0 --port 5050 --ssl-certfile /certs/pc-luis.bandicoot-stairs.ts.net.crt --ssl-keyfile /certs/pc-luis.bandicoot-stairs.ts.net.key"
