@@ -1,7 +1,7 @@
 """
 title: Document Generator
 author: shimmer
-description: Genera documentos Word (.docx), Excel (.xlsx), CSV, TXT, MD, JSON y XML descargables desde el chat.
+description: Genera documentos Word (.docx), Excel (.xlsx), CSV, MD, JSON y XML descargables desde el chat.
 requirements: python-docx, openpyxl
 version: 0.9.0
 """
@@ -45,11 +45,11 @@ def _download_iframe(b64: str, filename: str, mime: str) -> HTMLResponse:
 
     icons = {
         "DOCX": "📄", "XLSX": "📊", "CSV": "📋",
-        "TXT": "📝", "MD": "📝", "JSON": "🔧", "XML": "🔧",
+        "MD": "📝", "JSON": "🔧", "XML": "🔧",
     }
     colors = {
         "DOCX": "#2B579A", "XLSX": "#217346", "CSV": "#6B7280",
-        "TXT": "#374151", "MD": "#374151", "JSON": "#B45309", "XML": "#7C3AED",
+        "MD": "#374151", "JSON": "#B45309", "XML": "#7C3AED",
     }
     icon = icons.get(ext, "📁")
     color = colors.get(ext, "#4F46E5")
@@ -245,18 +245,10 @@ class Tools:
         b64 = base64.b64encode(data.encode("utf-8")).decode("utf-8")
         return _download_iframe(b64, filename.replace(" ", "_") + ".csv", "text/csv;charset=utf-8")
 
-    def generate_txt(self, content: str, filename: str = "documento") -> HTMLResponse:
-        """
-        Genera un archivo de texto plano (.txt) descargable.
-        :param content: Contenido de texto plano.
-        :param filename: Nombre del archivo sin extensión.
-        """
-        b64 = base64.b64encode(content.encode("utf-8")).decode("utf-8")
-        return _download_iframe(b64, filename.replace(" ", "_") + ".txt", "text/plain;charset=utf-8")
-
     def generate_md(self, content: str, filename: str = "documento") -> HTMLResponse:
         """
         Genera un archivo Markdown (.md) descargable.
+        Para contenido HTML: NO uses esta tool. Escribe el HTML directamente en el chat.
         :param content: Contenido en formato Markdown.
         :param filename: Nombre del archivo sin extensión.
         """

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.promptingguide.ai)",
+      "WebFetch(domain:martinfowler.com)",
+      "WebFetch(domain:apxml.com)",
+      "WebFetch(domain:abvijaykumar.medium.com)",
+      "WebFetch(domain:www.agensi.io)",
+      "WebFetch(domain:docs.github.com)",
+      "WebFetch(domain:gist.github.com)"
+    ]
+  }
+}

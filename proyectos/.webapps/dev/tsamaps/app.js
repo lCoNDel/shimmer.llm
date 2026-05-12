@@ -666,7 +666,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (dealer.phone) popupHtml += `<br>📞 <a href="tel:${dealer.phone}">${dealer.phone}</a>`;
             if (dealer.email) popupHtml += `<br>✉ <a href="mailto:${dealer.email}">${dealer.email}</a>`;
             if (dealer.web) popupHtml += `<br>🌐 <a href="https://${dealer.web}" target="_blank">${dealer.web}</a>`;
-            if (dealer.description) popupHtml += `<br><i>${dealer.description}</i>`;
+            if (dealer.description) popupHtml += `<div class="service-tags">${dealer.description.split(', ').map(s => `<span class="service-tag">${s}</span>`).join('')}</div>`;
             marker.bindPopup(popupHtml, { maxWidth: 300 });
             dealerMarkers.push({ data: dealer, marker: marker });
         });
@@ -687,7 +687,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let cardHtml = `<div class="dealer-name">${dealer.name}${dealer.headquarters ? ' <span class="hq-badge">Sede</span>' : ''}</div>
                 <div class="dealer-location">${dealer.location}</div>`;
             if (dealer.phone) cardHtml += `<div class="dealer-phone">📞 ${dealer.phone}</div>`;
-            if (dealer.description) cardHtml += `<div class="dealer-desc">${dealer.description}</div>`;
+            if (dealer.description) cardHtml += `<div class="service-tags">${dealer.description.split(', ').map(s => `<span class="service-tag">${s}</span>`).join('')}</div>`;
             card.innerHTML = cardHtml;
 
             card.addEventListener('click', () => {

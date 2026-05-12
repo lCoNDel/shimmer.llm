@@ -19,7 +19,6 @@ services:
       - PORT=3000
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - ENABLE_OPENAI_API_PASSTHROUGH=true
-      - DDGS_BACKEND=google
 
   # alternativa a open webui
   anything-llm:

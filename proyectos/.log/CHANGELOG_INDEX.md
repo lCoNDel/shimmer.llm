@@ -4,6 +4,10 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-05-12 | tsamaps | service-tags, chips, css, distribuidores | description de distribuidores renderizado como chips/pills en popup y panel lateral; .dealer-desc eliminada | changelog_2026-05-12.md |
+| 2026-05-12 | openweb, tools | generate_doc, txt, eliminado | generate_doc: TXT eliminado; nota en generate_md para no usarla con HTML | changelog_2026-05-12.md |
+| 2026-05-12 | docker | prod, ddgs, limpieza | DDGS_BACKEND=google eliminado de prod.yml (redundante con web_search.py) | changelog_2026-05-12.md |
+| 2026-05-11 | bot, telegram | system-prompt, equipo, roles, separador, touron | Revisión completa del equipo en SYSTEM_PROMPT: roles explícitos, apellidos completos, separador ·, altas/bajas personal | changelog_2026-05-11.md |
 | 2026-05-10 | tsamaps, infraestructura | https, tailscale, gps, tls, certificados | HTTPS con Tailscale en tsamaps: certificados TLS en .docker/certs/, uvicorn con ssl, GPS móvil operativo | changelog_2026-05-10.md |
 | 2026-05-09 | bot, telegram | system-prompt, rag, identidad, touron | System prompt completo con identidad corporativa, equipo y productos; bot autónomo sin depender del agente Open WebUI | changelog_2026-05-09.md |
 | 2026-05-09 | openweb, tools | read_g3, read_file, generate_doc, renombrado | Nueva tool read_g3.py (CSV Mercury G3); doc_reader→read_file, doc_gen→generate_doc; calculadora v1.1 con temperatura y área | changelog_2026-05-09.md |

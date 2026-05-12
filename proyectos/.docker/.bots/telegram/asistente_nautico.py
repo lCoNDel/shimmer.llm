@@ -80,23 +80,23 @@ Manuales: download.brunswick-marine.com
 
 ## Equipo
 
-**Consejo de Administración:** Fernando Giquel Alcocer (Presidente), Luis Giquel Alcocer (Vocal)
+**Consejo de Administración:** Fernando Giquel Alcocer (Presidente & Accionista Mayoritario) · Luis Giquel Alcocer (Vocal & Segundo Accionista)
 
-**Dirección General:** Fernando Giquel Elvira (Director Gerente), Álvaro Giquel Sosa (Director Gerente Operaciones)
+**Dirección General:** Fernando Giquel Elvira (Director Gerente Área de Negocio) · Álvaro Giquel Sosa (Director Gerente Área de Operaciones)
 
-**Fuerabordas & Embarcaciones:** Eduardo Lorenzi Abeijón (Director) · Comerciales: Álvaro Calvo, José Martín, Carlos Martín, Luis Fidalgo (PT) · Admin: Claudia Serrano, Rosana Astorga
+**Fuerabordas & Embarcaciones:** Director: Eduardo Lorenzi Abeijón · Álvaro Calvo Pulido (Gestor Comercial) · José Martín Diego (Gestor Comercial) · Carlos Martín Cantero (Gestor Comercial) · Luis Fidalgo (Gestor Comercial PT) · Claudia Serrano Jiménez (Administración) · Rosana Astorga Lozano (Administración)
 
-**Repuesto & Accesorio:** Cristina Giquel Elvira (Directora) · Helder Mogadouro (Comercial) · Mariano González, Rafael Baretta (Atención Cliente)
+**Repuesto & Accesorio:** Directora: Cristina Giquel Elvira · Helder Nuno Parra Mogadouro (Gestor Comercial) · Mariano González Márquez (Atención al Cliente) · Rafael Pérez Rodrigo (Atención al Cliente)
 
-**SAT:** Diego Sánchez Santamaría (Director) · Técnicos: Ángel García, José Machado, Pablo Zorzo · Garantías: Ángel Aparicio · Mecánicos: César Morillo, Daniel Sánchez
+**SAT:** Director: Diego Sánchez Santamaría · Ángel Luis García Talegón (Asesor de Servicio) · José Manuel Machado Rodriguez (Asesor de Servicio) · Ángel Aparicio Albert (Administración de Garantías) · César Morillo López (Técnico Mecánico) · Daniel Sánchez (Técnico Mecánico)
 
-**Logística:** Ignacio Montes Abaurre (Director) · David Oporto, Javier Bautista, Sonia Barrios, María González
+**Logística:** Director: Ignacio Montes Abaurre · David Oporto Marrupe (Cadena de Suministros y Logística) · Javier Bautista Romero (Operaciones Internas de Almacén) · Sonia Barrios Peñalver (Administración) · María del Mar González López (Compras) · Adrián Rubiera González (Operario de Almacén) · Alberto Pérez Rodrigo (Operario de Almacén) · Alejandro Sánchez Moreno (Operario de Almacén) · Anass El Khammar (Operario de Almacén) · Mariano Nahuel González (Operario de Almacén) · Miguel Carbonell Frade (Operario de Almacén) · Oleksandr Kopelchak (Operario de Almacén)
 
-**Marketing:** María Lougedo Lorente (Directora) · Daniel Ávila, Esther Lapeña, Jeika Gotera
+**Marketing:** Directora: María Lougedo Lorente · Daniel Ávila Sánchez (Técnico en Diseño Gráfico & Redes Sociales) · Esther Lapeña Martinez (Técnico de Marketing) · Jeika Gotera Atencio (Técnico de Marketing)
 
-**Sistemas:** José Antonio Alcalá Palacios (Director) · Luis Conde (Sistemas), Jose Sanz (Oracle), Tomás Ruiz-Roso (Big Data), Viviana Franco (M365), Álvaro da Casa (Oracle) · Soporte G3 Mercury: Luis Conde
+**Sistemas:** Director: José Antonio Alcalá Palacios · Luis Conde Blanco (Técnico IT / Soporte G3 Mercury) · Jose Sanz Peña (Técnico Oracle) · Tomás Ruiz-Roso Salgado (Técnico Big Data) · Viviana Franco Hernández (Técnico M365) · Álvaro da Casa (Técnico Oracle)
 
-**Finanzas & Admin:** José Fernández Cabia (Director) · Contabilidad: Juana Fernández, Esther Froilan, Javier Sánchez · RRHH: Paula Martín · Admin PT: Helena Campos · Office: Patricia de Dios
+**Finanzas & Admin:** Director: José Fernández Cabia · Juana Fernández Cisneros (Contable) · Esther Froilan Ortego (Contable) · Javier Sánchez Serrano (Contable) · Paula Martín Casares (Responsable de Personas) · Helena Campos (Administración PT) · Patricia de Dios Rodríguez (Office Manager & Recepcionista)
 
 ## Productos
 
