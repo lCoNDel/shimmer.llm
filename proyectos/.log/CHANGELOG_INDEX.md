@@ -4,6 +4,11 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-05-12 | docker, openweb | open-webui-dev, clon, dev, puerto-3002, volumen-compartido | Clon Open WebUI en puerto 3002 para dev; comparte volumen prod; comando /openweb-dev | changelog_2026-05-12.md |
+| 2026-05-12 | backlog, openweb, tools | demo, erp, csv, margenes, stock, pronostico, backlog | Demo ERP-IA archivada en backlog: tool analisis_negocio.py + 3 CSVs ficticios Touron (50 refs, 2020-2025) | changelog_2026-05-12.md |
+| 2026-05-12 | docker | wsl, docker-desktop, arranque, incidencia | Docker Desktop no arrancaba por WSL en estado Stopped; resuelto con wsl --shutdown | changelog_2026-05-12.md |
+| 2026-05-12 | openweb | prompts, skills, demo, direccion, github-mcp | Skill analista-nautico-touron y prompts /nautica-electrica-informe y /nautica-github para demo dirección | changelog_2026-05-12.md |
+| 2026-05-12 | docker | https, openweb, revertido | Intento HTTPS en Open WebUI (puerto 3000) revertido — uvicorn no recoge SSL_CERTFILE/SSL_KEYFILE | changelog_2026-05-12.md |
 | 2026-05-12 | tsamaps | service-tags, chips, css, distribuidores | description de distribuidores renderizado como chips/pills en popup y panel lateral; .dealer-desc eliminada | changelog_2026-05-12.md |
 | 2026-05-12 | openweb, tools | generate_doc, txt, eliminado | generate_doc: TXT eliminado; nota en generate_md para no usarla con HTML | changelog_2026-05-12.md |
 | 2026-05-12 | docker | prod, ddgs, limpieza | DDGS_BACKEND=google eliminado de prod.yml (redundante con web_search.py) | changelog_2026-05-12.md |

@@ -1,7 +1,20 @@
 services:
 
-  # contenedor vacío de placeholder — sustituir cuando haya servicios de dev reales
-  placeholder_dev:
-    image: alpine
-    container_name: placeholder_dev
-    command: tail -f /dev/null
+  # clon de open-webui para desarrollo y tests extremos — comparte volumen con prod
+  # no usar simultáneamente con open-webui (prod) para evitar conflictos en el volumen
+  open-webui-dev:
+    image: ghcr.io/open-webui/open-webui:v0.9.4
+    container_name: open-webui-dev
+    restart: "no"
+    ports:
+      - "3002:3000"
+    volumes:
+      - open-webui:/app/backend/data
+    environment:
+      - PORT=3000
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - ENABLE_OPENAI_API_PASSTHROUGH=true
+
+volumes:
+  open-webui:
+    external: true

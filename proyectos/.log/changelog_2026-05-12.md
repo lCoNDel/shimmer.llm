@@ -33,6 +33,92 @@ El campo `description` de los distribuidores pasa de mostrarse como texto en cur
 
 ---
 
+## docker — HTTPS en Open WebUI (intento revertido)
+
+### Cambios realizados
+
+Se intentó añadir HTTPS al puerto 3000 (Open WebUI) mediante variables de entorno `SSL_CERTFILE` / `SSL_KEYFILE` en `prod.yml`, montando los certificados Tailscale en `/certs`. El intento falló — Open WebUI no soporta SSL nativo vía variables de entorno (uvicorn no los recoge). Los cambios fueron revertidos y `prod.yml` quedó en su estado original. HTTPS solo está activo en el puerto 5050 (tsamaps, que sí usa uvicorn directo con `--ssl-certfile`).
+
+---
+
+## openweb — generate_doc: nota HTML en docstring generate_md
+
+### Cambios realizados
+
+Añadida nota en el docstring de `generate_md()` para evitar que el modelo la llame al generar HTML:
+```
+Para contenido HTML: NO uses esta tool. Escribe el HTML directamente en el chat.
+```
+
+---
+
+## openweb — Prompts y Skills para demo dirección
+
+### Trabajo realizado (sin archivos en repo)
+
+Diseñados los siguientes prompts y skills para la demo de dirección de Touron S.A.:
+
+- **Skill `analista-nautico-touron`**: rol de analista de negocio náutico para Open WebUI, formato ejecutivo estructurado.
+- **Prompt `/nautica-electrica-informe`**: informe de oportunidad comercial sobre embarcaciones eléctricas con 2 búsquedas web (ES + EN, count=10).
+- **Prompt `/nautica-github`**: búsqueda de repositorios náuticos en GitHub vía MCP, con lectura de README y commits del repo más activo.
+- **Prompt de briefing náutico diario**: 2 búsquedas web (count=5), resumen en HTML inline con secciones ES/EN y nota de relevancia para Touron.
+
+Nota: el HTML inline en chat tras tool calls falla por bug arquitectónico de Open WebUI (#9435) — el modelo no se reinvoca tras ejecutar tools. Workaround: reducir búsquedas a 2 con count=5 para no saturar la ventana de contexto.
+
+---
+
+## docker — Arranque de Docker Desktop tras fallo WSL
+
+### Incidencia resuelta
+
+Docker Desktop no arrancaba (pipe `dockerDesktopLinuxEngine` no encontrado). Causa: WSL quedó en estado `Stopped` tras apagado inconsistente. Solución aplicada:
+
+1. `wsl --shutdown` — reset limpio de todas las distribuciones WSL
+2. `Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"` — reiniicio de Docker Desktop
+3. Inicio manual de contenedores: `open-webui`, `asistente_nautico`, `tsamaps_server_dev`, Tailscale y Ollama
+
+---
+
+## backlog — Demo ERP-IA: caso de uso análisis de negocio
+
+### Trabajo realizado (archivado en `.backlog/demo_erp_ia/`)
+
+Contexto: reunión con consultor de ERP Oracle que presentó un aplicativo IA para explotación de datos. Se diseñó e implementó un caso de uso equivalente para Shimmer LLM, finalmente archivado en `.backlog/` sin desplegar.
+
+**Diseño:**
+- Tool Python para Open WebUI que lee tres CSV (simulan tablas Oracle del ERP) montados en el contenedor vía bind mount en `prod.yml`.
+- 50 referencias náuticas ficticias (Mercury, Jabsco, Simrad, QuickSilver) con histórico mensual 2020–2025 (~3600 filas de ventas, ~3600 de stock).
+- 4 casos de uso con patrones construidos en los datos:
+  1. Márgenes bajos con ventas crecientes (MRC-4T-1L: +126% ventas, margen estancado en 17.9%)
+  2. Cruce stock-ventas para detectar demanda reprimida (JAB-18590: stock < 5u → ventas bloqueadas)
+  3. Stock inmovilizado sin rotación (SIM-NSS9: 6u en stock, 0 ventas desde mayo 2025)
+  4. Pronóstico trimestral por regresión lineal con estacionalidad (AZN-MRC75: ánodos zinc, pico Q3)
+
+**Archivos generados:**
+- `.backlog/demo_erp_ia/analisis_negocio.py` — tool Open WebUI v2.0 (lee CSVs desde `DATA_DIR`)
+- `.backlog/demo_erp_ia/datos_touron/generar_datos.py` — script generador de CSVs (ya ejecutado)
+- `.backlog/demo_erp_ia/datos_touron/productos.csv` / `ventas.csv` / `stock.csv` — datos listos
+- `.backlog/demo_erp_ia/demo_erp_ia.md` — guía de demo con preguntas copiables
+- `.backlog/demo_erp_ia/README.md` — instrucciones de implementación
+
+**Motivo de archivo:** el bind mount en `prod.yml` no se llegó a aplicar (confirmación pendiente del usuario).
+
+---
+
+## docker — open-webui-dev: clon de Open WebUI en puerto 3002
+
+### Cambios realizados
+
+Creado entorno de desarrollo independiente para Open WebUI, clonando el servicio de producción en el puerto 3002 y compartiendo el mismo volumen `open-webui`.
+
+- `dev.yml`: sustituido el placeholder `alpine` por el servicio `open-webui-dev` (imagen `v0.9.4`, puerto `3002:3000`, volumen `open-webui` externo compartido con prod).
+- `.claude/ops/openweb-dev-start.ps1` / `openweb-dev-stop.ps1`: scripts de gestión equivalentes a los de prod.
+- `.claude/commands/openweb-dev.md`: comando `/openweb-dev` para toggle start/stop desde Claude Code.
+
+**Restricción de uso:** no arrancar `open-webui` (prod, puerto 3000) y `open-webui-dev` (puerto 3002) simultáneamente — comparten el volumen y pueden corromperse los datos.
+
+---
+
 ## Contexto técnico para agentes
 
 **tsamaps — service tags:**
