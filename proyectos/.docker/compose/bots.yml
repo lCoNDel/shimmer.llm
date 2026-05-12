@@ -1,4 +1,4 @@
-name: bots
+name: 4-bots
 
 # bots de telegram — cada uno instala sus deps al arrancar y ejecuta su script
 # scripts y credenciales viven en .bots/telegram/, fuera del contenedor

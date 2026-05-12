@@ -1,0 +1,57 @@
+/* ============================================================
+   Touron LLM — Rebrand para open-webui-dev
+   ============================================================ */
+
+/* === MODO OSCURO ===
+   Sobreescribimos la escala gray completa hacia azul marino.
+   En dark mode todos los elementos usan estos valores como fondo
+   con texto claro, así que la inversión es segura.
+*/
+html.dark {
+  --color-gray-950: #060d14;
+  --color-gray-900: #0a1624;
+  --color-gray-850: #0d1e30;
+  --color-gray-800: #102540;
+  --color-gray-700: #1a3a5c;
+  --color-gray-600: #2a5080;
+  --color-gray-500: #4a7aaa;
+  --color-gray-400: #7aaad0;
+  --color-gray-300: #a8c8e8;
+  --color-gray-200: #cce0f0;
+  --color-gray-100: #e8f2f9;
+  --color-gray-50:  #f4f8fc;
+
+  --color-blue-600: #1565c0;
+  --color-blue-500: #1976d2;
+  --color-blue-400: #2196f3;
+}
+
+/* === MODO CLARO ===
+   NO tocamos la escala gray — los componentes (tooltips, badges,
+   dropdowns) la usan internamente y rompen si la invertimos.
+   Solo coloreamos superficies específicas con selectores directos.
+*/
+
+/* Sidebar fondo azul marino muy suave */
+html.light #sidebar,
+html.light [data-slot="sidebar"],
+html.light nav {
+  background-color: #e8f2f9 !important;
+  border-right-color: #c2d4e8 !important;
+}
+
+/* Botones primarios → azul Mercury */
+html.light button[data-primary],
+html.light button[type="submit"] {
+  background-color: #1565c0 !important;
+  color: #ffffff !important;
+}
+
+html.light [role="switch"][aria-checked="true"] {
+  background-color: #1565c0 !important;
+  color: #ffffff !important;
+}
+
+html.light [role="switch"][aria-checked="true"] * {
+  color: #ffffff !important;
+}

@@ -134,3 +134,91 @@ Creado entorno de desarrollo independiente para Open WebUI, clonando el servicio
 **prod.yml — DDGS_BACKEND:**
 - Archivo: `.docker/compose/prod.yml`.
 - La variable fue añadida como workaround temporal (sesión 2026-05-07). Su eliminación no afecta a `web_search.py`, que establece el backend vía `DDGS(backend="google")` en el código de la tool.
+
+---
+
+## docker — Rebrand Open WebUI Dev (Touron LLM)
+
+### Cambios realizados
+
+Aplicado rebrand completo a `open-webui-dev` sin tocar código fuente ni rebuild de imagen:
+
+- `WEBUI_NAME=Touron LLM` añadido en `dev.yml`
+- Creado `.docker/branding/custom.css` — paleta azul marino Touron sobreescribiendo variables `--color-gray-*` de Tailwind v4. Estrategia: en dark mode se reemplaza la escala completa; en light mode solo se tocan grises oscuros para no romper tooltips/badges que asumen fondo claro.
+- Creado `.docker/branding/favicon.png` — logo Touron (7 estilizado azul sobre fondo marino) redondeado con Pillow (radio 56px, 256×256px).
+- `dev.yml`: bind mounts de `custom.css` y `favicon.png` a `/app/build/static/` (read-only).
+- Parche `env.py` para eliminar sufijo ` (Open WebUI)`: `sed -i '131,132d' /app/backend/open_webui/env.py` — **se pierde al recrear el contenedor**, hay que reaplicar.
+
+---
+
+## docker — Reorganización de grupos Docker Compose
+
+### Cambios realizados
+
+Todos los compose renombrados con prefijo numérico para ordenarlos en Docker Desktop:
+
+- `prod.yml` → `name: 1-produccion`
+- `dev.yml` → `name: 2-desarrollo`
+- `proxy.yml` → `name: 3-proxy`
+- `bots.yml` → `name: 4-bots`
+
+---
+
+## docker — Eliminación de tsamaps_server_prod y limpieza
+
+### Cambios realizados
+
+- `tsamaps_server_prod` eliminado de `proxy.yml` — solo queda `tsamaps_server` (monta `dev/tsamaps`).
+- `tsamaps_server_dev` renombrado a `tsamaps_server` en `proxy.yml`.
+- Eliminados contenedores, imágenes y archivos de configuración de LibreChat (evaluado y descartado en favor de Open WebUI).
+- `prod.yml` restaurado a estado limpio: solo `open-webui` + `anything-llm`.
+
+---
+
+## docker — LibreChat: evaluado y descartado
+
+### Decisión
+
+LibreChat desplegado como prueba (5 contenedores: API, MongoDB, MeiliSearch, PostgreSQL+pgvector, RAG API) y evaluado frente a Open WebUI. Conclusión: Open WebUI es la plataforma correcta para Touron. LibreChat eliminado completamente (contenedores, volúmenes, imágenes, archivos de configuración).
+
+Motivos principales del descarte:
+- 5 contenedores vs 1 de Open WebUI
+- Panel admin es app separada aún en Preview (no incluida en imagen)
+- No tiene equivalente a las tools Python de Open WebUI — reescribir todo en MCP
+- Adquirido por ClickHouse en noviembre 2025 — virando hacia enterprise de datos
+- Todo el trabajo de RAG, bots y tools está construido sobre Open WebUI y no es portable
+
+---
+
+## CLAUDE.md — Actualización completa
+
+### Cambios realizados
+
+- Stack técnico actualizado: v0.9.4, puertos correctos (dev en 3002, no 4000)
+- Esquema de puertos corregido: eliminado rango 4000, añadido 3002, aclarado 5050
+- Nueva sección `.docker/branding/`
+- Nueva sección **Docker Compose — Grupos** con tabla y restricciones
+- Nueva sección **Rebrand Open WebUI Dev** con comando del parche `env.py`
+- `tsamaps_server_prod` eliminado de todas las referencias
+- `tsamaps_server` (sin sufijo) como nombre definitivo del servicio proxy
+- Estado del proyecto: LibreChat evaluado y descartado — Open WebUI decisión firme
+
+---
+
+## Contexto técnico para agentes
+
+**Rebrand open-webui-dev:**
+- El CSS se sirve automáticamente — `index.html` ya incluye `<link rel="stylesheet" href="/static/custom.css">`.
+- Open WebUI usa Tailwind v4 con variables `--color-gray-*`. Sobreescribir estas variables en `:root` no funciona — hay que hacerlo en `html.dark` o `html.light` para que tengan prioridad.
+- El sufijo ` (Open WebUI)` lo añade `env.py` líneas 131-132 cuando `WEBUI_NAME != 'Open WebUI'`. El parche con `sed -i '131,132d'` elimina esas líneas. **Se pierde al recrear el contenedor** (docker compose up con Recreate). Comando completo: `docker exec open-webui-dev sh -c "sed -i '131,132d' /app/backend/open_webui/env.py" && docker restart open-webui-dev`.
+- El favicon en `/app/build/static/favicon.png` se sirve con `crossorigin="use-credentials"` — el navegador lo cachea agresivamente. Para forzar recarga: limpiar caché del navegador o acceder a la URL directa `/static/favicon.png`.
+
+**tsamaps_server:**
+- Nombre definitivo del servicio en `proxy.yml`. El contenedor anterior `tsamaps_server_dev` fue renombrado.
+- Monta `.webapps/dev/tsamaps` — es el entorno de desarrollo activo.
+- El error 429 de open-meteo (API de viento) aparece cuando el contenedor se reinicia muchas veces seguidas. Se recupera solo en minutos sin intervención.
+- Acceso correcto: `https://pc-luis.bandicoot-stairs.ts.net:5050` (certificado Tailscale). `https://localhost:5050` da aviso de certificado inválido.
+
+**Docker Compose — orden en Docker Desktop:**
+- Los grupos aparecen en orden alfabético → los prefijos numéricos `1-`, `2-`, `3-`, `4-` garantizan el orden visual.
+- Al cambiar el `name:` de un compose hay que recrear los contenedores para que aparezcan bajo el nuevo grupo.

@@ -94,9 +94,11 @@ Manuales: download.brunswick-marine.com
 
 **Marketing:** Directora: María Lougedo Lorente · Daniel Ávila Sánchez (Técnico en Diseño Gráfico & Redes Sociales) · Esther Lapeña Martinez (Técnico de Marketing) · Jeika Gotera Atencio (Técnico de Marketing)
 
-**Sistemas:** Director: José Antonio Alcalá Palacios · Luis Conde Blanco (Técnico IT / Soporte G3 Mercury) · Jose Sanz Peña (Técnico Oracle) · Tomás Ruiz-Roso Salgado (Técnico Big Data) · Viviana Franco Hernández (Técnico M365) · Álvaro da Casa (Técnico Oracle)
+**Sistemas:** Director: José Antonio Alcalá Palacios · Luis Conde (Técnico IT / Soporte) · Jose Sanz Peña (Técnico Oracle) · Tomás Ruiz-Roso Salgado (Técnico Big Data) · Viviana Franco Hernández (Técnico M365) · Álvaro da Casa (Técnico Oracle)
 
 **Finanzas & Admin:** Director: José Fernández Cabia · Juana Fernández Cisneros (Contable) · Esther Froilan Ortego (Contable) · Javier Sánchez Serrano (Contable) · Paula Martín Casares (Responsable de Personas) · Helena Campos (Administración PT) · Patricia de Dios Rodríguez (Office Manager & Recepcionista)
+
+**Funciones Adicionales:** Luis Conde (Técnico TI / Soporte) Y Diego Sánchez (Director de Servicio): Ambos dan soporte para el Software G3 de diagnóstico de Mercury
 
 ## Productos
 

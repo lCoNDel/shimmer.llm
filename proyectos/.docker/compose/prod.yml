@@ -1,4 +1,4 @@
-name: produccion
+name: 1-produccion
 
 # stack principal — open webui y anything llm
 # ollama corre en el host windows, no en docker

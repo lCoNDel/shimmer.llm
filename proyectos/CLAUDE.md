@@ -14,9 +14,10 @@ Núcleo: **Open WebUI + Docker + Ollama**. Ollama corre en el host Windows; el r
 
 | Servicio | Tecnología | Puerto |
 |---|---|---|
-| Interfaz principal | Open WebUI v0.9.2 | 3000 (prod) / 4000 (dev) |
-| Alternativa | AnythingLLM | 3001 (prod) / 4001 (dev) |
+| Interfaz principal | Open WebUI v0.9.4 | 3000 (prod) / 3002 (dev) |
+| Alternativa | AnythingLLM | 3001 |
 | LLM local | Ollama (host Windows) | 11434 |
+| Carta náutica | tsamaps (FastAPI + Leaflet) | 5050 |
 | Acceso a archivos | Filebrowser (inyectable, sin imagen Docker) | 8001–8002 |
 | Bots | Python — Long Polling | Sin puerto |
 
@@ -26,11 +27,12 @@ Esquema de puertos — consultarlo siempre antes de añadir un nuevo servicio:
 |---|---|
 | 3000 | Open WebUI (Producción) |
 | 3001 | AnythingLLM (Producción) |
-| 3002–3099 | Reservado (LibreChat, Flowise, etc.) |
-| 4000 | Open WebUI (Dev) |
-| 4001 | AnythingLLM (Dev) |
-| 4002–4099 | Reservado para futuros contenedores experimentales |
-| 5000–5099 | APIs nativas, webhooks, microservicios, puentes de IA |
+| 3002 | Open WebUI (Dev) |
+| 3003–3099 | Reservado (Flowise, etc.) |
+| 4001–4099 | Reservado para futuros contenedores experimentales |
+| 5000–5049 | APIs nativas, webhooks, microservicios, puentes de IA |
+| 5050 | tsamaps (prod y dev comparten puerto — no arrancar simultáneamente) |
+| 5051–5099 | Reservado tsamaps y otros proxies |
 | 8000 | Filebrowser Global (acceso raíz a todo el árbol) |
 | 8001 | Filebrowser Inyectable → Open WebUI |
 | 8002 | Filebrowser Inyectable → AnythingLLM |
@@ -95,10 +97,15 @@ Backlog activo. Prefijo `OK` = ya implementado. Leer antes de planificar trabajo
 │   ├── asistente_nautico.py
 │   ├── asistente_servicio.py
 │   └── requirements.txt    # Compartido por todos los bots de Telegram
+├── branding/               # Rebrand Open WebUI Dev (Touron LLM)
+│   ├── custom.css          # Paleta azul marino — bind mount en dev.yml
+│   ├── favicon.png         # Logo Touron redondeado — bind mount en dev.yml
+│   └── touron-logo.jpg     # Logo original descargado
 ├── compose/
-│   ├── prod.yml            # Stack producción — Open WebUI + AnythingLLM
-│   ├── dev.yml
-│   ├── bots.yml
+│   ├── prod.yml            # 1-produccion — Open WebUI + AnythingLLM
+│   ├── dev.yml             # 2-desarrollo — Open WebUI Dev (puerto 3002)
+│   ├── proxy.yml           # 3-proxy — tsamaps_server (puerto 5050)
+│   ├── bots.yml            # 4-bots — asistente_nautico, asistente_servicio
 │   └── tools.yml
 ├── backup/                 # Scripts de backup de volúmenes
 ├── filebrowser/            # Filebrowser inyectable — inject_internal.ps1 copia el binario en open-webui (8001) y anything-llm (8002). Sin imagen Docker.
@@ -106,7 +113,7 @@ Backlog activo. Prefijo `OK` = ya implementado. Leer antes de planificar trabajo
     ├── tools/              # Tools Python para Open WebUI
     └── workflows/          # Procedimientos de operación de Open WebUI
 ```
-Nuevas plataformas de bots → nueva subcarpeta en `.bots/` (ej. `whatsapp/`). Los `.py` van siempre planos dentro de su carpeta de plataforma.
+Nuevas plataformas de bots → nueva subcarpeta en `.bots/` (ej. `telegram/`). Los `.py` van siempre planos dentro de su carpeta de plataforma.
 
 ### `.agents/`
 Skills en `.agents/skills/[nombre]/SKILL.md`. Formato y convenciones: ver `.agents/god/SKILL.md`.
@@ -130,14 +137,39 @@ Un único archivo por día. Si en la sesión se trabajó en varios proyectos, el
 ```
 .webapps/
 ├── prod/tsamaps/   # Carta náutica interactiva — puerto 5050
-├── dev/tsamaps/    # Desarrollo
+├── dev/tsamaps/    # Desarrollo — mismo puerto 5050 (no arrancar simultáneamente con prod)
 └── antiguos/       # Archivados — excluidos de git
 ```
 
 **tsamaps** — app web (HTML/CSS/JS vanilla, Leaflet, OpenSeaMap, CartoDB) con servidor FastAPI consolidado en el puerto 5050 (estáticos + proxy `/chat` hacia Open WebUI).
 Archivos principales: `app.js`, `index.html`, `index.css`, `responsive.css`, `server.py`.
-Todo el JS en un único `DOMContentLoaded`. Arrancado vía `docker compose` con `proxy.yml`.
+Todo el JS en un único `DOMContentLoaded`. Arrancado vía `docker compose` con `proxy.yml` → servicio `tsamaps_server`.
 **Changelogs en `.log/`** — incluyen contexto técnico exacto para agentes. Leer antes de modificar la app.
+
+---
+
+## Docker Compose — Grupos
+
+| Archivo | Nombre proyecto | Servicios |
+|---|---|---|
+| `prod.yml` | `1-produccion` | open-webui (3000), anything-llm (3001) |
+| `dev.yml` | `2-desarrollo` | open-webui-dev (3002) |
+| `proxy.yml` | `3-proxy` | tsamaps_server (5050) |
+| `bots.yml` | `4-bots` | asistente_nautico, asistente_servicio |
+
+**Restricciones:**
+- No arrancar `open-webui` (prod) y `open-webui-dev` simultáneamente — comparten volumen `open-webui`.
+- No arrancar `tsamaps_server` de dev y prod simultáneamente — comparten el puerto 5050.
+
+---
+
+## Rebrand Open WebUI Dev
+
+`open-webui-dev` está configurado como **Touron LLM** mediante:
+- `WEBUI_NAME=Touron LLM` en `dev.yml`
+- `custom.css` montado en `/app/build/static/custom.css` — paleta azul marino Touron
+- `favicon.png` montado en `/app/build/static/favicon.png` — logo Touron redondeado
+- Parche en `env.py` del contenedor para eliminar el sufijo `(Open WebUI)` — **se pierde al recrear el contenedor**, hay que reaplicar con: `docker exec open-webui-dev sh -c "sed -i '131,132d' /app/backend/open_webui/env.py" && docker restart open-webui-dev`
 
 ---
 
@@ -179,6 +211,7 @@ La skill `asistente-nautico-touron` contiene datos reales — tratar con discrec
 ## Estado del Proyecto
 
 - **Fase**: Demo y testing en local (Windows)
+- **Plataforma elegida**: Open WebUI (decisión firme — LibreChat evaluado y descartado)
 - **Próximo paso**: Despliegue en servidor dedicado (pendiente de máquina)
 - **RAG SharePoint**: diseñado, pendiente → `.backlog/rag_sharepoint/`
 - **Modelo de embeddings**: por decidir (`nomic-embed-text` o `mxbai-embed-large`)

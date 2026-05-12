@@ -4,6 +4,11 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-05-12 | docker, claude | CLAUDE.md, stack, puertos, branding, compose-grupos | CLAUDE.md actualizado: v0.9.4, puertos corregidos, branding/, grupos Compose, LibreChat descartado | changelog_2026-05-12.md |
+| 2026-05-12 | docker | librechat, evaluacion, descarte, limpieza | LibreChat desplegado, evaluado y eliminado completamente; Open WebUI decisión firme | changelog_2026-05-12.md |
+| 2026-05-12 | docker | compose, grupos, prefijos, orden, docker-desktop | Compose renombrados con prefijos 1-/2-/3-/4- para orden en Docker Desktop | changelog_2026-05-12.md |
+| 2026-05-12 | docker, tsamaps | tsamaps_server, limpieza, proxy, renombrado | tsamaps_server_prod eliminado; tsamaps_server_dev→tsamaps_server; proxy.yml limpio | changelog_2026-05-12.md |
+| 2026-05-12 | docker, openweb | rebrand, touron-llm, css, favicon, branding | Rebrand open-webui-dev como Touron LLM: paleta azul marino, favicon logo Touron, env.py patch | changelog_2026-05-12.md |
 | 2026-05-12 | docker, openweb | open-webui-dev, clon, dev, puerto-3002, volumen-compartido | Clon Open WebUI en puerto 3002 para dev; comparte volumen prod; comando /openweb-dev | changelog_2026-05-12.md |
 | 2026-05-12 | backlog, openweb, tools | demo, erp, csv, margenes, stock, pronostico, backlog | Demo ERP-IA archivada en backlog: tool analisis_negocio.py + 3 CSVs ficticios Touron (50 refs, 2020-2025) | changelog_2026-05-12.md |
 | 2026-05-12 | docker | wsl, docker-desktop, arranque, incidencia | Docker Desktop no arrancaba por WSL en estado Stopped; resuelto con wsl --shutdown | changelog_2026-05-12.md |
