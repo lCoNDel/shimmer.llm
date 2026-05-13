@@ -136,8 +136,7 @@ Un único archivo por día. Si en la sesión se trabajó en varios proyectos, el
 ### `.webapps/`
 ```
 .webapps/
-├── prod/tsamaps/   # Carta náutica interactiva — puerto 5050
-├── dev/tsamaps/    # Desarrollo — mismo puerto 5050 (no arrancar simultáneamente con prod)
+├── prod/tsamaps/   # Carta náutica interactiva — única copia activa, puerto 5050
 └── antiguos/       # Archivados — excluidos de git
 ```
 

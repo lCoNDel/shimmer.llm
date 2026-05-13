@@ -102,3 +102,37 @@ Creado `.backlog/explicacion_busqueda_semantica_rag.md` con explicación complet
 
 **KB collection ID activo:**
 `68e000dc-79a8-4b0f-a74d-eb9f63ce1b92` — Manuales Mercury. Si se reindexa la KB, este ID cambia y hay que actualizarlo en `query_knowledge.py` (constante `KB_ID`).
+
+---
+
+## tsamaps — Limpieza de referencias a dev/tsamaps eliminado
+
+### Archivos corregidos
+
+**`.webapps/prod/tsamaps/runtime/start.ps1`:**
+- `tsamaps_server_dev` → `tsamaps_server` (el servicio dev ya no existe en `proxy.yml`)
+
+**`.webapps/prod/tsamaps/runtime/stop.ps1`:**
+- `tsamaps_server_dev` → `tsamaps_server`
+
+**`.webapps/prod/tsamaps/Runtime.md`:**
+- Rutas de scripts corregidas: `dev/tsamaps/runtime/` → `prod/tsamaps/runtime/`
+- Header actualizado de "DEV" a "PROD"
+- Descripción del servicio corregida a `tsamaps_server`
+
+**`CLAUDE.md`:**
+- Eliminada la línea `dev/tsamaps/` de la sección `.webapps/`
+
+### Archivos eliminados (skill tsamaps-dev obsoleta)
+
+- `.claude/commands/tsamaps-dev.md`
+- `.claude/ops/tsamaps-dev-start.ps1`
+- `.claude/ops/tsamaps-dev-stop.ps1`
+
+El servicio `tsamaps_server_dev` fue eliminado de `proxy.yml` en sesión del 2026-05-12. La skill `tsamaps-dev` quedó rota desde entonces — estos archivos la completaban.
+
+### Estado tras la limpieza
+
+- Un único servicio Docker para tsamaps: `tsamaps_server` (monta `prod/tsamaps`)
+- Un único comando Claude: `/tsamaps-prod`
+- Scripts runtime en `prod/tsamaps/runtime/` apuntan correctamente a `tsamaps_server`

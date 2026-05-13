@@ -1,31 +1,31 @@
 ---
 name: Web Service Manager
-description: Una skill para iniciar y detener el servicio web local en el puerto 5050.
+description: Una skill para iniciar y detener el servicio web tsamaps en el puerto 5050.
 ---
 
-# Web Service Manager — DEV
+# Web Service Manager — PROD
 
-Esta skill proporciona indicaciones para gestionar el servidor web local del proyecto tsamaps en entorno de **desarrollo**.
+Esta skill proporciona indicaciones para gestionar el servidor web del proyecto tsamaps.
 
 ## Funciones
 
-1.  **Iniciar Servidor**: Levanta `open-webui` (prod.yml), `asistente_nautico` (bots.yml) y `tsamaps_server_dev` (proxy.yml) en ese orden.
-2.  **Detener Servidor**: Para los tres contenedores.
+1.  **Iniciar Servidor**: Levanta `tsamaps_server` (proxy.yml) en el puerto 5050.
+2.  **Detener Servidor**: Para el contenedor.
 
 ## Instrucciones de Uso
 
 ### Iniciar el servicio
 ```powershell
-powershell -File "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.webapps\dev\tsamaps\runtime\start.ps1"
+powershell -File "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.webapps\prod\tsamaps\runtime\start.ps1"
 ```
 
 ### Detener el servicio
 ```powershell
-powershell -File "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.webapps\dev\tsamaps\runtime\stop.ps1"
+powershell -File "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.webapps\prod\tsamaps\runtime\stop.ps1"
 ```
 
 > [!NOTE]
-> El servidor se inicia en segundo plano. El contenedor Docker monta esta carpeta (`dev/tsamaps`) como `/app` y sirve el frontend + el proxy `/chat` hacia Open WebUI en el puerto 5050.
+> El contenedor Docker monta `prod/tsamaps` como `/app` y sirve el frontend + el proxy `/chat` hacia Open WebUI en el puerto 5050.
 
 ## Comportamiento esperado del agente
 
