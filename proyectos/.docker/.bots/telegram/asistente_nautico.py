@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # --- Configuración ---
 TELEGRAM_TOKEN = "8633157162:AAFdIrMs-3jROMEb8jrIQUvi5vHFTUzLKaw"
 OPENWEBUI_API_KEY = "sk-894ef03db000417fa0fea94a2f1a3e13"
-OPENWEBUI_BASE = "http://host.docker.internal:3002"
+OPENWEBUI_BASE = "http://host.docker.internal:3000"
 OPENWEBUI_URL = f"{OPENWEBUI_BASE}/api/chat/completions"
 MODEL_ID = "asistente-touron"
 
@@ -322,23 +322,29 @@ def call_openwebui(messages: list, headers: dict) -> str:
 
     for iteration in range(8):
         payload = {"model": MODEL_ID, "messages": current_messages, "stream": False}
-        response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=60)
+        response = requests.post(OPENWEBUI_URL, headers=headers, json=payload, timeout=120)
 
+        logging.info(f"[iter {iteration}] status={response.status_code}, body={response.text[:300]}")
         if response.status_code != 200:
             logging.error(f"Error Open WebUI ({response.status_code}): {response.text[:300]}")
             return None
 
-        choice = response.json()["choices"][0]
+        resp_json = response.json()
+        if "choices" not in resp_json:
+            logging.error(f"Respuesta sin 'choices': {resp_json}")
+            return None
+
+        choice = resp_json["choices"][0]
         finish_reason = choice.get("finish_reason")
         content = choice["message"].get("content") or ""
 
         # Si el modelo terminó de generar (no hay más tool calls), construir respuesta final
-        if finish_reason != "tool_calls" or content.strip():
+        if finish_reason != "tool_calls":
             if not content.strip() and finish_reason != "tool_calls":
                 logging.warning(f"content vacío (finish_reason={finish_reason})")
 
-            # Añadir footer de fuentes si hubo búsquedas en KB
-            if content.strip() and session_chunks:
+            # Añadir footer de fuentes si hubo búsquedas en KB (solo si no está ya en el contenido)
+            if content.strip() and session_chunks and "📄 *Fuentes consultadas:*" not in content:
                 cited = set(int(m) for m in re.findall(r'\[(\d+)\]', content))
                 seen = set()
                 unique = []
@@ -717,7 +723,7 @@ def handle_message(message):
         messages = user_history[user_id]["messages"][-10:]
 
         logging.info(f"Enviando consulta a Open WebUI para el usuario {user_id}...")
-        messages_with_system = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
+        messages_with_system = messages
         answer = call_openwebui(messages_with_system, headers)
 
         if answer is None:

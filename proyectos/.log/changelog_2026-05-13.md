@@ -74,6 +74,53 @@ Creado `.backlog/explicacion_busqueda_semantica_rag.md` con explicación complet
 
 ---
 
+## bot telegram — Migración a prod + mejoras RAG y control de flujo
+
+### Contexto
+
+Open WebUI dev (v0.9.5) actualizado esta mañana rompió el endpoint `/api/chat/completions` para clientes externos (bug confirmado en issue #24550: respuesta async sin `choices`). Se migró todo a prod (v0.9.4) que sigue funcionando correctamente.
+
+### Cambios en `asistente_nautico.py`
+
+**Puerto prod:**
+- `OPENWEBUI_BASE`: `host.docker.internal:3002` → `host.docker.internal:3000`
+
+**Timeout ampliado:**
+- `timeout=60` → `timeout=120` — evita cortes en consultas RAG con múltiples tool calls
+
+**Logging mejorado:**
+- Log de status y body en cada iteración del bucle (`[iter N] status=200, body=...`)
+- Comprobación explícita de `"choices" not in resp_json` con error descriptivo
+
+**Fix bucle tool calls — crítico:**
+- Condición de salida cambiada de `if finish_reason != "tool_calls" or content.strip()` a `if finish_reason != "tool_calls"`
+- **Motivo:** el modelo a veces emite texto parcial ("Déjame buscar...") junto con tool calls. La condición anterior salía del bucle con ese texto incompleto como respuesta final, ignorando el tool call pendiente. La corrección fuerza continuar el bucle siempre que `finish_reason == "tool_calls"`, independientemente del contenido.
+
+**Fix footer duplicado:**
+- Añadida comprobación `"📄 *Fuentes consultadas:*" not in content` antes de añadir el footer
+- **Motivo:** el modelo a veces reproduce el footer de respuestas anteriores del historial, y el bot lo añadía encima generando duplicado.
+
+**System prompt eliminado del bot:**
+- `messages_with_system = [{"role": "system", "content": SYSTEM_PROMPT}] + messages` → `messages_with_system = messages`
+- Todo el system prompt (datos corporativos + instrucciones RAG) se gestiona ahora desde el Workspace Model `asistente-touron` en Open WebUI
+
+### Cambios en `prod.yml`
+
+Branding Touron LLM aplicado a prod (antes solo en dev):
+- Bind mounts: `custom.css`, `favicon.png`, `favicon-96x96.png`
+- Variable: `WEBUI_NAME=Touron LLM`
+- Parche `env.py` reaplicado manualmente tras recrear el contenedor
+
+### Estado del Workspace Model `asistente-touron`
+
+System prompt migrado al Workspace Model con estas secciones:
+- Rol e identidad (Shimmer, Touron S.A.)
+- Instrucciones RAG: dos llamadas separadas a `query_knowledge_files` (español + inglés, 5-10 keywords, count=15)
+- Instrucciones búsqueda web: usar resultados del encabezado `"Resultados de búsqueda web para:"`, citar URLs exactas
+- Datos corporativos completos: identidad, contactos, equipo, productos
+
+---
+
 ## Contexto técnico para agentes
 
 **Archivos modificados en esta sesión:**
