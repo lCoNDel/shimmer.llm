@@ -754,11 +754,7 @@ body {
     animation: spin 1s infinite linear;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
+
 
 .hidden {
     display: none !important;
@@ -879,12 +875,21 @@ body {
     margin-top: 0.3rem;
 }
 
-.dealer-desc {
-    font-size: 0.75rem;
-    color: var(--brand-text-muted);
-    margin-top: 0.2rem;
-    font-style: italic;
-    line-height: 1.3;
+.service-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 0.5rem;
+}
+
+.service-tag {
+    font-size: 0.7rem;
+    background: rgba(0, 118, 214, 0.08);
+    color: var(--brand-primary);
+    border: 1px solid rgba(0, 118, 214, 0.2);
+    border-radius: 20px;
+    padding: 2px 8px;
+    white-space: nowrap;
 }
 
 .dealer-card.headquarters {
@@ -1077,7 +1082,7 @@ body {
 
 .waypoint-form input {
     padding: 0.6rem;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--brand-accent);
     border-radius: 6px;
     font-size: 0.95rem;
     font-family: inherit;

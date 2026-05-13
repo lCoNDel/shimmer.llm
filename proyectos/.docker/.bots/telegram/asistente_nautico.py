@@ -15,8 +15,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # --- Configuración ---
 TELEGRAM_TOKEN = "8633157162:AAFdIrMs-3jROMEb8jrIQUvi5vHFTUzLKaw"
-OPENWEBUI_API_KEY = "sk-86be5033063c4e1488007be92f4b2196"
-OPENWEBUI_BASE = "http://host.docker.internal:3000"
+OPENWEBUI_API_KEY = "sk-894ef03db000417fa0fea94a2f1a3e13"
+OPENWEBUI_BASE = "http://host.docker.internal:3002"
 OPENWEBUI_URL = f"{OPENWEBUI_BASE}/api/chat/completions"
 MODEL_ID = "asistente-touron"
 

@@ -2,8 +2,8 @@ $proxyCompose = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\c
 $prodCompose  = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\prod.yml"
 $botsCompose  = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\bots.yml"
 
-Write-Host "Deteniendo tsamaps_server_prod..."
-docker compose -f $proxyCompose stop tsamaps_server_prod
+Write-Host "Deteniendo tsamaps_server_dev..."
+docker compose -f $proxyCompose stop tsamaps_server_dev
 
 Write-Host "Deteniendo asistente_nautico..."
 docker compose -f $botsCompose stop asistente_nautico

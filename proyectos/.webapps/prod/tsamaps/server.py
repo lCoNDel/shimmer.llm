@@ -12,8 +12,8 @@ import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
 
-OPENWEBUI_URL = "http://host.docker.internal:3000"
-API_KEY       = "sk-86be5033063c4e1488007be92f4b2196"
+OPENWEBUI_URL = "http://host.docker.internal:3002"
+API_KEY       = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ5ZTAyMjg5LTMwMzEtNDAxYS05MGY2LWVmNDVhNmEyYmUxMSIsImV4cCI6MTc4MTA5NzE3MCwianRpIjoiZGZhZDEyNGEtZWU3YS00YWY0LWE1ZmMtZjM1ZGQ3OTgyNTMxIiwiaWF0IjoxNzc4Njc3OTcwfQ.QMNg9s2yCyDteaMTV4Sucv4Df0aAUXQA21cw2h_fYyg"
 MODEL_ID      = "asistente-touron"
 WEB_PREFIX    = "/web "
 
@@ -177,7 +177,7 @@ async def chat(req: ChatRequest):
         response = await client.post(
             f"{OPENWEBUI_URL}/api/chat/completions",
             headers={"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"},
-            json={"model": MODEL_ID, "messages": messages, "stream": False}
+            json={"model": MODEL_ID, "messages": messages, "stream": False, "chat_id": "local:tsamaps"}
         )
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail=response.text)

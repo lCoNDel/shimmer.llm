@@ -508,12 +508,6 @@
         overflow-y: auto;
     }
 
-    /* Alarma de fondeo: visible en tablet landscape — mantener posicionamiento
-       desktop (absolute sobre su contenedor), no sobreescribir con fixed */
-    .floating-alarm-container {
-        display: flex;
-    }
-
     /* Botones flotantes inferiores: subir para no quedar fuera del viewport */
     #floatingSosContainer {
         bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;

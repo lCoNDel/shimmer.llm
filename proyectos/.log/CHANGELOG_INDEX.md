@@ -4,6 +4,10 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-05-13 | tsamaps | limpieza, dev, eliminado, prod-unico | dev/tsamaps eliminado; solo existe prod/tsamaps montado en proxy.yml | changelog_2026-05-13.md |
+| 2026-05-13 | tsamaps, bot, docker | bug, chat_id, openweb-dev, puerto-3002, workaround | tsamaps y bot reconectados a Open WebUI dev (3002); workaround bug chat_id None en v0.9.4 | changelog_2026-05-13.md |
+| 2026-05-13 | openweb, tools | query_knowledge, file_filter, rag, chromadb | query_knowledge v1.2: file_filter opcional para buscar en archivo concreto de la KB | changelog_2026-05-13.md |
+| 2026-05-13 | backlog, docs | rag, semantica, vectores, coseno, embeddings | Explicación completa búsqueda semántica RAG con ejemplo Verado V12 | changelog_2026-05-13.md |
 | 2026-05-12 | docker, claude | CLAUDE.md, stack, puertos, branding, compose-grupos | CLAUDE.md actualizado: v0.9.4, puertos corregidos, branding/, grupos Compose, LibreChat descartado | changelog_2026-05-12.md |
 | 2026-05-12 | docker | librechat, evaluacion, descarte, limpieza | LibreChat desplegado, evaluado y eliminado completamente; Open WebUI decisión firme | changelog_2026-05-12.md |
 | 2026-05-12 | docker | compose, grupos, prefijos, orden, docker-desktop | Compose renombrados con prefijos 1-/2-/3-/4- para orden en Docker Desktop | changelog_2026-05-12.md |

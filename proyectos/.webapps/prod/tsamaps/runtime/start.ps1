@@ -8,6 +8,6 @@ docker compose -f $prodCompose up -d open-webui
 Write-Host "Iniciando asistente_nautico..."
 docker compose -f $botsCompose up -d asistente_nautico
 
-Write-Host "Iniciando tsamaps_server_prod en http://localhost:5050..."
-docker compose -f $proxyCompose up -d tsamaps_server_prod
+Write-Host "Iniciando tsamaps_server_dev en http://localhost:5050..."
+docker compose -f $proxyCompose up -d tsamaps_server_dev
 

@@ -1,0 +1,104 @@
+# Changelog — 2026-05-13
+
+## tsamaps + bot — Reconexión a Open WebUI dev (puerto 3002)
+
+### Problema
+
+Con Open WebUI prod (puerto 3000) parado y solo `open-webui-dev` (puerto 3002) activo, el chat de tsamaps y el bot de Telegram dejaron de responder con "Error al conectar con el asistente".
+
+### Causa raíz: bug Open WebUI v0.9.4/v0.9.5 — chat_id None
+
+En `open_webui.main:process_chat`, línea ~2013, existe el código:
+
+```python
+if not metadata['chat_id'].startswith('local:'):
+```
+
+`metadata['chat_id']` se inicializa como `form_data.pop('chat_id', None)`, por lo que es `None` cuando la llamada viene de una API externa sin ese campo. Esto genera `AttributeError: 'NoneType' object has no attribute 'startswith'` y devuelve HTTP 400.
+
+### Cambios aplicados
+
+**`prod/tsamaps/server.py`:**
+- `OPENWEBUI_URL`: `host.docker.internal:3000` → `host.docker.internal:3002`
+- `API_KEY`: actualizado a JWT de sesión (el API key `sk-...` también daba 400 por el mismo bug)
+- Request `/api/chat/completions`: añadido `"chat_id": "local:tsamaps"` — workaround del bug
+
+**`dev/tsamaps/server.py`:**
+- `OPENWEBUI_URL`: `host.docker.internal:3000` → `host.docker.internal:3002`
+- (el `proxy.yml` monta `prod/tsamaps`, no `dev/tsamaps` — este cambio es preventivo)
+
+**`asistente_nautico.py`:**
+- `OPENWEBUI_BASE`: `host.docker.internal:3000` → `host.docker.internal:3002`
+- `OPENWEBUI_API_KEY`: `sk-86be5033063c4e1488007be92f4b2196` → `sk-894ef03db000417fa0fea94a2f1a3e13`
+- **Pendiente:** añadir `"chat_id": "local:asistente-nautico"` al payload si el bot también da 400
+
+---
+
+## openweb — query_knowledge.py: file_filter por archivo
+
+### Nuevo parámetro opcional `file_filter`
+
+Añadido parámetro `file_filter: str = ""` a `query_knowledge.py` (v1.1.0 → v1.2.0).
+
+**Comportamiento:**
+- Sin `file_filter`: busca en toda la KB (comportamiento anterior intacto)
+- Con `file_filter="Verado V12"`: llama a `/api/v1/knowledge/{KB_ID}/files`, busca coincidencia parcial por nombre, construye `file-{uuid}` y busca solo en esa colección
+- Sin match: devuelve lista de archivos disponibles
+- Error en API: cae a KB completa silenciosamente
+
+**Limitación:** nuevas KBs requieren añadir su UUID a `COLLECTION_IDS` manualmente. Alternativa futura: listar todas las KBs via `/api/v1/knowledge/`.
+
+**Cómo se activa:** usuario escribe "busca en el Verado V12: intervals mantenimiento" → LLM extrae nombre → `file_filter="Verado V12"`.
+
+---
+
+## backlog — Explicación búsqueda semántica RAG
+
+Creado `.backlog/explicacion_busqueda_semantica_rag.md` con explicación completa del funcionamiento del RAG:
+- Chunking con chunk_size=512 y overlap=100
+- Vectores y embeddings (nomic-embed-text, 768 dimensiones)
+- ChromaDB: texto + vector + metadata por chunk
+- Similitud coseno y ángulos entre vectores
+- Flujo completo de 7 pasos con ejemplo "Mantenimientos Verado V12"
+- Búsqueda híbrida semántica + BM25
+
+---
+
+## tsamaps — Eliminación de dev/tsamaps
+
+### Decisión
+
+`dev/tsamaps` eliminado completamente. A partir de ahora solo existe `prod/tsamaps`, que es lo que monta el `proxy.yml`. El directorio `dev/` ha quedado vacío.
+
+**Motivo:** el flujo de trabajo dev/prod en tsamaps no aportaba valor — `proxy.yml` siempre montó `prod/tsamaps` y los cambios se hacían directamente ahí. Mantener dos copias solo generaba confusión.
+
+---
+
+## Contexto técnico para agentes
+
+**Archivos modificados en esta sesión:**
+- `.webapps/prod/tsamaps/server.py` — puerto 3002, JWT, chat_id workaround
+- `.webapps/dev/tsamaps/server.py` — puerto 3002 (preventivo)
+- `.docker/.bots/telegram/asistente_nautico.py` — puerto 3002, nueva API key
+- `.docker/openweb/tools/query_knowledge.py` — v1.2.0 con file_filter
+- `.log/changelog_2026-05-09.md` — actualizado con entrada query_knowledge v1.2.0
+- `.backlog/explicacion_busqueda_semantica_rag.md` — nuevo documento educativo
+
+**Bug Open WebUI v0.9.4 — chat_id:**
+- El endpoint `/api/chat/completions` devuelve 400 cuando no se pasa `chat_id` en el body
+- Workaround: incluir `"chat_id": "local:<nombre>"` en el JSON del request
+- Afecta a llamadas externas via API key Y via JWT — el problema es el campo ausente, no la autenticación
+- El bug puede estar corregido en v0.9.5 pero el workaround es inocuo en cualquier versión
+
+**Estado de conexiones (modo dev activo):**
+- Open WebUI dev: `http://host.docker.internal:3002`
+- tsamaps monta `prod/tsamaps` (no `dev/tsamaps`) según `proxy.yml`
+- Al volver a producción: revertir puertos a 3000 y usar API key prod en todos los servicios
+
+**JWT en prod/tsamaps/server.py:**
+- Expira aproximadamente el 13 de junio de 2026
+- Cuando expire: obtener nuevo JWT desde F12 → Application → Local Storage → `localhost:3002` → clave `token`
+- O esperar fix del bug API key en Open WebUI y volver a usar `sk-...`
+
+**KB collection ID activo:**
+`68e000dc-79a8-4b0f-a74d-eb9f63ce1b92` — Manuales Mercury. Si se reindexa la KB, este ID cambia y hay que actualizarlo en `query_knowledge.py` (constante `KB_ID`).

@@ -10,7 +10,7 @@ services:
     ports:
       - "5050:5050"
     volumes:
-      - ../../.webapps/dev/tsamaps:/app
+      - ../../.webapps/prod/tsamaps:/app
       - ../../.docker/certs:/certs:ro
     working_dir: /app
     extra_hosts:

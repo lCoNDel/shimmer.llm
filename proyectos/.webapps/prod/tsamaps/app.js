@@ -1,195 +1,197 @@
 document.addEventListener('DOMContentLoaded', async () => {
     // 0. red de distribuidores touron s.a.
     const dealers = [
+        // Sedes Touron
         {
-            name: "Touron S.A. (Sede Central)", lat: 40.4746, lng: -3.4332, location: "Torrejón de Ardoz, Madrid",
-            address: "Calle Mario Vargas Llosa, 20, 28850 Torrejón de Ardoz, Madrid",
-            phone: "+34 916 57 27 73", email: "touron@touronsa.es", web: "www.touronsa.es",
-            description: "Sede central — distribución de motores fueraborda, embarcaciones y accesorios náuticos",
+            name: "Touron S.A. (Sede Central)", lat: 40.4588, lng: -3.4793, location: "Torrejón de Ardoz, Madrid",
+            address: "Torrejón de Ardoz, 28850 Madrid, España",
+            phone: "+34 916 57 27 73", email: "touron@touronsa.es", web: "www.touron.es",
+            description: "Mercury, Quicksilver, Bayliner, Cummins, Sede central",
             headquarters: true
         },
         {
-            name: "Touron Portugal (Sucursal)", lat: 38.6968, lng: -9.4206, location: "Cascais, Portugal",
-            address: "R/C Sala B Rotunda das Palmeiras, 2645-091 Alcabideche, Portugal",
-            phone: "+351 21 460 7690", email: "geral@touronsa.pt",
-            description: "Sucursal Portugal — distribución de motores y embarcaciones",
+            name: "Touron Portugal (Sucursal)", lat: 38.6923, lng: -9.4181, location: "Cascais, Portugal",
+            address: "Marina de Cascais, 2750-800 Cascais, Lisboa, Portugal",
+            phone: "+351 21 460 7690", email: "geral@touronsa.pt", web: "www.touron.es",
+            description: "Mercury, Quicksilver, Bayliner, Cummins, Sucursal Portugal",
             headquarters: true
         },
         // Galicia & Asturias
         {
-            name: "Náutica Perez", lat: 42.2328, lng: -8.7226, location: "Vigo, Pontevedra",
-            address: "Avenida da Mariña, 108, Vigo, Pontevedra",
-            phone: "+34 986 51 27 19",
-            description: "Venta y reparación de embarcaciones y motores náuticos"
+            name: "Recambios Blanco", lat: 42.7851, lng: -8.8851, location: "Noia, A Coruña",
+            address: "Rua de Galicia, 46, 15200 Noia, A Coruña",
+            phone: "981 82 02 10", email: "manuel@recambiosblanco.es",
+            description: "Mercury, Quicksilver, Mercury Avator, Servicio de mantenimiento"
         },
         {
-            name: "Astilleros Amilibia", lat: 43.3083, lng: -2.0003, location: "Orio, Gipuzkoa",
-            phone: "+34 943 83 00 31",
-            description: "Astillero — construcción y reparación de embarcaciones"
+            name: "Náutica Noroeste", lat: 43.2898, lng: -8.5432, location: "Campolongo, A Coruña",
+            address: "Ctra. Nacional 651 km. 16, Campolongo, 15614, A Coruña",
+            phone: "981 43 33 69", email: "nauticanoroeste7@yahoo.es", web: "www.nauticanoroeste.com",
+            description: "Mercury, Quicksilver, Mercury Avator, Servicios oficiales"
         },
         {
-            name: "Nautica Cangas", lat: 42.2644, lng: -8.7844, location: "Cangas, Pontevedra",
-            phone: "+34 986 30 42 85",
-            description: "Venta de embarcaciones y motores, servicio técnico"
+            name: "Astur-Náutica", lat: 43.5345, lng: -5.6425, location: "Gijón, Asturias",
+            address: "Gregorio Marañón, 1 Bajo II, 33203 Gijón, Asturias",
+            phone: "985 17 12 70", email: "juan.atorra@asturnautica.es", web: "www.asturnautica.es",
+            description: "Mercury, Quicksilver, Cummins, Mercury MerCruiser, Servicios premium"
+        },
+        // Madrid & Interior
+        {
+            name: "Soner Marine", lat: 40.4708, lng: -3.8183, location: "Madrid",
+            address: "C/ Gobelas 17, Planta baja, Edificio IBC, 28023 Madrid",
+            phone: "913 72 96 10", email: "info@sonermarine.com", web: "sonermarine.com",
+            description: "Mercury, Quicksilver, Mercury MerCruiser, Servicios oficiales"
         },
         {
-            name: "Marina Sada", lat: 43.3551, lng: -8.2461, location: "Sada, A Coruña",
-            phone: "+34 981 62 07 40",
-            description: "Puerto deportivo y servicios náuticos"
+            name: "Nautimotor", lat: 40.3635, lng: -4.3216, location: "Pelayos de la Presa, Madrid",
+            address: "Av. Marcial Llorente, 76, 28696 Pelayos de la Presa, Madrid",
+            phone: "918 64 41 07", email: "info@nautimotor.com", web: "www.nautimotor.com",
+            description: "Mercury, Bayliner, Quicksilver, Servicios oficiales"
         },
         {
-            name: "Astilleros de Bermeo", lat: 43.4189, lng: -2.7196, location: "Bermeo, Bizkaia",
-            phone: "+34 946 88 09 15",
-            description: "Astillero — reparación y mantenimiento naval"
+            name: "Todanáutica", lat: 40.4812, lng: -2.7329, location: "Sacedón, Guadalajara",
+            address: "Ctra. Sacedón-Cifuentes N.204 Km.3,5, 19120 Sacedón, Guadalajara",
+            phone: "949 35 10 35", email: "todanautica@gmail.com", web: "www.todanautica.com",
+            description: "Mercury, Bayliner, Quicksilver, Servicios oficiales"
         },
         {
-            name: "Marina Yates", lat: 43.5413, lng: -5.6601, location: "Gijón, Asturias",
-            phone: "+34 985 34 55 43",
-            description: "Compraventa de embarcaciones, gestión náutica y amarres"
+            name: "Centro Náutico España", lat: 39.4745, lng: -6.3717, location: "Cáceres",
+            address: "C/ Rafael Lucenqui Martínez N 31 1C, 10004 Cáceres",
+            phone: "689 58 46 86", email: "centronauticospain@gmail.com",
+            description: "Mercury, Mercury MerCruiser, Mercury Racing, Servicios oficiales"
         },
-        // Cataluña
+        // Cataluña & Girona
         {
-            name: "Hermanos Guasch", lat: 41.0183, lng: 0.9634, location: "L'Hospitalet de l'Infant, Tarragona",
-            address: "Avinguda Gil Vernet, 35 BAJO, L'Hospitalet de l'Infant, Tarragona",
-            phone: "+34 977 82 08 30",
-            description: "Venta de embarcaciones, motores y accesorios náuticos"
-        },
-        {
-            name: "Motonáutica Llonch", lat: 41.8211, lng: 3.0336, location: "Sant Feliu de Guíxols, Girona",
-            phone: "+34 972 45 20 39",
-            description: "Venta y servicio técnico de motores y embarcaciones"
-        },
-        {
-            name: "Nautic Center Menorca (Sede BCN)", lat: 41.3851, lng: 2.1734, location: "Barcelona",
-            phone: "+34 933 09 14 41",
-            description: "Delegación Barcelona — venta de embarcaciones y motores"
-        },
-        {
-            name: "Marina Estrella", lat: 41.7107, lng: 2.8256, location: "Blanes, Girona",
-            phone: "+34 972 33 00 56", web: "www.marinaestrella.com",
-            description: "Grupo náutico — venta de embarcaciones, chárter y amarres"
-        },
-        {
-            name: "Náutica Casas", lat: 41.8105, lng: 3.0645, location: "Platja d'Aro, Girona",
-            phone: "+34 972 81 79 50",
-            description: "Venta y alquiler de embarcaciones, servicio técnico"
-        },
-        {
-            name: "Jaume Vermell Nautica", lat: 41.7451, lng: 2.9150, location: "Tossa de Mar, Girona",
-            phone: "+34 972 34 18 62",
-            description: "Venta de embarcaciones, motores y accesorios"
+            name: "Helimotor", lat: 42.2577, lng: 3.1128, location: "Castelló de Empúries, Girona",
+            address: "Sector Aeroclub, 1, Ampuriabrava, 17486 Castelló de Empúries, Girona",
+            phone: "972 45 12 11", email: "taller@helimotor.com", web: "www.helimotor.com",
+            description: "Mercury, Mercury MerCruiser, Servicios oficiales"
         },
         // Baleares
         {
-            name: "Náutica Reynés", lat: 39.8879, lng: 4.2546, location: "Mahón, Menorca",
-            phone: "+34 971 36 90 15",
-            description: "Venta de embarcaciones, motores fueraborda y accesorios"
+            name: "Marine Point", lat: 39.5696, lng: 2.6501, location: "Palma de Mallorca",
+            address: "Ca n Valero 25, Pol. Ind. Ca n Valero, 07011 Palma de Mallorca",
+            phone: "971 25 42 71", email: "info@mppalma.com", web: "mppalma.com",
+            description: "Mercury, MotorGuide, Mercury Avator, Venta"
         },
         {
-            name: "Nautic Center Menorca", lat: 39.9984, lng: 3.8291, location: "Ciutadella de Menorca",
-            phone: "+34 971 48 21 37",
-            description: "Venta y reparación de embarcaciones y motores"
+            name: "La Tienda Del Navegante", lat: 39.578, lng: 2.6373, location: "Palma de Mallorca",
+            address: "Niceto Alcalá Zamora, 21 Bajos, Palma de Mallorca",
+            phone: "971 28 12 21",
+            description: "Mercury, Quicksilver, MotorGuide, Mercury Avator, Venta"
         },
         {
-            name: "Pedro's Boat", lat: 39.8863, lng: 4.2678, location: "Maó, Menorca",
-            phone: "+34 971 36 51 96",
-            description: "Alquiler y venta de embarcaciones"
+            name: "Marina Portocolom", lat: 39.423, lng: 3.2615, location: "Portocolom, Mallorca",
+            address: "Calle Vapor de Santueri 48, 07670 Portocolom, Mallorca",
+            phone: "971 82 40 34", email: "info@nauticagomila.com",
+            description: "Mercury, Venta"
         },
         {
-            name: "Campos Marinos", lat: 39.5696, lng: 2.6502, location: "Palma de Mallorca",
-            phone: "+34 971 40 36 11",
-            description: "Venta de embarcaciones, motores y servicio técnico"
+            name: "Supermercado Náutico", lat: 39.0459, lng: 1.3999, location: "Ibiza",
+            address: "Ctra. San Juan - Km. 1,3, 07800 Ibiza",
+            phone: "971 19 17 82", email: "sun@supermercadonautico.es", web: "www.supermercadonautico.es",
+            description: "Mercury, Talamex, MotorGuide, Mercury Avator, Venta"
         },
         {
-            name: "Náutica Colom", lat: 39.4214, lng: 3.2687, location: "Portocolom, Mallorca",
-            phone: "+34 971 82 50 95",
-            description: "Venta de embarcaciones y accesorios náuticos"
+            name: "Náutica Mari", lat: 39.0659, lng: 1.5878, location: "Santa Eulalia del Río, Ibiza",
+            address: "San Juan, 12, 07840 Santa Eulalia del Río, Ibiza",
+            phone: "971 33 10 23", email: "ventas@nauticamari.com",
+            description: "Mercury, Talamex, MotorGuide, Mercury Avator, Venta"
+        },
+        // Comunidad Valenciana
+        {
+            name: "Náutica San Nicolás", lat: 38.991, lng: -0.1628, location: "Grao de Gandia, Valencia",
+            address: "C/ Goleta, 17, 46730 Grao de Gandia, Valencia",
+            phone: "962 84 06 91", email: "fran@marinasannicolas.com", web: "marinasannicolas.com",
+            description: "Mercury, Quicksilver, Mercury Avator, Servicios oficiales"
         },
         {
-            name: "Ibiza Náutica", lat: 38.9067, lng: 1.4206, location: "Ibiza",
-            phone: "+34 971 31 42 67",
-            description: "Venta y alquiler de embarcaciones, servicio técnico"
-        },
-        // Levante (Comunidad Valenciana & Murcia)
-        {
-            name: "Náutica Marina Sport", lat: 38.3840, lng: -0.4984, location: "Alicante",
-            phone: "+34 965 16 38 42",
-            description: "Venta de embarcaciones, motores y accesorios"
+            name: "Marina Sport Servicios Náuticos", lat: 38.7969, lng: 0.1857, location: "Jávea, Alicante",
+            address: "Muelle Público s/n, Puerto de Jávea, 03730 Jávea, Alicante",
+            phone: "966 46 20 20", email: "administracion@marinasport.es", web: "www.marinasport.es",
+            description: "Mercury, Cummins, Mercury MerCruiser, Servicios oficiales"
         },
         {
-            name: "Náutica Mengual", lat: 38.6253, lng: 0.0524, location: "Calp, Alicante",
-            phone: "+34 965 83 14 79",
-            description: "Venta y reparación de embarcaciones y motores"
+            name: "Náutica Solymar", lat: 38.208, lng: -0.581, location: "Santa Pola, Alicante",
+            address: "C/ Electricistas 47, 03130 Santa Pola, Alicante",
+            phone: "966 69 36 31", email: "info@nauticasolymar.es", web: "nauticasolymar.es",
+            description: "Mercury, Mercury MerCruiser, Servicios oficiales"
+        },
+        // Murcia
+        {
+            name: "Náutica Bahía", lat: 37.8343, lng: -0.7929, location: "San Pedro del Pinatar, Murcia",
+            address: "Avd. Artero Guirao, 238, 30740 San Pedro del Pinatar, Murcia",
+            phone: "968 18 45 00", email: "nauticabahia@nauticabahia.com", web: "www.nauticabahia.com",
+            description: "Mercury, Quicksilver, Mercury MerCruiser, Servicios oficiales"
         },
         {
-            name: "Motonáutica Ibiza", lat: 38.8351, lng: 0.1118, location: "Dénia, Alicante",
-            phone: "+34 966 42 33 10",
-            description: "Venta y servicio técnico de embarcaciones y motores"
+            name: "Náutica Jiménez", lat: 37.7929, lng: -0.8139, location: "Santiago de la Ribera, Murcia",
+            address: "Avd. Bartolomé Paños Pérez, 34, 30720 Santiago de la Ribera, Murcia",
+            phone: "968 57 01 17", email: "nautica@nauticajimenez.com",
+            description: "Mercury, Mercury MerCruiser, Mercury Diesel, Servicio de mantenimiento"
         },
         {
-            name: "Don Marino Boats", lat: 36.4251, lng: -5.1472, location: "Estepona, Málaga",
-            phone: "+34 952 80 06 12",
-            description: "Compraventa de embarcaciones nuevas y seminuevas"
+            name: "Náutica Nautimar", lat: 37.7544, lng: -0.9803, location: "Torre Pacheco, Murcia",
+            address: "Calle Constelación Nave 5-6, 30700 Torre Pacheco, Murcia",
+            phone: "968 57 98 60", email: "nauticanautimar@yahoo.es", web: "www.nautica-nautimar.es",
+            description: "Mercury, Bayliner, Quicksilver, Mercury MerCruiser, Servicio de mantenimiento"
         },
         {
-            name: "San Pedro Náutica", lat: 37.8288, lng: -0.7892, location: "San Pedro del Pinatar, Murcia",
-            phone: "+34 968 18 23 15",
-            description: "Venta de embarcaciones y accesorios, servicio técnico"
-        },
-        {
-            name: "Náutica Mar Menor", lat: 37.6416, lng: -0.7180, location: "Cabo de Palos, Murcia",
-            phone: "+34 968 56 31 04",
-            description: "Venta y alquiler de embarcaciones, escuela náutica"
+            name: "Marina Sureste", lat: 37.748, lng: -0.8649, location: "Los Alcázares, Murcia",
+            address: "Avd. Trece de Octubre, 187, 30710 Los Alcázares, Murcia",
+            phone: "968 57 50 55", email: "comercial@marinasureste.es", web: "www.marinasureste.es",
+            description: "Mercury, Cummins, Quicksilver, Mercury MerCruiser, Servicios oficiales"
         },
         // Andalucía
         {
-            name: "Marinas de Andalucía", lat: 36.5050, lng: -4.8824, location: "Marbella, Málaga",
-            phone: "+34 952 77 55 24",
-            description: "Amarre, agua, electricidad, WiFi, combustible"
+            name: "Marina Marbella", lat: 36.5068, lng: -4.8742, location: "Marbella, Málaga",
+            address: "Puerto Pesquero s/n, 29603 Marbella, Málaga",
+            phone: "952 77 70 98", email: "service@marinamarbella.net", web: "www.marinamarbella.net",
+            description: "Mercury, Cummins, Quicksilver, Mercury MerCruiser, Servicios oficiales"
         },
         {
-            name: "Náutica Corcho", lat: 37.2614, lng: -6.9447, location: "Huelva",
-            phone: "+34 959 25 41 33",
-            description: "Venta de embarcaciones y motores, servicio técnico"
+            name: "Mecánica Náutica Del Sur", lat: 36.5945, lng: -4.5723, location: "Benalmádena, Málaga",
+            address: "Edif. Varadero Local 6, Pto. Dpvo., 29630 Benalmádena, Málaga",
+            phone: "952 56 47 00", email: "info@mecanicanauticadelsur.com", web: "www.mecanicanauticadelsur.com",
+            description: "Mercury, Mercury MerCruiser, Mercury Diesel, Servicios oficiales"
         },
         {
-            name: "Almería Náutica", lat: 36.8340, lng: -2.4637, location: "Almería",
-            phone: "+34 950 27 14 68",
-            description: "Venta de embarcaciones, motores y accesorios náuticos"
+            name: "Náutica Trafalgar", lat: 36.6004, lng: -6.2253, location: "El Puerto de Santa María, Cádiz",
+            address: "P.I. Salinas Poniente, Claudio Ptolomeo 252, 11500 El Puerto de Santa María, Cádiz",
+            phone: "956 43 42 65", email: "almacen@nauticatrafalgar.com",
+            description: "Mercury, Cummins, Mercury MerCruiser, Servicios oficiales"
         },
         {
-            name: "Cádiz Marítima", lat: 36.5271, lng: -6.2886, location: "Cádiz",
-            phone: "+34 956 22 47 81",
-            description: "Servicios marítimos, venta y reparación de embarcaciones"
+            name: "Barcoss", lat: 36.6817, lng: -6.1377, location: "Jerez de la Frontera, Cádiz",
+            address: "Plg. Ronda Oeste, Nave 33, 11408 Jerez de la Frontera, Cádiz",
+            phone: "956 14 53 73", email: "comercial@barcoss-nautica.es", web: "barcoss-nautica.es",
+            description: "Mercury, Quicksilver, Mercury Avator, Servicios oficiales"
         },
         {
-            name: "Sherry Náutica", lat: 36.5828, lng: -6.2307, location: "El Puerto de Santa María, Cádiz",
-            phone: "+34 956 87 16 53",
-            description: "Venta de embarcaciones y motores, accesorios"
+            name: "M. D. Náutica", lat: 36.1312, lng: -5.4474, location: "Algeciras, Cádiz",
+            address: "C/ Concordia 4-6, Pol. Ind. Cortijo Real, 11206 Algeciras, Cádiz",
+            phone: "956 60 15 01", email: "mdnautica@mdnautica.com", web: "www.mdnautica.com",
+            description: "Mercury, Quicksilver, Mercury Diesel, Servicios oficiales"
         },
         // Canarias
         {
-            name: "Náutica El Chicharro", lat: 28.4682, lng: -16.2546, location: "Santa Cruz de Tenerife",
-            phone: "+34 922 24 86 15",
-            description: "Venta y reparación de embarcaciones y motores"
-        },
-        {
-            name: "Las Palmas Marinas", lat: 28.1235, lng: -15.4363, location: "Las Palmas de Gran Canaria",
-            phone: "+34 928 33 49 72",
-            description: "Puerto deportivo, amarres y servicios náuticos"
+            name: "Motonáutica Las Palmas", lat: 27.8683, lng: -15.4302, location: "Agüimes, Las Palmas",
+            address: "Los Dragos s/n, Pol. Ind. Arinaga Fase 4ª, 35118 Agüimes, Las Palmas",
+            phone: "928 18 06 94", email: "info@motonauticalaspalmas.com", web: "motonauticalaspalmas.com",
+            description: "Mercury, Bayliner, Quicksilver, Cummins, Mercury MerCruiser, Servicios oficiales"
         },
         // Portugal
         {
-            name: "Lisnave", lat: 38.6534, lng: -9.0494, location: "Setúbal, Portugal",
-            address: "Mitrena, P.O.Box 135, 2901-901 Setúbal, Portugal",
-            phone: "+351 265 799 207", email: "comercial@lisnave.pt", web: "www.lisnave.pt",
-            description: "Astillero de reparación naval con 6 diques secos y 9 berths"
+            name: "Yachtworks", lat: 38.6969, lng: -9.4204, location: "Cascais, Portugal",
+            address: "Marina de Cascais Loja 134, 2750-800 Cascais, Lisboa, Portugal",
+            phone: "21 460 1371", email: "info@yachtworks.pt", web: "www.yachtworks.pt",
+            description: "Mercury, Cummins, Mercury MerCruiser, Mercury Diesel, Servicios oficiales"
         },
         {
-            name: "Angel Pilot", lat: 37.1352, lng: -8.5377, location: "Portimão, Portugal",
-            address: "Complexo dos Estaleiros Navais, Lote E, 8400-278 Parchal, Lagoa, Portugal",
-            phone: "+351 282 343 086", web: "www.angelpilot.com",
-            description: "Venta de barcos, alquiler, chárter y servicios técnicos"
+            name: "Náutica Nova", lat: 41.9186, lng: -8.7101, location: "Vila Nova de Cerveira, Portugal",
+            address: "Z. Ind. Vila Nova Cerveira, Polo 1, 4920-012 Campos, Viana do Castelo, Portugal",
+            phone: "251 094 678", email: "geral.nauticanova@gmail.com", web: "www.nauticanova.pt",
+            description: "Mercury, Quicksilver, Mercury MerCruiser, Servicios oficiales"
         }
     ];
 
@@ -260,8 +262,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     let gpsMarineRefreshId = null; // intervalo de refresco de datos marinos durante GPS
     let lastGpsLat = null;
     let lastGpsLng = null;
+    let lastRequestedLat = null;
+    let lastRequestedLng = null;
     const GPS_MARINE_REFRESH_MS = 5 * 60 * 1000; // refresca condiciones cada 5 min
 
+
+    // cierra un panel genérico añadiéndole 'closed'; opcionalmente desactiva su botón
+    function closePanel(panelEl, btnEl = null) {
+        panelEl.classList.add('closed');
+        if (btnEl) {
+            btnEl.classList.remove('active');
+            btnEl.blur();
+        }
+    }
+
+    // helper de debounce: retrasa fn ms milisegundos, cancelando llamadas anteriores
+    function debounce(fn, ms) {
+        let timer = null;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn(...args), ms);
+        };
+    }
 
     // muestra una notificación toast
     function showToast(message, extraClass = '') {
@@ -508,12 +530,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     addSwipeToClose(radioPanel);
 
+    const debouncedFetchSuggestions = debounce((query) => fetchSuggestions(query), 600);
+
     globalSearchInput.addEventListener('input', (e) => {
         const query = e.target.value;
         globalSearchClearBtn.classList.toggle('hidden', !query);
-        if (globalSearchTimeout) clearTimeout(globalSearchTimeout);
         if (!query) { globalSearchResults.classList.add('hidden'); return; }
-        globalSearchTimeout = setTimeout(() => fetchSuggestions(query), 600);
+        debouncedFetchSuggestions(query);
     });
 
     globalSearchInput.addEventListener('keydown', (e) => {
@@ -540,7 +563,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (isSosActive) return;
         weatherWasOpen = !weatherPanel.classList.contains('closed');
         searchPanel.classList.remove('closed');
-        searchInput.focus();
+        if (window.innerWidth > 768) searchInput.focus();
         map.invalidateSize({ animate: true });
         closeChatPanel();
         closeWeatherPanel();
@@ -553,7 +576,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     function closeWeatherPanel() {
-        weatherPanel.classList.add('closed');
+        closePanel(weatherPanel);
         syncGpsShortcutBtn();
     }
 
@@ -564,18 +587,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function closeRadioPanel() {
-        radioPanel.classList.add('closed');
-        radioBtn.classList.remove('active');
+        closePanel(radioPanel, radioBtn);
     }
 
     function closeSearchPanel() {
-        searchPanel.classList.add('closed');
+        closePanel(searchPanel);
     }
 
     function closeSunMoonPanel() {
-        sunMoonPanel.classList.add('closed');
-        sunMoonBtn.classList.remove('active');
-        sunMoonBtn.blur();
+        closePanel(sunMoonPanel, sunMoonBtn);
     }
 
     document.getElementById('closeWeatherBtn').addEventListener('click', closeWeatherPanel);
@@ -597,6 +617,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+
+    // elimina todos los markers de distribuidores del mapa y vacía el array
+    function clearDealerMarkers() {
+        dealerMarkers.forEach(m => map.removeLayer(m.marker));
+        dealerMarkers = [];
+    }
 
     // inicializa marcadores y lista de distribuidores
     function initDealers() {
@@ -642,7 +668,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (dealer.phone) popupHtml += `<br>📞 <a href="tel:${dealer.phone}">${dealer.phone}</a>`;
             if (dealer.email) popupHtml += `<br>✉ <a href="mailto:${dealer.email}">${dealer.email}</a>`;
             if (dealer.web) popupHtml += `<br>🌐 <a href="https://${dealer.web}" target="_blank">${dealer.web}</a>`;
-            if (dealer.description) popupHtml += `<br><i>${dealer.description}</i>`;
+            if (dealer.description) popupHtml += `<div class="service-tags">${dealer.description.split(', ').map(s => `<span class="service-tag">${s}</span>`).join('')}</div>`;
             marker.bindPopup(popupHtml, { maxWidth: 300 });
             dealerMarkers.push({ data: dealer, marker: marker });
         });
@@ -663,7 +689,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let cardHtml = `<div class="dealer-name">${dealer.name}${dealer.headquarters ? ' <span class="hq-badge">Sede</span>' : ''}</div>
                 <div class="dealer-location">${dealer.location}</div>`;
             if (dealer.phone) cardHtml += `<div class="dealer-phone">📞 ${dealer.phone}</div>`;
-            if (dealer.description) cardHtml += `<div class="dealer-desc">${dealer.description}</div>`;
+            if (dealer.description) cardHtml += `<div class="service-tags">${dealer.description.split(', ').map(s => `<span class="service-tag">${s}</span>`).join('')}</div>`;
             card.innerHTML = cardHtml;
 
             card.addEventListener('click', () => {
@@ -774,13 +800,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 rulerPolyline = L.polyline(rulerPoints, { color: '#ff7800', weight: 3 }).addTo(map);
                 const distanceMeters = map.distance(rulerPoints[0], rulerPoints[1]);
                 const distanceNM = (distanceMeters / 1852).toFixed(2);
-                const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, rulerPoints[1].lat, rulerPoints[1].lng).toFixed(0);
-                rulerTooltip.setLatLng(rulerPoints[1]).setContent(`
-                    <div style="text-align: center; font-family: 'Outfit', sans-serif;">
-                        <div style="font-weight: 600; font-size: 1.1rem; color: #ff7800;">${distanceNM} NM</div>
-                        <div style="font-size: 0.85rem; color: #555;">Rumbo: ${bearing}°</div>
-                    </div>
-                `);
+                const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, rulerPoints[1].lat, rulerPoints[1].lng);
+                rulerTooltip.setLatLng(rulerPoints[1]).setContent(buildRulerContent(distanceNM, bearing, rulerDeclination));
             }
             return;
         }
@@ -890,12 +911,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             isTrackingActive = true;
             geoBtn.classList.add('active');
             syncGpsShortcutBtn();
-            clearInterval(gpsMarineRefreshId);
-            gpsMarineRefreshId = setInterval(async () => {
-                if (lastGpsLat !== null && lastGpsLng !== null) {
-                    try { await fetchMarineWeatherAnalysis(lastGpsLat, lastGpsLng); } catch (_) {}
-                }
-            }, GPS_MARINE_REFRESH_MS);
+            if (!gpsMarineRefreshId) {
+                gpsMarineRefreshId = setInterval(async () => {
+                    if (lastGpsLat !== null && lastGpsLng !== null) {
+                        try { await fetchMarineWeatherAnalysis(lastGpsLat, lastGpsLng); } catch (_) {}
+                    }
+                }, GPS_MARINE_REFRESH_MS);
+            }
 
             trackingWatchId = navigator.geolocation.watchPosition(
                 async (position) => {
@@ -961,8 +983,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 7. datos meteorológicos marinos (open-meteo)
     async function fetchMarineWeatherAnalysis(lat, lng) {
-        window.lastRequestedLat = lat;
-        window.lastRequestedLng = lng;
+        lastRequestedLat = lat;
+        lastRequestedLng = lng;
 
         // solicita oleaje, viento, temperatura de superficie y nivel del mar
         const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&current=swell_wave_height,swell_wave_direction,swell_wave_period,wind_wave_height&hourly=sea_surface_temperature,sea_level_height_msl`;
@@ -1118,8 +1140,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         sunMoonBtn.classList.add('active');
         closeChatPanel();
         // coordenadas en orden de prioridad
-        const lat = lastGpsLat ?? window.lastRequestedLat ?? map.getCenter().lat;
-        const lng = lastGpsLng ?? window.lastRequestedLng ?? map.getCenter().lng;
+        const lat = lastGpsLat ?? lastRequestedLat ?? map.getCenter().lat;
+        const lng = lastGpsLng ?? lastRequestedLng ?? map.getCenter().lng;
         try {
             computeSunMoon(lat, lng);
         } catch (e) {
@@ -1219,13 +1241,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // debounce de búsqueda de radio
-    let radioSearchTimeout = null;
+    const debouncedSearchRadio = debounce((query) => {
+        if (query.trim().length >= 2) searchRadioStations(query);
+    }, 600);
 
     function handleRadioInput(e) {
         const query = e.target.value;
-
-        // cancela el timeout anterior
-        if (radioSearchTimeout) clearTimeout(radioSearchTimeout);
 
         if (query.trim().length === 0) {
             radioResults.innerHTML = '<p class="empty-state" style="padding: 0.5rem; font-size: 0.9rem;">Busca una estación para escuchar.</p>';
@@ -1237,21 +1258,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             radioResults.innerHTML = '<p style="padding: 0.5rem; text-align: center; font-size: 0.9rem; color: var(--brand-text-muted);">Escribiendo...</p>';
         }
 
-        // espera 600ms tras el último carácter
-        radioSearchTimeout = setTimeout(() => {
-            if (query.trim().length >= 2) {
-                searchRadioStations(query);
-            }
-        }, 600);
+        debouncedSearchRadio(query);
     }
 
     radioSearchInput.addEventListener('input', handleRadioInput);
     radioSearchInput.addEventListener('keyup', (e) => {
         // fuerza búsqueda al presionar enter
-        if (e.key === 'Enter') {
-            if (radioSearchTimeout) clearTimeout(radioSearchTimeout);
-            searchRadioStations(radioSearchInput.value);
-        }
+        if (e.key === 'Enter') searchRadioStations(radioSearchInput.value);
     });
 
     // controles personalizados de radio
@@ -1603,6 +1616,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let rulerMarkers = [];
     let rulerTooltip = null;
     let rulerHoverLine = null;
+    let rulerDeclination = null; // declinación magnética cacheada al activar la regla
 
     function getBearing(startLat, startLng, destLat, destLng) {
         const startLatRad = startLat * Math.PI / 180;
@@ -1619,6 +1633,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         return (brngDeg + 360) % 360;
     }
 
+    async function fetchDeclination(lat, lng) {
+        try {
+            const today = new Date();
+            const url = `https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination?lat1=${lat}&lon1=${lng}&resultFormat=json&startYear=${today.getFullYear()}&startMonth=${today.getMonth()+1}&startDay=${today.getDate()}`;
+            const resp = await fetch(url);
+            const data = await resp.json();
+            return data?.result?.[0]?.declination ?? null;
+        } catch {
+            return null;
+        }
+    }
+
+    function buildRulerContent(distanceNM, bearingTrue, declination) {
+        const bearingMag = declination !== null
+            ? ((bearingTrue - declination + 360) % 360).toFixed(0)
+            : null;
+        const decLabel = declination !== null
+            ? `Dec: ${declination >= 0 ? '+' : ''}${declination.toFixed(1)}°${declination >= 0 ? 'E' : 'W'}`
+            : '';
+        const rumboLine = bearingMag !== null
+            ? `Rumbo: ${parseFloat(bearingTrue).toFixed(0)}°V (${bearingMag}°M)`
+            : `Rumbo: ${parseFloat(bearingTrue).toFixed(0)}°`;
+
+        return `
+            <div style="text-align: center; font-family: 'Outfit', sans-serif;">
+                <div style="font-weight: 600; font-size: 1.1rem; color: #ff7800;">${distanceNM} NM</div>
+                <div style="font-size: 0.85rem; color: #555;">${rumboLine}</div>
+                ${decLabel ? `<div style="font-size: 0.75rem; color: #999; margin-top:2px;">${decLabel}</div>` : ''}
+            </div>
+        `;
+    }
+
     function clearRuler() {
         if (rulerPolyline) map.removeLayer(rulerPolyline);
         if (rulerHoverLine) map.removeLayer(rulerHoverLine);
@@ -1629,6 +1675,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         rulerMarkers = [];
         rulerPoints = [];
         rulerTooltip = null;
+        rulerDeclination = null;
     }
 
     rulerBtn.addEventListener('click', () => {
@@ -1641,10 +1688,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (document.body.classList.contains('mobile-search-active')) closeMobileSearch();
             closeRadioPanel();
 
-            // Si el tráfico marítimo u otros modos están activos, los cerramos
             if (isTrafficActive) { toggleTrafficBtn.click(); }
             if (isWindLayerActive) { windLayerBtn.click(); }
             if (isRadarActive) { owmLayerBtn.click(); }
+
+            // obtener declinación magnética del centro del mapa al activar
+            const center = map.getCenter();
+            fetchDeclination(center.lat, center.lng).then(dec => { rulerDeclination = dec; });
 
         } else {
             rulerBtn.classList.remove('active');
@@ -1657,20 +1707,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     map.on('mousemove', (e) => {
         if (!isRulerActive || rulerPoints.length !== 1) return;
 
-        // actualiza línea de previsualización
         rulerHoverLine.setLatLngs([rulerPoints[0], e.latlng]);
 
-        // actualiza el popup con distancia y rumbo
         const distanceMeters = map.distance(rulerPoints[0], e.latlng);
         const distanceNM = (distanceMeters / 1852).toFixed(2);
-        const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, e.latlng.lat, e.latlng.lng).toFixed(0);
+        const bearing = getBearing(rulerPoints[0].lat, rulerPoints[0].lng, e.latlng.lat, e.latlng.lng);
 
-        rulerTooltip.setLatLng(e.latlng).setContent(`
-            <div style="text-align: center; font-family: 'Outfit', sans-serif;">
-                <div style="font-weight: 600; font-size: 1.1rem; color: #ff7800;">${distanceNM} NM</div>
-                <div style="font-size: 0.85rem; color: #555;">Rumbo: ${bearing}°</div>
-            </div>
-        `);
+        rulerTooltip.setLatLng(e.latlng).setContent(buildRulerContent(distanceNM, bearing, rulerDeclination));
     });
 
     // 11. waypoints personalizados
@@ -2499,7 +2542,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     function closeChatPanel() {
-        chatPanel.classList.add('closed');
+        closePanel(chatPanel);
         chatInput.blur();
     }
 

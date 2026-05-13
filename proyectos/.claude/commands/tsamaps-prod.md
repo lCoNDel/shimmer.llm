@@ -1,12 +1,12 @@
 # tsamaps-prod — Gestión del servidor tsamaps PROD
 
-Gestiona únicamente el contenedor `tsamaps_server_prod` (puerto 5050).
+Gestiona únicamente el contenedor `tsamaps_server` (puerto 5050).
 
 ## Comportamiento esperado del agente
 
-1. Comprobar si el contenedor `tsamaps_server_prod` está corriendo:
+1. Comprobar si el contenedor `tsamaps_server` está corriendo:
    ```powershell
-   docker ps -q -f name=tsamaps_server_prod
+   docker ps -q -f name=tsamaps_server
    ```
 2. Si devuelve un ID (está corriendo) → ejecutar **stop**:
    ```powershell
