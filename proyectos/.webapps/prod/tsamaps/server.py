@@ -12,8 +12,8 @@ import asyncio
 from datetime import datetime, timezone
 from pathlib import Path
 
-OPENWEBUI_URL = "http://host.docker.internal:3002"
-API_KEY       = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ5ZTAyMjg5LTMwMzEtNDAxYS05MGY2LWVmNDVhNmEyYmUxMSIsImV4cCI6MTc4MTA5NzE3MCwianRpIjoiZGZhZDEyNGEtZWU3YS00YWY0LWE1ZmMtZjM1ZGQ3OTgyNTMxIiwiaWF0IjoxNzc4Njc3OTcwfQ.QMNg9s2yCyDteaMTV4Sucv4Df0aAUXQA21cw2h_fYyg"
+OPENWEBUI_URL = "http://host.docker.internal:3000"
+API_KEY       = "sk-894ef03db000417fa0fea94a2f1a3e13"
 MODEL_ID      = "asistente-touron"
 WEB_PREFIX    = "/web "
 

@@ -4,6 +4,7 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-05-15 | tsamaps | fix, puerto, api-key, prod | tsamaps reconectado a prod (3000); API key sk-... restaurada, eliminado JWT de sesión | changelog_2026-05-15.md |
 | 2026-05-13 | bot, docker, openweb | telegram, prod, rag, tool-calls, branding, system-prompt, fix | Bot migrado a prod (3000); fix bucle tool_calls + footer duplicado; branding prod.yml; system prompt al Workspace Model | changelog_2026-05-13.md |
 | 2026-05-13 | tsamaps, claude | limpieza, dev, referencias, skill, obsoleta | Referencias a dev/tsamaps purgadas: Runtime.md, scripts, CLAUDE.md y skill tsamaps-dev eliminada | changelog_2026-05-13.md |
 | 2026-05-13 | tsamaps | limpieza, dev, eliminado, prod-unico | dev/tsamaps eliminado; solo existe prod/tsamaps montado en proxy.yml | changelog_2026-05-13.md |
