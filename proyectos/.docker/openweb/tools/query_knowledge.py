@@ -132,7 +132,7 @@ class Tools:
                     score_str = f" [score: {c['score']:.3f}]" if c.get("score") is not None else ""
                     sources.append(f"📄 {c['source']}{page_str}{score_str}")
 
-            footer = "\n\n---\nAL FINAL DE TU RESPUESTA CITA OBLIGATORIAMENTE:\n" + "\n".join(sources)
+            footer = "\n\n---\nFuentes consultadas (incluir al final de la respuesta):\n" + "\n".join(sources)
 
             return "\n\n".join(lines) + footer
 

@@ -1,0 +1,9 @@
+Migrar generación de documentos Word de tool Python a Open Terminal (Open WebUI v0.9.4+).
+
+El modelo genera código python-docx · Open WebUI lo ejecuta
+y entrega .docx descargable con preview inline.
+
+PENDIENTE
+- Verificar compatibilidad python-docx en Pyodide (v0.9.4)
+- Definir system prompt con estilos Touron
+- Sustituir tool Python actual (generate_doc.py)
