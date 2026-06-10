@@ -4,6 +4,7 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-06-10 | openweb, tools | reorganizacion, stable, experimental, dev, limpieza | Tools reorganizadas en stable/ (prod) y experimental/ (dev con prefijo dev_); eliminado __pycache__ | changelog_2026-06-10.md |
 | 2026-06-10 | openweb, tools | read_any_file, lector-universal, pptx, paginacion, agentes | Nueva read_any_file.py: lector universal de adjuntos (pptx, json, html, código, fallback texto), multi-adjunto y paginación | changelog_2026-06-10.md |
 | 2026-06-10 | openweb, tools | calculadora, ast-seguro, conversor, finanzas, fechas, agentes | Nueva calculadora_avanzada.py: evaluador AST seguro, estadística, conversor por dimensiones, préstamos, interés compuesto y fechas | changelog_2026-06-10.md |
 | 2026-06-10 | openweb, tools | generate_doc, pdf, pptx, excel-multihoja, fpdf2, agentes | Nueva generate_any_doc.py: genera PDF, PPTX, HTML y texto/código; Excel multi-hoja JSON; docx con bloques de código | changelog_2026-06-10.md |

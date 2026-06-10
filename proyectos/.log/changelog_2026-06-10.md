@@ -63,3 +63,48 @@ Todas probadas en local (host con fastapi, python-docx, openpyxl, python-pptx y 
 **`read_any_file.py` — resolución de adjuntos:** `_resolve_attachments()` busca en `UPLOAD_DIR` (default `/app/backend/data/uploads`) por prefijo de `file id`, con fallback por nombre. Soporta el formato anidado `{"file": {"id": ..., "filename": ...}}` además del plano.
 
 **`__pycache__`:** quedó `.docker/openweb/tools/__pycache__/` sin trackear por las pruebas locales — no commitear (valorar añadir `__pycache__/` a `.gitignore`).
+
+---
+
+## openweb / tools — Reorganización en stable/ y experimental/
+
+Sesión dedicada a reorganizar la carpeta `.docker/openweb/tools/` para diferenciar las tools en producción de las que están en desarrollo.
+
+### Estructura nueva
+
+```
+tools/
+├── stable/               # Tools en producción (sin cambios)
+│   ├── read_file.py
+│   ├── read_g3.py
+│   ├── calculadora.py
+│   ├── generate_doc.py
+│   └── query_knowledge.py
+└── experimental/         # Tools en desarrollo
+    ├── dev_read_file.py       (antes: read_any_file.py)
+    ├── dev_calculadora.py     (antes: calculadora_avanzada.py)
+    └── dev_generate_doc.py    (antes: generate_any_doc.py)
+```
+
+### Cambios realizados
+
+- Creadas subcarpetas `stable/` y `experimental/` dentro de `.docker/openweb/tools/`
+- Las cinco tools originales (en producción) movidas a `stable/` sin modificar
+- Las tres tools nuevas de la sesión anterior movidas a `experimental/` y renombradas con prefijo `dev_` y sin `_any` en el nombre
+- Eliminado `__pycache__/` con los dos `.pyc` generados durante las pruebas locales
+
+## Contexto técnico para agentes
+
+**Rutas actuales de tools:**
+- Producción: `.docker/openweb/tools/stable/`
+- Desarrollo: `.docker/openweb/tools/experimental/`
+
+**Correspondencia de nombres (experimental):**
+
+| Nombre nuevo | Nombre anterior | Descripción |
+|---|---|---|
+| `dev_read_file.py` | `read_any_file.py` | Lector universal de adjuntos (v1.0.0) |
+| `dev_calculadora.py` | `calculadora_avanzada.py` | Calculadora con evaluador AST seguro (v1.0.0) |
+| `dev_generate_doc.py` | `generate_any_doc.py` | Generador universal de documentos (v1.0.0) |
+
+Los archivos en `stable/` no se modificaron — mismo contenido, solo nueva ubicación.
