@@ -4,6 +4,9 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-06-10 | openweb, tools | read_any_file, lector-universal, pptx, paginacion, agentes | Nueva read_any_file.py: lector universal de adjuntos (pptx, json, html, código, fallback texto), multi-adjunto y paginación | changelog_2026-06-10.md |
+| 2026-06-10 | openweb, tools | calculadora, ast-seguro, conversor, finanzas, fechas, agentes | Nueva calculadora_avanzada.py: evaluador AST seguro, estadística, conversor por dimensiones, préstamos, interés compuesto y fechas | changelog_2026-06-10.md |
+| 2026-06-10 | openweb, tools | generate_doc, pdf, pptx, excel-multihoja, fpdf2, agentes | Nueva generate_any_doc.py: genera PDF, PPTX, HTML y texto/código; Excel multi-hoja JSON; docx con bloques de código | changelog_2026-06-10.md |
 | 2026-05-17 | shimmercloud, planificación | azure, migracion, cloud, aprobado, claude-code | Proyecto migración Azure aprobado; creada carpeta .shimmercloud/ con CLAUDE.md, plan de migración (5 fases) y registro de ADRs | changelog_2026-05-17.md |
 | 2026-05-17 | backlog | backlog, mayo2026, consolidado | Nuevo shimmer_backlog_mayo2026.md con estado completo del backlog; taller_servicio y docx_open_terminal añadidos | changelog_2026-05-17.md |
 | 2026-05-17 | openweb, tools | query_knowledge, footer, citas | query_knowledge: footer de citas suavizado (imperativo → instrucción suave) | changelog_2026-05-17.md |
