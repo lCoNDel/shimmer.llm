@@ -1,9 +1,9 @@
 """
 title: Universal Document Generator
 author: shimmer.llm
-description: Genera cualquier tipo de documento descargable desde el chat — Word, Excel (multi-hoja), PowerPoint, PDF, CSV, Markdown, JSON, XML, HTML y texto/código. Diseñada para ser usada por agentes IA.
+description: Genera cualquier tipo de documento descargable desde el chat — Word, Excel (multi-hoja, con tipos numéricos reales), PowerPoint (con notas de orador), PDF (con bloques de código y citas), CSV, Markdown, JSON, XML, HTML y texto/código. Diseñada para ser usada por agentes IA.
 requirements: python-docx, openpyxl, python-pptx, fpdf2
-version: 1.0.0
+version: 1.1.0
 """
 
 import base64
@@ -32,6 +32,31 @@ def _clean_filename(filename: str) -> str:
 
 def _clean_text(text: str) -> str:
     return text.encode("utf-16", errors="surrogatepass").decode("utf-16")
+
+
+def _strip_md(text: str) -> str:
+    """Elimina marcadores inline de Markdown (** * `) en contextos que no los renderizan."""
+    return re.sub(r"\*\*?|`", "", text)
+
+
+_NUM_RE_EN = re.compile(r"^-?\d+(\.\d+)?$")
+_NUM_RE_ES = re.compile(r"^-?\d{1,3}(\.\d{3})+(,\d+)?$|^-?\d+,\d+$")
+
+
+def _coerce_number(value: str):
+    """Convierte strings numéricos (formato inglés o español) a int/float para que Excel pueda operar.
+    Conserva como texto los códigos con ceros a la izquierda (ej. '007')."""
+    s = value.strip()
+    if not s:
+        return value
+    body = s.lstrip("-")
+    if body.startswith("0") and len(body) > 1 and body[1] not in ".,":
+        return value
+    if _NUM_RE_EN.match(s):
+        return float(s) if "." in s else int(s)
+    if _NUM_RE_ES.match(s):
+        return float(s.replace(".", "").replace(",", "."))
+    return value
 
 
 def _download_iframe(b64: str, filename: str, mime: str) -> HTMLResponse:
@@ -262,13 +287,13 @@ class Tools:
             elif re.match(r'^-{3,}$', line):
                 pass
             elif line.startswith("#### "):
-                doc.add_heading(line[5:], level=4)
+                doc.add_heading(_strip_md(line[5:]), level=4)
             elif line.startswith("### "):
-                doc.add_heading(line[4:], level=3)
+                doc.add_heading(_strip_md(line[4:]), level=3)
             elif line.startswith("## "):
-                doc.add_heading(line[3:], level=2)
+                doc.add_heading(_strip_md(line[3:]), level=2)
             elif line.startswith("# "):
-                doc.add_heading(line[2:], level=1)
+                doc.add_heading(_strip_md(line[2:]), level=1)
             elif line.startswith("> "):
                 _add_paragraph_with_inline(doc, line[2:], style="Quote")
             elif re.match(r'^\s*[-*]\s', lines[i]):
@@ -293,7 +318,8 @@ class Tools:
         """
         Genera un archivo PDF a partir de Markdown.
         Soporta: # ## ### títulos, **negrita**, *cursiva*, - listas, 1. listas numeradas,
-        tablas |a|b|, --- como línea separadora y [PAGEBREAK] para salto de página.
+        tablas |a|b|, > citas, bloques ``` de código, --- como línea separadora
+        y [PAGEBREAK] para salto de página.
         :param content: Contenido en Markdown.
         :param filename: Nombre del archivo sin extensión.
         """
@@ -313,6 +339,20 @@ class Tools:
         while i < len(lines):
             line = lines[i].strip()
 
+            if line.startswith("```"):
+                i += 1
+                code_lines = []
+                while i < len(lines) and not lines[i].strip().startswith("```"):
+                    code_lines.append(lines[i])
+                    i += 1
+                i += 1  # cierre ```
+                pdf.set_font("courier", size=8.5)
+                for code_line in code_lines or [" "]:
+                    pdf.multi_cell(0, 4.5, _pdf_safe(code_line) or " ", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                pdf.set_font("helvetica", size=11)
+                pdf.ln(2)
+                continue
+
             if line.startswith("|") and line.endswith("|"):
                 table_lines = []
                 while i < len(lines) and lines[i].strip().startswith("|"):
@@ -321,7 +361,7 @@ class Tools:
                 rows = [r for r in table_lines if not re.match(r'^\|[\s\-:| ]+\|$', r)]
                 if rows:
                     data = [
-                        [_pdf_safe(re.sub(r"\*\*?|`", "", c.strip()))
+                        [_pdf_safe(_strip_md(c.strip()))
                          for c in r.strip("|").split("|")]
                         for r in rows
                     ]
@@ -343,17 +383,22 @@ class Tools:
                 pdf.ln(4)
             elif line.startswith("# "):
                 pdf.set_font("helvetica", "B", 17)
-                pdf.multi_cell(0, 9, _pdf_safe(line[2:]), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                pdf.multi_cell(0, 9, _pdf_safe(_strip_md(line[2:])), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                 pdf.set_font("helvetica", size=11)
                 pdf.ln(2)
             elif line.startswith("## "):
                 pdf.set_font("helvetica", "B", 14)
-                pdf.multi_cell(0, 8, _pdf_safe(line[3:]), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                pdf.multi_cell(0, 8, _pdf_safe(_strip_md(line[3:])), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                 pdf.set_font("helvetica", size=11)
                 pdf.ln(1)
             elif line.startswith("### ") or line.startswith("#### "):
                 pdf.set_font("helvetica", "B", 12)
-                pdf.multi_cell(0, 7, _pdf_safe(line.lstrip("#").strip()), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                pdf.multi_cell(0, 7, _pdf_safe(_strip_md(line.lstrip("#").strip())), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+                pdf.set_font("helvetica", size=11)
+            elif line.startswith("> "):
+                pdf.set_font("helvetica", "I", 11)
+                pdf.set_x(pdf.l_margin + 6)
+                pdf.multi_cell(0, 6, _pdf_safe(_strip_md(line[2:])), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
                 pdf.set_font("helvetica", size=11)
             elif re.match(r'^[-*]\s', line):
                 pdf.multi_cell(0, 6, _pdf_safe(_pdf_markdown("   - " + line[2:])), markdown=True, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
@@ -375,8 +420,9 @@ class Tools:
         Genera una presentación PowerPoint (.pptx).
         Formato: cada "# Título" inicia una diapositiva nueva; las líneas "- punto"
         debajo son sus viñetas (dos espacios de sangría = sub-viñeta). La primera
-        diapositiva puede llevar "## subtítulo" para crear una portada.
-        Ejemplo: "# Portada\\n## Subtítulo\\n# Tema 1\\n- punto A\\n- punto B"
+        diapositiva puede llevar "## subtítulo" para crear una portada. Las líneas
+        "> texto" se añaden como notas del orador de la diapositiva actual.
+        Ejemplo: "# Portada\\n## Subtítulo\\n# Tema 1\\n- punto A\\n> nota del orador"
         :param content: Contenido estructurado en Markdown.
         :param filename: Nombre del archivo sin extensión.
         """
@@ -393,12 +439,14 @@ class Tools:
             line = raw.rstrip()
             stripped = line.strip()
             if stripped.startswith("# "):
-                current = {"title": stripped[2:], "subtitle": "", "bullets": []}
+                current = {"title": _strip_md(stripped[2:]), "subtitle": "", "bullets": [], "notes": ""}
                 slides.append(current)
             elif current is None:
                 continue
             elif stripped.startswith("## "):
-                current["subtitle"] = stripped[3:]
+                current["subtitle"] = _strip_md(stripped[3:])
+            elif stripped.startswith("> "):
+                current["notes"] = (current["notes"] + "\n" + _strip_md(stripped[2:])).strip()
             elif re.match(r'^\s*[-*]\s', line):
                 indent = len(line) - len(line.lstrip())
                 text = re.sub(r'^\s*[-*]\s', '', line)
@@ -407,7 +455,7 @@ class Tools:
                 current["bullets"].append((0, stripped))
 
         if not slides:
-            slides = [{"title": "Documento", "subtitle": "", "bullets": [(0, l) for l in content.split("\n") if l.strip()]}]
+            slides = [{"title": "Documento", "subtitle": "", "bullets": [(0, l) for l in content.split("\n") if l.strip()], "notes": ""}]
 
         prs = Presentation()
         for idx, s in enumerate(slides):
@@ -416,6 +464,8 @@ class Tools:
                 slide = prs.slides.add_slide(layout)
                 slide.shapes.title.text = s["title"]
                 slide.placeholders[1].text = s["subtitle"]
+                if s["notes"]:
+                    slide.notes_slide.notes_text_frame.text = s["notes"]
                 continue
             layout = prs.slide_layouts[1]  # título + contenido
             slide = prs.slides.add_slide(layout)
@@ -427,9 +477,10 @@ class Tools:
                 para = body.paragraphs[0] if first else body.add_paragraph()
                 first = False
                 para.level = level
-                clean = re.sub(r"\*\*?|`", "", text)
-                para.text = clean
+                para.text = _strip_md(text)
                 para.font.size = Pt(20 if level == 0 else 16)
+            if s["notes"]:
+                slide.notes_slide.notes_text_frame.text = s["notes"]
 
         buffer = io.BytesIO()
         prs.save(buffer)
@@ -446,6 +497,8 @@ class Tools:
         2) JSON multi-hoja: {"Hoja1": [["col1","col2"],["a",1]], "Hoja2": [...]}.
            Las filas también pueden ser objetos: {"Hoja1": [{"col1":"a","col2":1}]}.
         Cabeceras en negrita, panel congelado, autofiltro y ancho de columna automático.
+        En modo CSV los valores numéricos ("1.234,56" o "1234.56") se escriben como
+        números reales para que Excel pueda sumar y filtrar.
         :param data: Datos en CSV (separador ;) o JSON multi-hoja.
         :param filename: Nombre del archivo sin extensión.
         """
@@ -474,7 +527,9 @@ class Tools:
                 pass
 
         if not sheets:
-            rows = list(csv.reader(io.StringIO(data), delimiter=";"))
+            raw_rows = list(csv.reader(io.StringIO(data), delimiter=";"))
+            rows = [raw_rows[0]] if raw_rows else []
+            rows += [[_coerce_number(c) for c in row] for row in raw_rows[1:]]
             sheets = {"Hoja1": rows}
 
         wb = Workbook()

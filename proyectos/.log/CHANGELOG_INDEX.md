@@ -4,6 +4,9 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-06-11 | openweb, tools | read_g3, fault-codes, manual-mercury, agregados, agentes | Nueva dev_read_g3 v2.1: análisis por agregados (overview/stats/trend/rows) + tabla FAULT_CODES del manual Mercury (134 fallos) y g3_fault_info | changelog_2026-06-11.md |
+| 2026-06-11 | openweb, tools | query_knowledge, valves, rag, citas, multi-kb, bilingue | Nueva dev_query_knowledge v2.0: Valves configurables, búsqueda bilingüe en una llamada, multi-KB con autodescubrimiento, citas y status nativos | changelog_2026-06-11.md |
+| 2026-06-11 | openweb, tools | read_file, calculadora, generate_doc, search, agentes | dev_read_file/calculadora/generate_doc v1.1: búsqueda en adjuntos, list_attachments, ecuaciones y amortización, code blocks PDF, notas PPTX, Excel numérico | changelog_2026-06-11.md |
 | 2026-06-10 | openweb, tools | reorganizacion, stable, experimental, dev, limpieza | Tools reorganizadas en stable/ (prod) y experimental/ (dev con prefijo dev_); eliminado __pycache__ | changelog_2026-06-10.md |
 | 2026-06-10 | openweb, tools | read_any_file, lector-universal, pptx, paginacion, agentes | Nueva read_any_file.py: lector universal de adjuntos (pptx, json, html, código, fallback texto), multi-adjunto y paginación | changelog_2026-06-10.md |
 | 2026-06-10 | openweb, tools | calculadora, ast-seguro, conversor, finanzas, fechas, agentes | Nueva calculadora_avanzada.py: evaluador AST seguro, estadística, conversor por dimensiones, préstamos, interés compuesto y fechas | changelog_2026-06-10.md |

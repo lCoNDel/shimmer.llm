@@ -1,11 +1,12 @@
 """
 title: Calculadora Avanzada
 author: shimmer.llm
-description: Calculadora completa para agentes IA — expresiones matemáticas (evaluador seguro AST), estadística, conversor universal de unidades, finanzas (préstamos, interés compuesto), porcentajes, IVA, márgenes comerciales y cálculos con fechas.
-version: 1.0.0
+description: Calculadora completa para agentes IA — expresiones matemáticas (evaluador seguro AST), estadística, conversor universal de unidades, ecuaciones (cuadrática/lineal), regla de tres, finanzas (préstamos con cuadro de amortización, interés compuesto), porcentajes, IVA, márgenes comerciales y cálculos con fechas (incluye días laborables y edad).
+version: 1.1.0
 """
 
 import ast
+import calendar
 import math
 import statistics as stats
 from datetime import date, datetime, timedelta
@@ -301,19 +302,86 @@ class Tools:
             result = _C_TO_TEMP[t](_TEMP_TO_C[f](float(value)))
             return f"{_fmt(value, 2)} {f_label} = {_fmt(result, 2)} {t_label}"
 
-        for dim, units in _DIMENSIONS.items():
-            if f in units and t in units:
-                result = float(value) * units[f] / units[t]
-                decimals = 6 if abs(result) < 0.01 else (4 if abs(result) < 1 else 3)
-                return f"{_fmt_auto(value)} {f_label} = {_fmt(result, decimals).rstrip('0').rstrip(',')} {t_label}"
-            if f in units and t not in units:
-                return (
-                    f"'{to_unit}' no pertenece a la dimensión '{dim}' de '{from_unit}'. "
-                    f"Unidades compatibles: {', '.join(units)}"
-                )
+        dim_f = next((d for d, u in _DIMENSIONS.items() if f in u), "temperatura" if f in _TEMP_TO_C else None)
+        dim_t = next((d for d, u in _DIMENSIONS.items() if t in u), "temperatura" if t in _C_TO_TEMP else None)
 
-        dims = {d: ", ".join(u) for d, u in _DIMENSIONS.items()}
-        return f"Unidad '{from_unit}' no reconocida. Dimensiones disponibles: {json_dims(dims)}"
+        if dim_f and dim_f == dim_t:
+            units = _DIMENSIONS[dim_f]
+            result = float(value) * units[f] / units[t]
+            decimals = 6 if abs(result) < 0.01 else (4 if abs(result) < 1 else 3)
+            return f"{_fmt_auto(value)} {f_label} = {_fmt(result, decimals).rstrip('0').rstrip(',')} {t_label}"
+        if dim_f and dim_t:
+            return (
+                f"No se puede convertir entre dimensiones distintas: "
+                f"'{from_unit}' es {dim_f} y '{to_unit}' es {dim_t}."
+            )
+        if dim_f:
+            compatibles = ["c", "f", "k"] if dim_f == "temperatura" else list(_DIMENSIONS[dim_f])
+            return (
+                f"Unidad de destino '{to_unit}' no reconocida. "
+                f"Unidades compatibles con '{from_unit}' ({dim_f}): {', '.join(compatibles)}"
+            )
+        dims = "; ".join(f"{d}: {', '.join(u)}" for d, u in _DIMENSIONS.items())
+        return f"Unidad '{from_unit}' no reconocida. Dimensiones disponibles: {dims}; temperatura: c, f, k"
+
+    # ── Ecuaciones ─────────────────────────────────────────────────────────────
+
+    def quadratic(self, a: float, b: float, c: float) -> str:
+        """
+        Solves the equation ax² + bx + c = 0. If a=0, solves the linear equation bx + c = 0.
+        Returns real or complex roots with the discriminant.
+        Examples: quadratic(1, -5, 6) → x=3, x=2 | quadratic(0, 2, -8) → x=4
+        :param a: quadratic coefficient
+        :param b: linear coefficient
+        :param c: constant term
+        """
+        if a == 0:
+            if b == 0:
+                return "Identidad 0 = 0: infinitas soluciones." if c == 0 else "Sin solución: a y b son 0 y c ≠ 0."
+            return f"Ecuación lineal {_fmt_auto(b)}x + {_fmt_auto(c)} = 0 → x = {_fmt_auto(round(-c / b, 10))}"
+        disc = b * b - 4 * a * c
+        if disc > 0:
+            r = math.sqrt(disc)
+            x1, x2 = (-b + r) / (2 * a), (-b - r) / (2 * a)
+            return (
+                f"Dos soluciones reales (discriminante = {_fmt_auto(round(disc, 6))}):\n"
+                f"x₁ = {_fmt_auto(round(x1, 10))}\n"
+                f"x₂ = {_fmt_auto(round(x2, 10))}"
+            )
+        if disc == 0:
+            return f"Solución real doble: x = {_fmt_auto(round(-b / (2 * a), 10))}"
+        real, imag = -b / (2 * a), math.sqrt(-disc) / (2 * a)
+        return (
+            f"Sin soluciones reales (discriminante = {_fmt_auto(round(disc, 6))}). Soluciones complejas:\n"
+            f"x = {_fmt_auto(round(real, 10))} ± {_fmt_auto(round(imag, 10))}i"
+        )
+
+    def rule_of_three(self, a: float, b: float, c: float, inverse: bool = False) -> str:
+        """
+        Rule of three (regla de tres): if a corresponds to b, what corresponds to c?
+        Direct (default): x = b·c/a (more a → more b).
+        Inverse: x = a·b/c (more c → less x; e.g. workers vs. days).
+        Examples: rule_of_three(3, 12, 7) → 28 | rule_of_three(4, 6, 8, inverse=True) → 3
+        :param a: known reference value
+        :param b: value that corresponds to a
+        :param c: new value of the same magnitude as a
+        :param inverse: True for inverse proportionality
+        """
+        if inverse:
+            if c == 0:
+                return "Error: c no puede ser 0 en una regla de tres inversa."
+            x = a * b / c
+            return (
+                f"Regla de tres inversa: si {_fmt_auto(a)} → {_fmt_auto(b)}, "
+                f"entonces {_fmt_auto(c)} → {_fmt_auto(round(x, 10))}"
+            )
+        if a == 0:
+            return "Error: a no puede ser 0 en una regla de tres directa."
+        x = b * c / a
+        return (
+            f"Regla de tres directa: si {_fmt_auto(a)} → {_fmt_auto(b)}, "
+            f"entonces {_fmt_auto(c)} → {_fmt_auto(round(x, 10))}"
+        )
 
     # ── Porcentajes ────────────────────────────────────────────────────────────
 
@@ -426,30 +494,49 @@ class Tools:
 
     # ── Finanzas ───────────────────────────────────────────────────────────────
 
-    def loan(self, principal: float, annual_rate: float, years: float) -> str:
+    def loan(self, principal: float, annual_rate: float, years: float, schedule_months: int = 0) -> str:
         """
         Calculates a loan's monthly payment (French amortization system).
-        Example: loan(25000, 6.5, 5) → monthly payment for 25.000€ at 6,5% over 5 years.
+        Optionally returns the amortization schedule for the first N months.
+        Examples: loan(25000, 6.5, 5) | loan(25000, 6.5, 5, schedule_months=12)
         :param principal: loan amount in euros
         :param annual_rate: annual interest rate in % (TIN)
         :param years: loan duration in years
+        :param schedule_months: optional — show amortization table for the first N months (max 24)
         """
         if principal <= 0 or years <= 0:
             return "El capital y la duración deben ser mayores que 0."
         n = round(years * 12)
+        i = annual_rate / 100 / 12
         if annual_rate == 0:
             payment = principal / n
         else:
-            i = annual_rate / 100 / 12
             payment = principal * i / (1 - (1 + i) ** -n)
         total = payment * n
-        return (
+        result = (
             f"Capital: {_fmt(principal)} €\n"
             f"TIN: {_fmt(annual_rate, 2)}% | Plazo: {n} meses\n"
             f"Cuota mensual: {_fmt(payment)} €\n"
             f"Total pagado: {_fmt(total)} €\n"
             f"Intereses totales: {_fmt(total - principal)} €"
         )
+
+        try:
+            n_show = max(0, min(int(schedule_months), n, 24))
+        except (TypeError, ValueError):
+            n_show = 0
+        if n_show:
+            pending = float(principal)
+            rows = ["", "Cuadro de amortización:", "Mes | Intereses | Amortizado | Pendiente"]
+            for m in range(1, n_show + 1):
+                interest = pending * i
+                amort = payment - interest
+                pending = max(pending - amort, 0)
+                rows.append(f"{m} | {_fmt(interest)} € | {_fmt(amort)} € | {_fmt(pending)} €")
+            if n_show < n:
+                rows.append(f"... ({n - n_show} meses más hasta saldar el préstamo)")
+            result += "\n".join(rows)
+        return result
 
     def compound_interest(self, principal: float, annual_rate: float, years: float, monthly_contribution: float = 0) -> str:
         """
@@ -482,14 +569,16 @@ class Tools:
 
     def date_calc(self, operation: str, date1: str, date2_or_days: str = "") -> str:
         """
-        Date calculations. Dates in format YYYY-MM-DD or DD/MM/YYYY. Operations:
+        Date calculations. Dates in format YYYY-MM-DD, DD/MM/YYYY or "hoy". Operations:
         - "diff": days between two dates. date_calc("diff", "2026-01-15", "2026-06-10")
         - "add": add days to a date. date_calc("add", "2026-06-10", "45")
         - "subtract": subtract days. date_calc("subtract", "2026-06-10", "30")
         - "weekday": day of the week. date_calc("weekday", "2026-06-10")
-        :param operation: one of "diff", "add", "subtract", "weekday"
+        - "workdays": business days between two dates (Mon-Fri). date_calc("workdays", "2026-06-01", "2026-06-30")
+        - "age": elapsed years, months and days. date_calc("age", "1985-03-20") → age today
+        :param operation: one of "diff", "add", "subtract", "weekday", "workdays", "age"
         :param date1: first date
-        :param date2_or_days: second date (diff) or number of days (add/subtract)
+        :param date2_or_days: second date (diff/workdays/age, default today) or number of days (add/subtract)
         """
         def parse(s):
             s = s.strip()
@@ -523,10 +612,35 @@ class Tools:
                 return f"{d1.isoformat()} {'+' if days >= 0 else '−'} {abs(days)} días = {result.isoformat()} ({dias_semana[result.weekday()]})"
             if op == "weekday":
                 return f"{d1.isoformat()} es {dias_semana[d1.weekday()]}"
-            return "operation debe ser: diff, add, subtract o weekday."
+            if op in ("workdays", "laborables"):
+                d2 = parse(date2_or_days) if date2_or_days.strip() else date.today()
+                start, end = sorted((d1, d2))
+                total = (end - start).days
+                weeks, rem = divmod(total, 7)
+                workdays = weeks * 5
+                for k in range(1, rem + 1):
+                    if (start + timedelta(days=k)).weekday() < 5:
+                        workdays += 1
+                return (
+                    f"Entre {start.isoformat()} y {end.isoformat()}: {workdays} días laborables "
+                    f"(L-V, sin contar festivos) de {total} días naturales"
+                )
+            if op in ("age", "edad"):
+                d2 = parse(date2_or_days) if date2_or_days.strip() else date.today()
+                if d2 < d1:
+                    d1, d2 = d2, d1
+                years_n = d2.year - d1.year - ((d2.month, d2.day) < (d1.month, d1.day))
+                months_n = (d2.month - d1.month - (d2.day < d1.day)) % 12
+                anchor_y = d1.year + years_n + (d1.month + months_n - 1) // 12
+                anchor_m = (d1.month + months_n - 1) % 12 + 1
+                anchor_d = min(d1.day, calendar.monthrange(anchor_y, anchor_m)[1])
+                days_n = (d2 - date(anchor_y, anchor_m, anchor_d)).days
+                total_days = (d2 - d1).days
+                return (
+                    f"Entre {d1.isoformat()} y {d2.isoformat()}: "
+                    f"{years_n} años, {months_n} meses y {days_n} días "
+                    f"({_fmt(total_days, 0)} días en total)"
+                )
+            return "operation debe ser: diff, add, subtract, weekday, workdays o age."
         except ValueError as e:
             return str(e)
-
-
-def json_dims(dims: dict) -> str:
-    return "; ".join(f"{k}: {v}" for k, v in dims.items())
