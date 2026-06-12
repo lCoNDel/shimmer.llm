@@ -42,9 +42,43 @@ Criterio del usuario: sin redundancia entre documentos; los procedimientos viven
 
 ---
 
+## docs — STATUS.md como puente de contexto con claude.ai móvil
+
+### Qué se hizo
+
+- **Nuevo `STATUS.md` en la raíz del repositorio** (junto a README.md, fuera de `proyectos/`). Documento autocontenido de ~215 líneas con el estado completo de Shimmer: snapshot operativo, arquitectura, estructura del repo, estado de componentes, decisiones técnicas (ADRs), backlog priorizado, plan de migración Azure y configuración RAG/embeddings/modelos.
+- **Propósito**: se sube a un Project de claude.ai y es la **única** fuente de contexto que Claude tiene en el móvil sobre el estado real de Shimmer. Por eso: autocontenido, máximo ~300 líneas, sin tokens ni API keys (los bots las llevan en claro en sus .py — excluidas deliberadamente).
+- Generado tras exploración completa del repo (CLAUDE.md, compose, `.backlog/`, `.shimmercloud/`, bots, changelogs). Hallazgos reflejados: `asistente_servicio.py` es solo esqueleto (sin token ni modelo); `web_search.py` citada en `.shimmercloud/CLAUDE.md` pero ausente del repo → marcada `[VERIFICAR]`.
+- **Skill `fin-sesion` ampliada** (`.claude/commands/fin-sesion.md`): nuevo paso 5 "Sincronizar STATUS.md" (editar solo secciones afectadas, actualizar fecha de cabecera, revisar §2 snapshot / §3 arquitectura / §5 componentes / §7 backlog), paso de commit renumerado a 6, y nueva regla "STATUS.md siempre sincronizado — sin secretos".
+- **README.md de la raíz actualizado**: estado actual con migración Azure aprobada (objetivo noviembre 2026) y puntero a STATUS.md; dev v0.9.5 → v0.9.6; filas Filebrowser y tools.yml en las tablas de arquitectura; asistente_servicio marcado "en desarrollo"; nueva entrada "Tools para Open WebUI" en lo construido; árbol del repo con `.shimmercloud/`, `certs/`, `tools/stable|experimental` y STATUS.md.
+
+### Mantenimiento
+
+- STATUS.md se actualiza al cierre de cada sesión vía `/fin-sesion`; tras el commit, resubir manualmente al Project de claude.ai (la subida no se puede automatizar desde aquí).
+
+---
+
+## tsamaps — proyecto a estado EOL
+
+### Decisión
+
+El usuario declara **tsamaps EOL** (end of life): desarrollo finalizado. El proyecto se conserva archivado como **fuente de conocimiento para futuros proyectos** (patrones Leaflet/JS vanilla, proxy FastAPI hacia Open WebUI, integración de chat IA, responsive móvil).
+
+### Implicaciones
+
+- Sin nuevas features ni mantenimiento. Las ideas de backlog de tsamaps (calculadora de ruta, alertas meteo, navegación a destino, tracking tiempo real, compartir posición) quedan descartadas/archivadas.
+- El código en `.webapps/prod/tsamaps/` y sus changelogs en `.log/` no se borran — son material de consulta.
+- tsamaps queda fuera del alcance de la migración Azure; `.shimmercloud/migracion/plan.md` aún lo incluye (fases 2 y 3) — pendiente de actualizar el plan.
+- Reflejado en README.md (raíz), STATUS.md (§2, §3, §4, §5, §7, §8) y memoria persistente del agente.
+
+---
+
 ## Contexto técnico para agentes
 
 **Archivos modificados en esta sesión:**
+- `STATUS.md` — NUEVO, en la raíz del repositorio (no en `proyectos/`) — puente de contexto con claude.ai móvil
+- `README.md` (raíz) — sincronizado con el estado real: Azure, v0.9.6, .shimmercloud/, tools stable/experimental
+- `.claude/commands/fin-sesion.md` — paso 5 nuevo (sincronizar STATUS.md), commit renumerado a paso 6, regla nueva
 - `.docker/compose/dev.yml` — tag `v0.9.5` → `v0.9.6`
 - `.docker/openweb/workflows/update_workflow.md` — paso 7 (parche rebrand), cabecera prod/dev, renumeración 8-10
 - `CLAUDE.md` — línea del parche env.py reescrita como puntero al workflow
