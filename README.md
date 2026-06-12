@@ -1,37 +1,14 @@
 # shimmer.llm
 
-Proyecto personal de IA aplicada al negocio, desarrollado por Luis Conde para Touron S.A. — distribuidor oficial Mercury/Brunswick en España y Portugal desde 1958.
+Plataforma de agentes IA de **Touron S.A.** (distribuidor Mercury/Brunswick, España y Portugal). Desarrollo: Luis Conde, Sistemas.
 
-El objetivo es explorar y demostrar el uso práctico de modelos de lenguaje locales en el contexto real de una empresa náutica: atención al cliente, consulta técnica, acceso a documentación interna y automatización de tareas del día a día.
+Objetivo: agentes multimodales por departamento con funciones a la carta — consulta técnica, atención al cliente, documentación interna, análisis de negocio y automatización. Los agentes operativos (asistente náutico, servicio) son los primeros de esa línea.
 
-> **Estado actual:** fase de demo y testing en local (Windows). Migración a producción en Azure aprobada por gerencia (mayo 2026) — objetivo: noviembre 2026, con inferencia vía Azure OpenAI. Plan y decisiones en `proyectos/.shimmercloud/`.
+Stack base: **Open WebUI + Docker + Ollama**. Ollama corre en el host Windows; el resto de servicios en contenedores. Los agentes combinan LLM + RAG sobre Knowledge Bases propias + tools Python.
+
+> **Estado:** demo y testing en local (Windows 11 + Docker Desktop). Migración a producción en Azure aprobada — objetivo noviembre 2026, inferencia vía Azure OpenAI (Ollama desaparece en cloud). Plan y ADRs en `proyectos/.shimmercloud/`.
 >
-> El estado detallado del proyecto, actualizado al cierre de cada sesión, está en [STATUS.md](STATUS.md).
-
----
-
-## Por qué existe
-
-Touron gestiona un catálogo de más de 5.000 referencias, manuales técnicos en varios idiomas, un equipo de SAT con necesidades de diagnóstico rápido y clientes que hacen consultas técnicas complejas. La IA local permite explorar soluciones a estos problemas sin depender de servicios cloud externos ni exponer datos sensibles.
-
----
-
-## Qué se ha construido
-
-**Asistente Náutico (Telegram)**
-Bot de Telegram con acceso a manuales técnicos Mercury mediante RAG. Responde consultas sobre mantenimiento, códigos de error, compatibilidades y especificaciones. Incluye búsqueda web integrada, native function calling, búsqueda híbrida semántica + BM25 y soporte multilingüe.
-
-**tsamaps** *(EOL — archivado)*
-Carta náutica interactiva con OpenSeaMap y CartoDB. Permite buscar puertos y puntos de interés, y tiene chat integrado con el asistente IA directamente desde la carta. Backend en FastAPI, frontend en JS vanilla con Leaflet. Proyecto finalizado: sin desarrollo activo, se conserva como fuente de conocimiento (Leaflet, proxy FastAPI, integración de chat IA) para futuros proyectos.
-
-**Asistente de Servicio (Telegram)** *(en desarrollo)*
-Bot orientado al equipo interno de SAT para consultas de diagnóstico y gestión de servicio técnico. Estructura base creada; pendiente de configuración y lógica.
-
-**Tools para Open WebUI**
-Conjunto de herramientas Python que amplían los agentes: RAG custom sobre Knowledge Base (`query_knowledge`), lector universal de adjuntos, calculadora avanzada, generación de documentos (Word, PDF, PPTX, Excel) y análisis de CSV de diagnóstico Mercury G3 con tabla de códigos de fallo. Organizadas en `stable/` (producción) y `experimental/` (versiones `dev_` en pruebas).
-
-**Touron LLM**
-Instancia personalizada de Open WebUI con identidad corporativa Touron: paleta de color azul marino, logo y nombre propios. Sirve como interfaz principal para pruebas de modelos, RAG y workflows internos.
+> Estado detallado por sesión: [STATUS.md](STATUS.md). Histórico técnico: `proyectos/.log/`.
 
 ---
 
@@ -39,67 +16,84 @@ Instancia personalizada de Open WebUI con identidad corporativa Touron: paleta d
 
 | Servicio | Tecnología | Puerto |
 |---|---|---|
-| Interfaz principal | Open WebUI v0.9.4 | 3000 |
+| Interfaz principal (Touron LLM) | Open WebUI v0.9.4 | 3000 |
 | Interfaz desarrollo | Open WebUI v0.9.6 | 3002 |
-| Alternativa | AnythingLLM | 3001 |
-| LLM local | Ollama (host Windows) | 11434 |
-| Carta náutica (EOL) | tsamaps (FastAPI + Leaflet) | 5050 (HTTPS vía Tailscale) |
+| Interfaz alternativa | AnythingLLM | 3001 |
+| Inferencia local | Ollama (host Windows) | 11434 |
 | Bots | Python — Telegram Long Polling | — |
-| Filebrowser | Global (puntual) / inyectable en contenedores | 8000 / 8001–8002 |
+| Carta náutica (EOL) | tsamaps — FastAPI + Leaflet | 5050 (HTTPS vía Tailscale) |
+| Filebrowser | Global / inyectable en contenedores | 8000 / 8001–8002 |
 
-Ollama corre directamente en el host Windows. El resto de servicios en Docker. Los contenedores acceden a Ollama mediante `host.docker.internal`.
+Los contenedores acceden a Ollama mediante `host.docker.internal:11434`. Los bots usan long polling (sin puertos expuestos) y atacan la API de Open WebUI (`/api/chat/completions`) gestionando el ciclo completo de tool calls client-side.
 
 | Compose | Proyecto Docker | Servicios |
 |---|---|---|
 | prod.yml | 1-produccion | open-webui (3000), anything-llm (3001) |
 | dev.yml | 2-desarrollo | open-webui-dev (3002) |
-| proxy.yml | 3-proxy | tsamaps_server (5050) |
+| proxy.yml | 3-proxy | tsamaps_server (5050) — EOL, solo demos |
 | bots.yml | 4-bots | asistente_nautico, asistente_servicio |
 | tools.yml | — | filebrowser global (8000, uso puntual) |
+
+Restricción: `open-webui` (prod) y `open-webui-dev` comparten el volumen `open-webui` — no arrancar simultáneamente.
+
+### RAG
+
+- Knowledge Bases en ChromaDB (integrado en Open WebUI); corpus actual: manuales técnicos Mercury.
+- Embeddings `bge-m3` (Ollama) · reranker `BAAI/bge-reranker-v2-m3` · búsqueda híbrida semántica + BM25 · chunking 384 tokens · umbral de relevancia 0.45.
+- Acceso vía tool propia `query_knowledge` (no el Built-in de Open WebUI): queries secuenciales bilingües ES/EN reformuladas por el agente, scores y citas embebidas.
+
+---
+
+## Componentes
+
+**Touron LLM** — instancia Open WebUI con rebrand corporativo (`WEBUI_NAME`, custom.css, favicon vía bind mounts; parche `env.py` para el sufijo). Aloja agentes (Workspace Models), Knowledge Bases y tools.
+
+**Asistente Náutico** (`asistente_nautico.py`, producción) — bot Telegram contra la API de Open WebUI. RAG con native function calling, system prompt corporativo inyectado en vuelo, búsqueda web (DDGS), análisis de PDFs (pymupdf), citas con fuentes reales, multilingüe.
+
+**Asistente de Servicio** (`asistente_servicio.py`, en desarrollo) — bot Telegram para SAT (diagnóstico y gestión de servicio). Esqueleto creado; pendiente de configuración y lógica.
+
+**Tools Open WebUI** (`proyectos/.docker/openweb/tools/`) — Python, organizadas en `stable/` (producción) y `experimental/` (prefijo `dev_`):
+- `query_knowledge` — RAG custom multi-KB con citas
+- `read_file` — lector universal de adjuntos (PDF, DOCX, PPTX, Excel, JSON, código)
+- `generate_doc` — generación de DOCX, PDF, PPTX, Excel multi-hoja, HTML
+- `calculadora` — evaluador AST seguro, estadística, conversiones, finanzas, fechas
+- `read_g3` — análisis de CSV de diagnóstico Mercury G3 + tabla de 134 códigos de fallo
+
+**tsamaps** (EOL, archivado en `.webapps/antiguos/`) — carta náutica OpenSeaMap/CartoDB con FastAPI (estáticos + proxy `/chat` hacia Open WebUI), meteorología, radar, viento, herramientas de navegación y chat IA. Sin desarrollo activo; arrancable para demos con `ops/tsamaps-demo-start.ps1`.
 
 ---
 
 ## Estructura del repositorio
 
+```
 STATUS.md                   # Estado del proyecto — actualizado al cierre de cada sesión
 proyectos/
-├── .backlog/               # Backlog activo — ideas y proyectos futuros (prefijo OK = implementado)
-├── .claude/                # Configuración Claude Code
-│   ├── ops/                # Scripts PowerShell de operación (arranque, parada, etc.)
-│   └── commands/           # Skills y comandos del agente
+├── .backlog/               # Backlog activo (prefijo OK = implementado)
+├── .claude/
+│   ├── ops/                # Scripts PowerShell de operación (start/stop por servicio, demos)
+│   └── commands/           # Skills de Claude Code (slash commands)
 ├── .docker/
-│   ├── .bots/
-│   │   └── telegram/
-│   │       ├── asistente_nautico.py    # Bot asistente náutico
-│   │       ├── asistente_servicio.py   # Bot asistente de servicio (en desarrollo)
-│   │       └── requirements.txt        # Dependencias compartidas
-│   ├── branding/
-│   │   ├── custom.css      # Tema azul marino Touron
-│   │   └── favicon.png     # Logo Touron redondeado
+│   ├── .bots/telegram/     # Bots Telegram (.py planos + requirements.txt compartido)
+│   ├── branding/           # Rebrand Touron LLM (custom.css, favicon)
 │   ├── certs/              # Certificados TLS (Tailscale)
-│   ├── compose/
-│   │   ├── prod.yml        # Open WebUI prod + AnythingLLM
-│   │   ├── dev.yml         # Open WebUI dev
-│   │   ├── proxy.yml       # tsamaps_server
-│   │   ├── bots.yml        # Bots Telegram
-│   │   └── tools.yml       # Filebrowser global
+│   ├── compose/            # prod.yml · dev.yml · proxy.yml · bots.yml · tools.yml
 │   ├── filebrowser/        # Filebrowser inyectable (sin imagen Docker)
 │   └── openweb/
-│       ├── tools/
-│       │   ├── stable/         # Tools en producción
-│       │   └── experimental/   # Tools dev_ en pruebas
-│       └── workflows/      # Procedimientos de operación (p.ej. update_workflow.md)
-├── .agents/
-│   └── skills/             # Skills de Claude Code (SKILL.md por skill)
+│       ├── tools/          # Tools Python (stable/ y experimental/)
+│       └── workflows/      # Procedimientos de operación (update_workflow.md, etc.)
+├── .agents/skills/         # Skills de agentes (SKILL.md por skill)
 ├── .docs/                  # Documentación de servicios
-├── .log/                   # Changelogs de sesión (changelog_YYYY-MM-DD.md + índice)
-├── .shimmercloud/          # Migración a Azure: plan de 5 fases y registro de ADRs
+├── .log/                   # Changelogs de sesión + CHANGELOG_INDEX.md
+├── .shimmercloud/          # Migración Azure: plan de 5 fases + ADRs
 ├── .tunnel/                # Scripts legacy de exposición de servicios
-└── .webapps/
-    └── antiguos/
-        └── tsamaps/        # Carta náutica — EOL, archivada como fuente de conocimiento
-            ├── app.js      # Lógica frontend (Leaflet, chat, búsqueda)
-            ├── index.html
-            ├── index.css
-            ├── responsive.css
-            └── server.py   # FastAPI: estáticos + proxy /chat hacia Open WebUI
+└── .webapps/antiguos/      # Proyectos web EOL (tsamaps, versionado como excepción)
+```
+
+---
+
+## Roadmap
+
+1. **Producción en Azure** (nov 2026) — VM Linux (candidata D4as v5) en el tenant corporativo, Azure OpenAI como motor de inferencia, entornos prod/dev separados en la misma VM. Plan de 5 fases en `.shimmercloud/migracion/plan.md`.
+2. **RAG SharePoint Online** — sync automático vía Microsoft Graph hacia las Knowledge Bases; embeddings duales (docs internos → `bge-m3`, manuales públicos → `text-embedding-3-large`). Diseño completo en `.backlog/rag_sharepoint/`.
+3. **Add-in Microsoft Office** — task pane HTML/JS contra la API de Open WebUI, con lectura del contexto activo (correo abierto, rango Excel). Distribución vía M365 Centralized Deployment.
+4. **Agentes departamentales** — diagnóstico de motores, taller de servicio, integración ERP Libra (Oracle).

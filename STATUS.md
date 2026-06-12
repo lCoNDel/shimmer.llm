@@ -8,12 +8,14 @@
 
 ## 1. Qué es Shimmer
 
-Plataforma de IA local desarrollada por Luis Conde (Técnico de Sistemas) para
+Plataforma de IA desarrollada por Luis Conde (Técnico de Sistemas) para
 Touron S.A., distribuidor oficial Mercury/Brunswick en España y Portugal (~50
-empleados). Aplica LLMs al negocio náutico: asistente para clientes vía Telegram,
-RAG sobre manuales técnicos Mercury, carta náutica interactiva con chat IA e
-interfaz corporativa "Touron LLM". Fase actual: **demo y testing en local
-(Windows 11 + Docker Desktop)**, con migración a Azure aprobada para producción real.
+empleados). **Propósito: ofrecer agentes multimodales y versátiles a toda la
+empresa — habrá agentes por departamento con funciones a la carta.** Los primeros
+ya operativos: asistente náutico para clientes vía Telegram, RAG sobre manuales
+Mercury e interfaz corporativa "Touron LLM". Fase actual: **demo y testing en
+local (Windows 11 + Docker Desktop)**, con migración a Azure aprobada para
+producción real.
 
 ---
 

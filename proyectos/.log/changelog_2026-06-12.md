@@ -86,6 +86,24 @@ El usuario declara **tsamaps EOL** (end of life): desarrollo finalizado. El proy
 
 ---
 
+## docs — README reescrito como carta de presentación + corrección de propósito
+
+### Corrección de propósito (criterio del usuario)
+
+El README describía Shimmer como proyecto limitado a consulta técnica/taller. **Corrección de Luis: el propósito es ofrecer agentes multimodales y versátiles a TODA la empresa — habrá agentes por departamento con funciones a la carta** (ventas, administración, marketing, SAT, IT...). Los asistentes actuales son los primeros de esa línea, no su alcance final. Guardado en memoria persistente del agente; STATUS.md §1 también corregido.
+
+### Reescritura completa del README
+
+README de la raíz reescrito dos veces en la sesión: primero con tono de carta de presentación y, tras feedback del usuario ("sé más técnico, no deja de ser un repositorio"), versión final en **registro técnico**:
+- Intro factual: propósito (agentes por departamento), stack base y estado, con punteros a STATUS.md y `.shimmercloud/`
+- **Arquitectura**: tablas de servicios y compose, patrón de conexión de los bots (long polling → `/api/chat/completions` con ciclo de tool calls client-side), restricción de volumen compartido prod/dev
+- Subsección **RAG** con parámetros reales: ChromaDB, bge-m3, bge-reranker-v2-m3, híbrida + BM25, chunk 384, umbral 0.45, tool `query_knowledge` en lugar del Built-in
+- **Componentes** con detalle técnico (rebrand vía bind mounts + parche env.py, pymupdf, DDGS, lista de tools con su función)
+- Árbol del repo en bloque de código y **Roadmap** con referencias a los diseños en el repo
+- Eliminado el tono de marketing (sección "Visión" con principios, sección "Autor")
+
+---
+
 ## Contexto técnico para agentes
 
 **Archivos modificados en esta sesión:**
