@@ -67,9 +67,22 @@ El usuario declara **tsamaps EOL** (end of life): desarrollo finalizado. El proy
 ### Implicaciones
 
 - Sin nuevas features ni mantenimiento. Las ideas de backlog de tsamaps (calculadora de ruta, alertas meteo, navegación a destino, tracking tiempo real, compartir posición) quedan descartadas/archivadas.
-- El código en `.webapps/prod/tsamaps/` y sus changelogs en `.log/` no se borran — son material de consulta.
-- tsamaps queda fuera del alcance de la migración Azure; `.shimmercloud/migracion/plan.md` aún lo incluye (fases 2 y 3) — pendiente de actualizar el plan.
-- Reflejado en README.md (raíz), STATUS.md (§2, §3, §4, §5, §7, §8) y memoria persistente del agente.
+- El código y sus changelogs en `.log/` no se borran — son material de consulta.
+- tsamaps queda fuera del alcance de la migración Azure.
+- Reflejado en README.md (raíz), STATUS.md (§2, §3, §4, §5, §7, §8), CLAUDE.md, `.shimmercloud/` y memoria persistente del agente.
+
+### Archivado físico y scripts de demo
+
+- **Movido con `git mv`**: `.webapps/prod/tsamaps/` → `.webapps/antiguos/tsamaps/` (historial git conservado como renames). `.webapps/prod/` queda vacía.
+- **Excepción en `.webapps/antiguos/.gitignore`** (`!tsamaps/`, `!tsamaps/**`): antiguos/ ignora todo por defecto, pero tsamaps sigue versionado — es fuente de conocimiento, no puede salir de git.
+- **Requisito del usuario: la demo debe poder enseñarse.** Scripts de arranque reubicados de `tsamaps/runtime/` a `.claude/ops/`:
+  - `tsamaps-demo-start.ps1` / `tsamaps-demo-stop.ps1` — cadena completa: open-webui (3000) + asistente_nautico + tsamaps_server (5050)
+  - Los `tsamaps-prod-start/stop.ps1` existentes (solo tsamaps_server) siguen válidos
+  - En `antiguos/tsamaps/runtime/` quedan solo legacy: `start.sh`/`stop.sh` (prohibidos en este entorno) y `tunnel.ps1` (ngrok, jubilado)
+- **`proxy.yml`**: ruta del volumen actualizada a `../../.webapps/antiguos/tsamaps` + comentario EOL — el contenedor sigue siendo arrancable.
+- **Skill `tsamaps-prod.md`** reescrita: aviso EOL, toggle start/stop habitual y sección "Demo completa" con los nuevos scripts.
+- **CLAUDE.md**: tsamaps marcado EOL en stack y puertos (5050 = arranque puntual para demos), restricción obsoleta de puerto compartido dev/prod eliminada, sección `.webapps/` reescrita (antiguos = EOL con excepción operativa de demo), añadido `.shimmercloud/` al árbol y Estado del Proyecto actualizado (próximo paso = migración Azure).
+- **`.shimmercloud/migracion/plan.md`**: tsamaps eliminado de fases 0/2/3 (NSG 5050, despliegues dev y prod) y nota explícita de exclusión; la nota de API key ya solo referencia `asistente_nautico.py`. `.shimmercloud/CLAUDE.md`: resumen del entorno actual marca tsamaps EOL.
 
 ---
 
@@ -78,6 +91,12 @@ El usuario declara **tsamaps EOL** (end of life): desarrollo finalizado. El proy
 **Archivos modificados en esta sesión:**
 - `STATUS.md` — NUEVO, en la raíz del repositorio (no en `proyectos/`) — puente de contexto con claude.ai móvil
 - `README.md` (raíz) — sincronizado con el estado real: Azure, v0.9.6, .shimmercloud/, tools stable/experimental
+- `.webapps/prod/tsamaps/` → `.webapps/antiguos/tsamaps/` — movido con git mv (EOL); `.webapps/antiguos/.gitignore` con excepción `!tsamaps/**`
+- `.claude/ops/tsamaps-demo-start.ps1` y `tsamaps-demo-stop.ps1` — NUEVOS (reubicados desde `tsamaps/runtime/`): cadena completa de demo
+- `.docker/compose/proxy.yml` — volumen apunta a `antiguos/tsamaps`; comentario EOL
+- `.claude/commands/tsamaps-prod.md` — reescrita: aviso EOL + sección demo completa
+- `CLAUDE.md` — tsamaps EOL (stack, puertos, .webapps/, compose, estado); añadido `.shimmercloud/` al árbol; próximo paso = migración Azure
+- `.shimmercloud/CLAUDE.md` y `.shimmercloud/migracion/plan.md` — tsamaps excluido de la migración
 - `.claude/commands/fin-sesion.md` — paso 5 nuevo (sincronizar STATUS.md), commit renumerado a paso 6, regla nueva
 - `.docker/compose/dev.yml` — tag `v0.9.5` → `v0.9.6`
 - `.docker/openweb/workflows/update_workflow.md` — paso 7 (parche rebrand), cabecera prod/dev, renumeración 8-10

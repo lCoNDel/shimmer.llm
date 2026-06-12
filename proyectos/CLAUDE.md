@@ -17,7 +17,7 @@ Núcleo: **Open WebUI + Docker + Ollama**. Ollama corre en el host Windows; el r
 | Interfaz principal | Open WebUI v0.9.4 | 3000 (prod) / 3002 (dev) |
 | Alternativa | AnythingLLM | 3001 |
 | LLM local | Ollama (host Windows) | 11434 |
-| Carta náutica | tsamaps (FastAPI + Leaflet) | 5050 |
+| Carta náutica (EOL — solo demos) | tsamaps (FastAPI + Leaflet) | 5050 |
 | Acceso a archivos | Filebrowser (inyectable, sin imagen Docker) | 8001–8002 |
 | Bots | Python — Long Polling | Sin puerto |
 
@@ -31,8 +31,8 @@ Esquema de puertos — consultarlo siempre antes de añadir un nuevo servicio:
 | 3003–3099 | Reservado (Flowise, etc.) |
 | 4001–4099 | Reservado para futuros contenedores experimentales |
 | 5000–5049 | APIs nativas, webhooks, microservicios, puentes de IA |
-| 5050 | tsamaps (prod y dev comparten puerto — no arrancar simultáneamente) |
-| 5051–5099 | Reservado tsamaps y otros proxies |
+| 5050 | tsamaps (EOL — arranque puntual para demos) |
+| 5051–5099 | Reservado proxies |
 | 8000 | Filebrowser Global (acceso raíz a todo el árbol) |
 | 8001 | Filebrowser Inyectable → Open WebUI |
 | 8002 | Filebrowser Inyectable → AnythingLLM |
@@ -79,6 +79,7 @@ proyectos/
 ├── .docs/      # Documentación de servicios
 ├── .agents/    # Skills y agentes
 ├── .log/       # Changelogs de sesión por proyecto (ACTIVO — leer antes de modificar)
+├── .shimmercloud/  # Migración a Azure: plan de 5 fases y registro de ADRs
 ├── .tunnel/    # Accesos rápidos para exponer servicios (Tailscale)
 └── .webapps/   # Proyectos web del ecosistema Shimmer
 ```
@@ -136,14 +137,14 @@ Un único archivo por día. Si en la sesión se trabajó en varios proyectos, el
 ### `.webapps/`
 ```
 .webapps/
-├── prod/tsamaps/   # Carta náutica interactiva — única copia activa, puerto 5050
-└── antiguos/       # Archivados — excluidos de git
+├── prod/           # Vacía — reservada para futuros proyectos web en producción
+└── antiguos/       # Archivados EOL — excluidos de git (excepción: tsamaps, versionado)
+    └── tsamaps/    # Carta náutica — EOL, arrancable solo para demos (puerto 5050)
 ```
 
-**tsamaps** — app web (HTML/CSS/JS vanilla, Leaflet, OpenSeaMap, CartoDB) con servidor FastAPI consolidado en el puerto 5050 (estáticos + proxy `/chat` hacia Open WebUI).
-Archivos principales: `app.js`, `index.html`, `index.css`, `responsive.css`, `server.py`.
-Todo el JS en un único `DOMContentLoaded`. Arrancado vía `docker compose` con `proxy.yml` → servicio `tsamaps_server`.
-**Changelogs en `.log/`** — incluyen contexto técnico exacto para agentes. Leer antes de modificar la app.
+**tsamaps** — **EOL desde 2026-06-12**: sin desarrollo activo, archivado como fuente de conocimiento. App web (HTML/CSS/JS vanilla, Leaflet, OpenSeaMap, CartoDB) con servidor FastAPI en el puerto 5050 (estáticos + proxy `/chat` hacia Open WebUI).
+Para enseñar la demo: skill `tsamaps-prod` → `ops/tsamaps-demo-start.ps1` (cadena completa open-webui + bot + tsamaps_server).
+Sus changelogs en `.log/` siguen siendo material de consulta válido.
 
 ---
 
@@ -153,12 +154,11 @@ Todo el JS en un único `DOMContentLoaded`. Arrancado vía `docker compose` con 
 |---|---|---|
 | `prod.yml` | `1-produccion` | open-webui (3000), anything-llm (3001) |
 | `dev.yml` | `2-desarrollo` | open-webui-dev (3002) |
-| `proxy.yml` | `3-proxy` | tsamaps_server (5050) |
+| `proxy.yml` | `3-proxy` | tsamaps_server (5050) — EOL, solo demos |
 | `bots.yml` | `4-bots` | asistente_nautico, asistente_servicio |
 
 **Restricciones:**
 - No arrancar `open-webui` (prod) y `open-webui-dev` simultáneamente — comparten volumen `open-webui`.
-- No arrancar `tsamaps_server` de dev y prod simultáneamente — comparten el puerto 5050.
 
 ---
 
@@ -184,7 +184,8 @@ Trabajo activo. Cambios libres. Se sincronizan manualmente a prod una vez valida
 3. Una autorización en `dev/` **no implica autorización en `prod/`**.
 
 ### `.webapps/antiguos/`
-No se modifican.
+**Estado EOL** — todo su contenido es archivo: no se modifica, solo consulta como fuente de conocimiento.
+Excepción operativa: tsamaps puede arrancarse puntualmente para demos (skill `tsamaps-prod`), sin tocar su código.
 
 ---
 
@@ -211,6 +212,7 @@ La skill `asistente-nautico-touron` contiene datos reales — tratar con discrec
 
 - **Fase**: Demo y testing en local (Windows)
 - **Plataforma elegida**: Open WebUI (decisión firme — LibreChat evaluado y descartado)
-- **Próximo paso**: Despliegue en servidor dedicado (pendiente de máquina)
+- **Próximo paso**: migración a Azure (aprobada, objetivo noviembre 2026) → `.shimmercloud/`
+- **tsamaps**: EOL (junio 2026) — archivado en `.webapps/antiguos/`, arrancable solo para demos
 - **RAG SharePoint**: diseñado, pendiente → `.backlog/rag_sharepoint/`
 - **Modelo de embeddings**: por decidir (`nomic-embed-text` o `mxbai-embed-large`)

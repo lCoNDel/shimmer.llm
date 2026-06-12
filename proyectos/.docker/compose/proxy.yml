@@ -3,6 +3,7 @@ name: 3-proxy
 services:
 
   # servidor tsamaps + proxy hacia open webui
+  # proyecto EOL — solo se arranca puntualmente para demos (ops/tsamaps-demo-start.ps1)
   tsamaps_server:
     image: python:3.11-slim
     container_name: tsamaps_server
@@ -10,7 +11,7 @@ services:
     ports:
       - "5050:5050"
     volumes:
-      - ../../.webapps/prod/tsamaps:/app
+      - ../../.webapps/antiguos/tsamaps:/app
       - ../../.docker/certs:/certs:ro
     working_dir: /app
     extra_hosts:

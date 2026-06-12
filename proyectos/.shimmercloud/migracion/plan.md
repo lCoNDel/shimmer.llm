@@ -15,7 +15,6 @@
 - [ ] Abrir puertos necesarios en el NSG (Network Security Group):
   - 22 (SSH — restringido a IP de Touron)
   - 80 / 443 (HTTP/HTTPS — acceso a Open WebUI)
-  - 5050 (tsamaps)
 
 ### Fase 1 — Servidor base
 > Primera conexión a la VM. Preparar el entorno antes de desplegar nada.
@@ -39,7 +38,6 @@
 - [ ] Importar Knowledge Base (Manuales Mercury)
 - [ ] Verificar RAG funcional contra Azure OpenAI
 - [ ] Desplegar y verificar bot Telegram en dev
-- [ ] Desplegar y verificar tsamaps en dev
 
 ### Fase 3 — Entorno de producción
 > Solo cuando dev esté validado al 100%.
@@ -49,7 +47,6 @@
 - [ ] Configurar branding Touron LLM (CSS, favicon, parche env.py)
 - [ ] Migrar Knowledge Base desde entorno local (backup + restore de volumen)
 - [ ] Configurar bot Telegram apuntando a prod
-- [ ] Desplegar tsamaps prod
 - [ ] Verificar cadena completa: usuario → Open WebUI → Azure OpenAI → RAG
 
 ### Fase 4 — Acceso y seguridad
@@ -86,4 +83,5 @@
 
 - No arrancar prod y dev simultáneamente si comparten volumen Open WebUI — misma restricción que en local.
 - El parche `env.py` de Open WebUI para eliminar el sufijo " (Open WebUI)" se pierde al recrear el contenedor — reaplicar tras cada recreación.
-- La API key de Open WebUI prod (`sk-...`) cambiará al migrar — actualizar en `server.py` de tsamaps y en `asistente_nautico.py`.
+- La API key de Open WebUI prod (`sk-...`) cambiará al migrar — actualizar en `asistente_nautico.py`.
+- **tsamaps queda fuera de la migración** — proyecto EOL desde 2026-06-12, archivado en `.webapps/antiguos/tsamaps/`; solo se arranca puntualmente para demos en el entorno local.

@@ -4,7 +4,7 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
-| 2026-06-12 | tsamaps | eol, archivado, fuente-conocimiento, backlog, descarte | tsamaps declarado EOL: sin desarrollo activo, archivado como fuente de conocimiento; ideas de backlog descartadas; fuera de la migración Azure | changelog_2026-06-12.md |
+| 2026-06-12 | tsamaps, docker, claude | eol, archivado, antiguos, git-mv, demo, scripts, fuente-conocimiento | tsamaps EOL: movido a .webapps/antiguos/ (versionado por excepción al gitignore), scripts demo reubicados a ops/, proxy.yml/skill/CLAUDE.md/plan Azure actualizados; arrancable solo para demos | changelog_2026-06-12.md |
 | 2026-06-12 | docs, claude | status-md, readme, contexto, claude-ai, movil, fin-sesion, skill | Nuevo STATUS.md en raíz como puente de contexto con claude.ai móvil; skill fin-sesion con paso 5 para sincronizarlo; README raíz actualizado (Azure, v0.9.6, estructura) | changelog_2026-06-12.md |
 | 2026-06-12 | openweb, docker | open-webui, v0.9.6, upgrade, dev, backup, chat_id, fix | Open WebUI Dev actualizado a v0.9.6 (fix bug chat_id API); parche rebrand env.py pasa a sed por patrón; prod parado pendiente de validación | changelog_2026-06-12.md |
 | 2026-06-12 | docs, claude | workflow, update, parche, redundancia, claude-md | update_workflow.md como fuente única: paso 7 parche rebrand + cabecera prod/dev; CLAUDE.md solo hecho + puntero | changelog_2026-06-12.md |

@@ -82,7 +82,7 @@ cierre de cada sesión con la skill `fin-sesion`). El resto vive bajo `proyectos
 | `.log/` | Changelogs de sesión (`changelog_YYYY-MM-DD.md`) + `CHANGELOG_INDEX.md`. Fuente de verdad del histórico técnico |
 | `.shimmercloud/` | Proyecto migración Azure: CLAUDE.md propio, `arquitectura/decisiones.md` (ADRs), `migracion/plan.md` (5 fases) |
 | `.tunnel/` | Scripts legacy de exposición de servicios (Tailscale gestiona el túnel actual) |
-| `.webapps/` | `prod/tsamaps/` — carta náutica (app.js, index.html, server.py FastAPI). Proyecto EOL, conservado como fuente de conocimiento |
+| `.webapps/` | `antiguos/` — proyectos EOL (excluidos de git salvo tsamaps, que sigue versionado). `antiguos/tsamaps/` — carta náutica archivada como fuente de conocimiento, arrancable para demos. `prod/` queda vacía para futuros proyectos web |
 
 ---
 
@@ -92,7 +92,7 @@ cierre de cada sesión con la skill `fin-sesion`). El resto vive bajo `proyectos
 |---|---|---|
 | Open WebUI ("Touron LLM") | **Producción** (parado temporal, §2) | Plataforma definitiva. Rebrand: CSS azul marino + favicon + parche env.py (se pierde al recrear contenedor; se reaplica por sed por patrón) |
 | Bot Telegram asistente_nautico | **Producción** | RAG con native function calling, ciclo de tool calls client-side, búsqueda web DDGS, análisis de PDFs (pymupdf), citas con fuentes reales |
-| tsamaps | **EOL — archivado** (12-jun-2026) | Carta náutica OpenSeaMap/CartoDB completa (meteo, radar, viento, MOB, GPS, chat IA vía proxy a Open WebUI). Desarrollo finalizado; se conserva como fuente de conocimiento (Leaflet, proxy FastAPI, integración chat) para futuros proyectos |
+| tsamaps | **EOL — archivado** (12-jun-2026) | Carta náutica OpenSeaMap/CartoDB completa (meteo, radar, viento, MOB, GPS, chat IA vía proxy a Open WebUI). Movida a `.webapps/antiguos/tsamaps/`; sin desarrollo, conservada como fuente de conocimiento. Sigue siendo arrancable para enseñar la demo (scripts `tsamaps-demo-start/stop.ps1`: open-webui + bot + tsamaps en 5050) |
 | Tools Open WebUI estables | **Producción** | `query_knowledge` (RAG custom), `calculadora`, `read_file`, `read_g3` (CSV diagnóstico Mercury G3), `generate_doc` |
 | Tools experimentales (`dev_*`) | **En desarrollo** | Versiones avanzadas en dev: query_knowledge v2.0 (Valves, multi-KB, bilingüe en una llamada), read_g3 v2.1 (agregados + tabla 134 códigos de fallo Mercury), calculadora/read_file/generate_doc v1.1 |
 | Bot asistente_servicio | **Pendiente** | Solo esqueleto: sin token, sin modelo, handlers vacíos |
@@ -152,9 +152,8 @@ Estado: **Fase 0 sin iniciar** (nada aprovisionado en Azure todavía).
 | 2 — Dev primero | dev.yml sin Ollama → Azure OpenAI; validar RAG y bot en dev | Pendiente |
 | 3 — Producción | prod.yml, branding, migrar Knowledge Base (backup+restore volumen) | Pendiente |
 
-Nota: el plan escrito en `.shimmercloud/migracion/plan.md` aún incluye desplegar
-tsamaps en Azure, anterior a su paso a EOL (12-jun) — tsamaps queda fuera del
-alcance de la migración. [VERIFICAR] si se actualiza el plan.
+tsamaps queda fuera del alcance de la migración (EOL); el plan y los ADRs ya lo
+reflejan.
 | 4 — Acceso/seguridad | HTTPS, dominio, Tailscale, revisión de secretos | Pendiente |
 | 5 — RAG SharePoint piloto | App Registration, sync contra KB de prod, embeddings duales | Pendiente |
 

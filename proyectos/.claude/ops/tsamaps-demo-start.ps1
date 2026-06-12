@@ -1,3 +1,5 @@
+# tsamaps (EOL) — arranque puntual de la demo completa: open-webui + bot + tsamaps_server
+# La app vive archivada en .webapps/antiguos/tsamaps (montada por proxy.yml)
 $proxyCompose = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\proxy.yml"
 $prodCompose  = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\prod.yml"
 $botsCompose  = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\bots.yml"

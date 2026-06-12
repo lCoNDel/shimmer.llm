@@ -1,2 +1,5 @@
 *
 !.gitignore
+# tsamaps: EOL pero versionado — fuente de conocimiento y demo puntual
+!tsamaps/
+!tsamaps/**

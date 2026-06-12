@@ -66,7 +66,7 @@ Resumen de lo relevante para la migración:
 
 - **Open WebUI v0.9.4** con tools Python, Knowledge Base (ChromaDB), branding Touron
 - **Bot Telegram** (`asistente_nautico.py`) — long polling, ciclo de tool calls, RAG
-- **tsamaps** — app web FastAPI + Leaflet, chat integrado contra Open WebUI
+- **tsamaps** — EOL desde 2026-06-12, fuera de la migración (archivado en `.webapps/antiguos/`)
 - **Tools activas**: `query_knowledge.py`, `web_search.py`, `calculadora.py`, `read_file.py`, `read_g3.py`, `generate_doc.py`
 - **Knowledge Base**: Manuales Mercury, embeddings bge-m3, ChromaDB interno de Open WebUI
 

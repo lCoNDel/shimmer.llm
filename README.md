@@ -96,7 +96,7 @@ proyectos/
 ├── .shimmercloud/          # Migración a Azure: plan de 5 fases y registro de ADRs
 ├── .tunnel/                # Scripts legacy de exposición de servicios
 └── .webapps/
-    └── prod/
+    └── antiguos/
         └── tsamaps/        # Carta náutica — EOL, archivada como fuente de conocimiento
             ├── app.js      # Lógica frontend (Leaflet, chat, búsqueda)
             ├── index.html
