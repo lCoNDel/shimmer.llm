@@ -5,7 +5,7 @@ services:
   # clon de open-webui para desarrollo y tests extremos — comparte volumen con prod
   # no usar simultáneamente con open-webui (prod) para evitar conflictos en el volumen
   open-webui-dev:
-    image: ghcr.io/open-webui/open-webui:v0.9.5
+    image: ghcr.io/open-webui/open-webui:v0.9.6
     container_name: open-webui-dev
     restart: "no"
     ports:

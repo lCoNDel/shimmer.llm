@@ -168,7 +168,7 @@ Todo el JS en un único `DOMContentLoaded`. Arrancado vía `docker compose` con 
 - `WEBUI_NAME=Touron LLM` en `dev.yml`
 - `custom.css` montado en `/app/build/static/custom.css` — paleta azul marino Touron
 - `favicon.png` montado en `/app/build/static/favicon.png` — logo Touron redondeado
-- Parche en `env.py` del contenedor para eliminar el sufijo `(Open WebUI)` — **se pierde al recrear el contenedor**, hay que reaplicar con: `docker exec open-webui-dev sh -c "sed -i '131,132d' /app/backend/open_webui/env.py" && docker restart open-webui-dev`
+- Parche en `env.py` del contenedor para eliminar el sufijo `(Open WebUI)` — **se pierde al recrear el contenedor**; reaplicar según `.docker/openweb/workflows/update_workflow.md` (paso 7)
 
 ---
 

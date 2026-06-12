@@ -1,6 +1,8 @@
 # Workflow: Actualización de Open WebUI
 
 > Procedimiento para agentes (Claude Code). Seguir los pasos en orden.
+>
+> Los pasos usan prod (`prod.yml`, contenedor `open-webui`, puerto 3000). Para actualizar dev, sustituir por `dev.yml`, `open-webui-dev` y puerto 3002. Restricción de volumen compartido prod/dev: ver CLAUDE.md.
 
 ---
 
@@ -65,23 +67,41 @@ docker compose -f proyectos/.docker/compose/prod.yml up -d --force-recreate open
 
 ---
 
-## Paso 7 — Verificar logs
+## Paso 7 — Reaplicar parche rebrand (Touron LLM)
+
+Al recrear el contenedor se pierde el parche de `env.py` que elimina el sufijo `(Open WebUI)` del nombre. Reaplicar con:
+
+```bash
+docker exec open-webui sh -c "sed -i '/^if WEBUI_NAME/,+1d' /app/backend/open_webui/env.py" && docker restart open-webui
+```
+
+Borra por patrón el bloque `if WEBUI_NAME != 'Open WebUI': WEBUI_NAME += ' (Open WebUI)'`. **No usar números de línea** — cambian con cada versión (131-132 en v0.9.4/0.9.5, 772-773 en v0.9.6). Verificar antes que el patrón existe y es único:
+
+```bash
+docker exec open-webui sh -c "grep -c '^if WEBUI_NAME' /app/backend/open_webui/env.py"
+```
+
+Si devuelve `0` (parche ya aplicado o código movido), no ejecutar el sed a ciegas — localizar el bloque con `grep -n 'Open WebUI' env.py` y reportar al usuario si ha cambiado.
+
+---
+
+## Paso 8 — Verificar logs
 
 ```bash
 docker logs open-webui --tail 50
 ```
 
-Confirmar que no hay errores de arranque. Si los hay, detener y reportar al usuario.
+Confirmar que no hay errores de arranque y que las migraciones alembic terminaron. Si hay errores, detener y reportar al usuario.
 
 ---
 
-## Paso 8 — Verificar UI
+## Paso 9 — Verificar UI
 
-Comprobar que http://localhost:3000 responde y carga la interfaz correctamente.
+Comprobar que http://localhost:3000 responde y carga la interfaz correctamente, con el nombre "Touron LLM" sin sufijo.
 
 ---
 
-## Paso 9 — Reportar al usuario
+## Paso 10 — Reportar al usuario
 
 Informar de:
 - Versión anterior
