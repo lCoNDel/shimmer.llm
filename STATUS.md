@@ -1,6 +1,6 @@
 # STATUS — Shimmer LLM
 
-> **Última actualización: 2026-06-12**
+> **Última actualización: 2026-06-14**
 > Documento autocontenido de estado del proyecto. Es la única fuente de contexto
 > para consultas sin acceso al repositorio. Se actualiza al cierre de cada sesión.
 
@@ -54,7 +54,7 @@ vía `host.docker.internal:11434`. Todo lo demás corre en Docker Desktop.
 | Filebrowser global | Docker (tools.yml) | 8000 | Uso puntual |
 | Filebrowser inyectable | Binario inyectado en contenedores | 8001 (OWU) / 8002 (ALLM) | Uso puntual |
 
-**Grupos Docker Compose** (en `.docker/compose/`):
+**Grupos Docker Compose** (en `docker/compose/`):
 `prod.yml` (1-produccion: open-webui + anything-llm) · `dev.yml` (2-desarrollo) ·
 `proxy.yml` (3-proxy: tsamaps_server) · `bots.yml` (4-bots) · `tools.yml` (filebrowser).
 
@@ -76,15 +76,14 @@ cierre de cada sesión con la skill `fin-sesion`). El resto vive bajo `proyectos
 
 | Carpeta | Propósito |
 |---|---|
-| `.backlog/` | Ideas y proyectos futuros. Prefijo `OK` = implementado. Incluye diseños completos (rag_sharepoint, demo_erp_ia) |
 | `.claude/` | Config Claude Code: `ops/` (scripts PowerShell start/stop por servicio) y `commands/` (slash commands) |
-| `.docker/` | Infraestructura: `compose/` (los 5 YML), `.bots/telegram/` (los .py de bots), `branding/` (CSS + favicon Touron), `openweb/tools/` (tools Python para Open WebUI, en `stable/` y `experimental/`), `openweb/workflows/` (procedimientos, p.ej. `update_workflow.md`), `backup/` (backups de volúmenes, fuera de git), `certs/` (TLS Tailscale), `filebrowser/` |
-| `.docs/` | Documentación de servicios (p.ej. template RAG por defecto de Open WebUI) |
-| `.agents/` | Skills de agentes (`skills/<nombre>/SKILL.md`): ai-engineer, asesor-nautico, asistente-nautico-touron, diagnostico-motores, docker-backup, docker-expert, openweb-rebrand, etc. |
-| `.log/` | Changelogs de sesión (`changelog_YYYY-MM-DD.md`) + `CHANGELOG_INDEX.md`. Fuente de verdad del histórico técnico |
-| `.shimmercloud/` | Proyecto migración Azure: CLAUDE.md propio, `arquitectura/decisiones.md` (ADRs), `migracion/plan.md` (5 fases) |
-| `.tunnel/` | Scripts legacy de exposición de servicios (Tailscale gestiona el túnel actual) |
-| `.webapps/` | `antiguos/` — proyectos EOL (excluidos de git salvo tsamaps, que sigue versionado). `antiguos/tsamaps/` — carta náutica archivada como fuente de conocimiento, arrancable para demos. `prod/` queda vacía para futuros proyectos web |
+| `plan/` | Todo lo que está por hacer: `ideas/` (bloc de notas libre), `backlog/` (proyectos en revisión/implementación — incluye diseños completos rag_sharepoint, demo_erp_ia), `shimmercloud/` (migración Azure: CLAUDE.md propio, ADRs, plan 5 fases) |
+| `agents/` | Skills de agentes (`skills/<nombre>/SKILL.md`): ai-engineer, asesor-nautico, asistente-nautico-touron, diagnostico-motores, docker-backup, docker-expert, openweb-rebrand, etc. |
+| `docker/` | Infraestructura: `compose/` (los 5 YML), `bots/telegram/` (los .py de bots), `branding/` (CSS + favicon Touron), `openweb/tools/` (tools Python para Open WebUI, en `stable/` y `experimental/`), `openweb/workflows/` (procedimientos, p.ej. `update_workflow.md`), `backup/` (backups de volúmenes, fuera de git), `certs/` (TLS Tailscale), `filebrowser/` |
+| `docs/` | Documentación de servicios (p.ej. template RAG por defecto de Open WebUI) |
+| `log/` | Changelogs de sesión (`changelog_YYYY-MM-DD.md`) + `CHANGELOG_INDEX.md`. Fuente de verdad del histórico técnico |
+| `tunnel/` | Scripts legacy de exposición de servicios (Tailscale gestiona el túnel actual) |
+| `webapps/` | `antiguos/` — proyectos EOL (excluidos de git salvo tsamaps, que sigue versionado). `antiguos/tsamaps/` — carta náutica archivada como fuente de conocimiento, arrancable para demos. `prod/` queda vacía para futuros proyectos web |
 
 ---
 

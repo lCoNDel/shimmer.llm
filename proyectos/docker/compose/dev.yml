@@ -12,9 +12,9 @@ services:
       - "3002:3000"
     volumes:
       - open-webui:/app/backend/data
-      - C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\branding\custom.css:/app/build/static/custom.css:ro
-      - C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\branding\favicon.png:/app/build/static/favicon.png:ro
-      - C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\branding\favicon.png:/app/build/static/favicon-96x96.png:ro
+      - C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\docker\branding\custom.css:/app/build/static/custom.css:ro
+      - C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\docker\branding\favicon.png:/app/build/static/favicon.png:ro
+      - C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\docker\branding\favicon.png:/app/build/static/favicon-96x96.png:ro
     environment:
       - PORT=3000
       - OLLAMA_BASE_URL=http://host.docker.internal:11434

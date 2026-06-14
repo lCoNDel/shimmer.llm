@@ -11,8 +11,8 @@ services:
     ports:
       - "5050:5050"
     volumes:
-      - ../../.webapps/antiguos/tsamaps:/app
-      - ../../.docker/certs:/certs:ro
+      - ../../webapps/antiguos/tsamaps:/app
+      - ../../docker/certs:/certs:ro
     working_dir: /app
     extra_hosts:
       - "host.docker.internal:host-gateway"

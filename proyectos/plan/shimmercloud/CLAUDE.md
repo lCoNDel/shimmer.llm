@@ -2,7 +2,7 @@
 
 ## Qué es este directorio
 
-`.shimmercloud/` contiene todo lo relativo al despliegue de Shimmer en Azure cloud.
+`plan/shimmercloud/` contiene todo lo relativo al despliegue de Shimmer en Azure cloud.
 Es el sucesor del entorno local (Windows 11 + Docker Desktop + Ollama) que está actualmente en uso.
 
 Este `CLAUDE.md` es el punto de entrada para cualquier sesión de trabajo sobre la migración.
@@ -59,14 +59,14 @@ Mismo modelo que el entorno local actual (prod.yml / dev.yml), pero en la VM Azu
 
 ## Entorno actual (origen de la migración)
 
-El entorno que se está migrando está documentado en `../CLAUDE.md` (directorio `proyectos/`).
+El entorno que se está migrando está documentado en `../../CLAUDE.md` (directorio `proyectos/`).
 No duplicar información que ya esté allí.
 
 Resumen de lo relevante para la migración:
 
 - **Open WebUI v0.9.4** con tools Python, Knowledge Base (ChromaDB), branding Touron
 - **Bot Telegram** (`asistente_nautico.py`) — long polling, ciclo de tool calls, RAG
-- **tsamaps** — EOL desde 2026-06-12, fuera de la migración (archivado en `.webapps/antiguos/`)
+- **tsamaps** — EOL desde 2026-06-12, fuera de la migración (archivado en `webapps/antiguos/`)
 - **Tools activas**: `query_knowledge.py`, `web_search.py`, `calculadora.py`, `read_file.py`, `read_g3.py`, `generate_doc.py`
 - **Knowledge Base**: Manuales Mercury, embeddings bge-m3, ChromaDB interno de Open WebUI
 
@@ -75,7 +75,7 @@ Resumen de lo relevante para la migración:
 ## Estructura de este directorio
 
 ```
-.shimmercloud/
+plan/shimmercloud/
 ├── CLAUDE.md           # Este archivo — leer siempre primero
 ├── arquitectura/       # Diagramas y decisiones de arquitectura
 ├── infraestructura/    # IaC, Bicep/Terraform, configuración Azure

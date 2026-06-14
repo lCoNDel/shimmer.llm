@@ -4,6 +4,7 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-06-14 | estructura, claude | reestructuracion, carpetas, puntos, plan, backlog, ideas, shimmercloud | Carpetas de proyectos/ sin punto (solo .claude/); plan/ agrupa backlog/, ideas/ y shimmercloud/; 152 entradas git mv + 11 ps1 + 3 compose actualizados | changelog_2026-06-14.md |
 | 2026-06-12 | docs | readme, vision, agentes-departamento, tecnico, proposito | README reescrito en registro técnico; propósito corregido: agentes multimodales para toda la empresa, por departamento y a la carta | changelog_2026-06-12.md |
 | 2026-06-12 | tsamaps, docker, claude | eol, archivado, antiguos, git-mv, demo, scripts, fuente-conocimiento | tsamaps EOL: movido a .webapps/antiguos/ (versionado por excepción al gitignore), scripts demo reubicados a ops/, proxy.yml/skill/CLAUDE.md/plan Azure actualizados; arrancable solo para demos | changelog_2026-06-12.md |
 | 2026-06-12 | docs, claude | status-md, readme, contexto, claude-ai, movil, fin-sesion, skill | Nuevo STATUS.md en raíz como puente de contexto con claude.ai móvil; skill fin-sesion con paso 5 para sincronizarlo; README raíz actualizado (Azure, v0.9.6, estructura) | changelog_2026-06-12.md |
