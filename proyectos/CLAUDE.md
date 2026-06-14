@@ -73,28 +73,33 @@ docker exec -it open-webui curl http://host.docker.internal:11434/api/tags
 
 ```
 proyectos/
-├── .backlog/   # Ideas y proyectos futuros (ACTIVO — consultar al planificar)
-├── .claude/    # Configuración Claude Code (no editar)
-├── .docker/    # Infraestructura Docker, bots y workflows
-├── .docs/      # Documentación de servicios
-├── .agents/    # Skills y agentes
-├── .log/       # Changelogs de sesión por proyecto (ACTIVO — leer antes de modificar)
-├── .shimmercloud/  # Migración a Azure: plan de 5 fases y registro de ADRs
-├── .tunnel/    # Accesos rápidos para exponer servicios (Tailscale)
-└── .webapps/   # Proyectos web del ecosistema Shimmer
+├── .claude/        # Configuración Claude Code (no editar)
+├── plan/           # Todo lo que está por hacer
+│   ├── ideas/      # Bloc de notas libre — ideas sin compromiso
+│   ├── backlog/    # Ideas en proceso de revisión o implementación
+│   └── shimmercloud/  # Migración a Azure: plan y registro de ADRs
+├── agents/         # Skills y agentes
+├── docker/         # Infraestructura Docker, bots y workflows
+├── docs/           # Documentación de servicios
+├── log/            # Changelogs de sesión (ACTIVO — leer antes de modificar)
+├── tunnel/         # Accesos rápidos para exponer servicios (Tailscale)
+└── webapps/        # Proyectos web del ecosistema Shimmer
 ```
 
 ---
 
 ## Detalle de Carpetas
 
-### `.backlog/`
-Backlog activo. Prefijo `OK` = ya implementado. Leer antes de planificar trabajo nuevo.
+### `plan/`
+Agrupa todo lo que está por hacer, en tres niveles de madurez:
+- `plan/ideas/` — bloc de notas libre. Ideas sueltas, sin estructura ni compromiso.
+- `plan/backlog/` — ideas en proceso de revisión o implementación activa. Consultar antes de planificar trabajo nuevo.
+- `plan/shimmercloud/` — plan de migración a Azure (aprobado, noviembre 2026). Ver su propio `CLAUDE.md`.
 
-### `.docker/`
+### `docker/`
 ```
-.docker/
-├── .bots/telegram/         # Bots de Telegram (todos los .py van aquí, sin subcarpetas)
+docker/
+├── bots/telegram/          # Bots de Telegram (todos los .py van aquí, sin subcarpetas)
 │   ├── asistente_nautico.py
 │   ├── asistente_servicio.py
 │   └── requirements.txt    # Compartido por todos los bots de Telegram
@@ -114,29 +119,29 @@ Backlog activo. Prefijo `OK` = ya implementado. Leer antes de planificar trabajo
     ├── tools/              # Tools Python para Open WebUI
     └── workflows/          # Procedimientos de operación de Open WebUI
 ```
-Nuevas plataformas de bots → nueva subcarpeta en `.bots/` (ej. `telegram/`). Los `.py` van siempre planos dentro de su carpeta de plataforma.
+Nuevas plataformas de bots → nueva subcarpeta en `bots/` (ej. `telegram/`). Los `.py` van siempre planos dentro de su carpeta de plataforma.
 
-### `.agents/`
-Skills en `.agents/skills/[nombre]/SKILL.md`. Formato y convenciones: ver `.agents/god/SKILL.md`.
+### `agents/`
+Skills en `agents/skills/[nombre]/SKILL.md`. Formato y convenciones: ver `agents/god/SKILL.md`.
 Al crear o modificar una skill, seguir ese estándar.
 
-### `.log/`
+### `log/`
 Changelogs de sesión. Generados automáticamente con la skill `fin-sesion` al cerrar cada sesión de trabajo.
 ```
-.log/
+log/
 └── changelog_YYYY-MM-DD.md
 ```
 Un único archivo por día. Si en la sesión se trabajó en varios proyectos, el changelog los agrupa en secciones. Leer el del día anterior antes de empezar — contiene contexto técnico exacto, decisiones de diseño y estado de variables.
 
-### `.tunnel/`
+### `tunnel/`
 ```
-.tunnel/
+tunnel/
 └── openweb.bat     # Expone Open WebUI (legacy)
 ```
 
-### `.webapps/`
+### `webapps/`
 ```
-.webapps/
+webapps/
 ├── prod/           # Vacía — reservada para futuros proyectos web en producción
 └── antiguos/       # Archivados EOL — excluidos de git (excepción: tsamaps, versionado)
     └── tsamaps/    # Carta náutica — EOL, arrancable solo para demos (puerto 5050)
@@ -144,7 +149,7 @@ Un único archivo por día. Si en la sesión se trabajó en varios proyectos, el
 
 **tsamaps** — **EOL desde 2026-06-12**: sin desarrollo activo, archivado como fuente de conocimiento. App web (HTML/CSS/JS vanilla, Leaflet, OpenSeaMap, CartoDB) con servidor FastAPI en el puerto 5050 (estáticos + proxy `/chat` hacia Open WebUI).
 Para enseñar la demo: skill `tsamaps-prod` → `ops/tsamaps-demo-start.ps1` (cadena completa open-webui + bot + tsamaps_server).
-Sus changelogs en `.log/` siguen siendo material de consulta válido.
+Sus changelogs en `log/` siguen siendo material de consulta válido.
 
 ---
 
@@ -168,22 +173,22 @@ Sus changelogs en `.log/` siguen siendo material de consulta válido.
 - `WEBUI_NAME=Touron LLM` en `dev.yml`
 - `custom.css` montado en `/app/build/static/custom.css` — paleta azul marino Touron
 - `favicon.png` montado en `/app/build/static/favicon.png` — logo Touron redondeado
-- Parche en `env.py` del contenedor para eliminar el sufijo `(Open WebUI)` — **se pierde al recrear el contenedor**; reaplicar según `.docker/openweb/workflows/update_workflow.md` (paso 7)
+- Parche en `env.py` del contenedor para eliminar el sufijo `(Open WebUI)` — **se pierde al recrear el contenedor**; reaplicar según `docker/openweb/workflows/update_workflow.md` (paso 7)
 
 ---
 
 ## Reglas por zona
 
-### `.webapps/dev/`
+### `webapps/dev/`
 Trabajo activo. Cambios libres. Se sincronizan manualmente a prod una vez validados.
 
-### `.webapps/prod/`
+### `webapps/prod/`
 **ADVERTENCIA — Doble autorización antes de cualquier cambio:**
 1. Describir exactamente qué archivo y qué cambio.
 2. Esperar confirmación explícita.
 3. Una autorización en `dev/` **no implica autorización en `prod/`**.
 
-### `.webapps/antiguos/`
+### `webapps/antiguos/`
 **Estado EOL** — todo su contenido es archivo: no se modifica, solo consulta como fuente de conocimiento.
 Excepción operativa: tsamaps puede arrancarse puntualmente para demos (skill `tsamaps-prod`), sin tocar su código.
 
@@ -192,11 +197,12 @@ Excepción operativa: tsamaps puede arrancarse puntualmente para demos (skill `t
 ## Convenciones
 
 - **Idioma**: español siempre, salvo código o contexto técnico.
-- **Skills**: respetar formato de `.agents/god/SKILL.md`.
-- **Docker prod**: `.docker/compose/prod.yml` — no modificar sin confirmar.
-- **Backlog**: consultar `.backlog/` al planificar.
+- **Punto en nombres de carpeta**: reservado exclusivamente para `.claude/` (tooling externo que impone la ruta). El resto de carpetas no llevan punto.
+- **Skills**: respetar formato de `agents/god/SKILL.md`.
+- **Docker prod**: `docker/compose/prod.yml` — no modificar sin confirmar.
+- **Backlog**: consultar `plan/backlog/` al planificar. `plan/ideas/` es libre — solo ideas sueltas.
 - **Puertos**: respetar esquema en la sección "Stack Técnico" de este CLAUDE.md.
-- **Logs**: los changelogs van en `.log/changelog_YYYY-MM-DD.md`, un archivo por día con secciones por proyecto. Leer antes de empezar. Generar con la skill `fin-sesion` al cerrar sesión.
+- **Logs**: los changelogs van en `log/changelog_YYYY-MM-DD.md`, un archivo por día con secciones por proyecto. Leer antes de empezar. Generar con la skill `fin-sesion` al cerrar sesión.
 
 ---
 
@@ -212,7 +218,7 @@ La skill `asistente-nautico-touron` contiene datos reales — tratar con discrec
 
 - **Fase**: Demo y testing en local (Windows)
 - **Plataforma elegida**: Open WebUI (decisión firme — LibreChat evaluado y descartado)
-- **Próximo paso**: migración a Azure (aprobada, objetivo noviembre 2026) → `.shimmercloud/`
-- **tsamaps**: EOL (junio 2026) — archivado en `.webapps/antiguos/`, arrancable solo para demos
-- **RAG SharePoint**: diseñado, pendiente → `.backlog/rag_sharepoint/`
+- **Próximo paso**: migración a Azure (aprobada, objetivo noviembre 2026) → `plan/shimmercloud/`
+- **tsamaps**: EOL (junio 2026) — archivado en `webapps/antiguos/`, arrancable solo para demos
+- **RAG SharePoint**: diseñado, pendiente → `plan/backlog/rag_sharepoint/`
 - **Modelo de embeddings**: por decidir (`nomic-embed-text` o `mxbai-embed-large`)

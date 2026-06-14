@@ -1,7 +1,7 @@
 # tsamaps (EOL) — parada de la demo completa: tsamaps_server + bot + open-webui
-$proxyCompose = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\proxy.yml"
-$prodCompose  = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\prod.yml"
-$botsCompose  = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\.docker\compose\bots.yml"
+$proxyCompose = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\docker\compose\proxy.yml"
+$prodCompose  = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\docker\compose\prod.yml"
+$botsCompose  = "C:\Users\luisc\Documents\GitHub\shimmer.llm\proyectos\docker\compose\bots.yml"
 
 Write-Host "Deteniendo tsamaps_server..."
 docker compose -f $proxyCompose stop tsamaps_server

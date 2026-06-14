@@ -20,10 +20,10 @@ Identifica qué archivos cambiaron y en qué área del proyecto (tsamaps, bots, 
 
 ### 3. Localizar o crear el changelog
 
-Todos los logs van en `.log/` en la raíz de `proyectos/`, un archivo por día:
+Todos los logs van en `log/` en la raíz de `proyectos/`, un archivo por día:
 
 ```
-proyectos/.log/
+proyectos/log/
 └── changelog_YYYY-MM-DD.md
 ```
 
@@ -31,7 +31,7 @@ proyectos/.log/
 - Si ya existe el changelog del día, actualizarlo — no crear uno nuevo.
 - La fecha es siempre la del sistema (`currentDate` en memoria).
 
-**Formato obligatorio** — leer al menos un changelog existente en `.log/` antes de escribir para respetar el estilo:
+**Formato obligatorio** — leer al menos un changelog existente en `log/` antes de escribir para respetar el estilo:
 - Título: `# Changelog — YYYY-MM-DD`
 - Secciones con `##` por área de cambio, subsecciones con `###`
 - Al final, siempre una sección `## Contexto técnico para agentes` con rutas de archivos, variables de estado relevantes y snippets de código si aplica

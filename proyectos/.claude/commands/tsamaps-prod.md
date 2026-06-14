@@ -1,7 +1,7 @@
 # tsamaps-prod — Gestión del servidor tsamaps (EOL)
 
 > **Proyecto EOL desde 2026-06-12** — sin desarrollo activo. La app vive archivada en
-> `.webapps/antiguos/tsamaps/` y solo se arranca puntualmente para enseñar la demo.
+> `webapps/antiguos/tsamaps/` y solo se arranca puntualmente para enseñar la demo.
 > No proponer cambios ni mantenimiento sobre su código.
 
 Gestiona el contenedor `tsamaps_server` (puerto 5050).
