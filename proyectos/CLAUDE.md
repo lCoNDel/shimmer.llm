@@ -131,7 +131,10 @@ Al crear o modificar una skill, seguir ese estándar.
 Changelogs de sesión. Generados automáticamente con la skill `fin-sesion` al cerrar cada sesión de trabajo.
 ```
 log/
-└── changelog_YYYY-MM-DD.md
+├── CHANGELOG_INDEX.md
+└── YYYY/
+    └── MM/
+        └── changelog_YYYY-MM-DD.md
 ```
 Un único archivo por día. Si en la sesión se trabajó en varios proyectos, el changelog los agrupa en secciones. Leer el del día anterior antes de empezar — contiene contexto técnico exacto, decisiones de diseño y estado de variables.
 
@@ -204,7 +207,7 @@ Excepción operativa: tsamaps puede arrancarse puntualmente para demos (skill `t
 - **Docker prod**: `docker/compose/prod.yml` — no modificar sin confirmar.
 - **Plan**: `ideas/` → libre; `spikes/` → en investigación; `backlog/` → comprometido. Consultar `backlog/` al planificar trabajo nuevo.
 - **Puertos**: respetar esquema en la sección "Stack Técnico" de este CLAUDE.md.
-- **Logs**: los changelogs van en `log/changelog_YYYY-MM-DD.md`, un archivo por día con secciones por proyecto. Leer antes de empezar. Generar con la skill `fin-sesion` al cerrar sesión.
+- **Logs**: los changelogs van en `log/YYYY/MM/changelog_YYYY-MM-DD.md`, un archivo por día con secciones por proyecto. Leer antes de empezar. Generar con la skill `fin-sesion` al cerrar sesión.
 
 ---
 

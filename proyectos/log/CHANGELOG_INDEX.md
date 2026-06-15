@@ -4,144 +4,144 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
-| 2026-06-15 | plan, docs | spikes, embudo, triage, agentes, templates, taller-servicio | plan/ con 3 niveles: ideas/→spikes/→backlog/; docs/ reorganizado en templates/ y agentes/; agente taller servicio documentado (en prod) | changelog_2026-06-15.md |
-| 2026-06-14 | estructura, claude | reestructuracion, carpetas, puntos, plan, backlog, ideas, shimmercloud | Carpetas de proyectos/ sin punto (solo .claude/); plan/ agrupa backlog/, ideas/ y shimmercloud/; 152 entradas git mv + 11 ps1 + 3 compose actualizados | changelog_2026-06-14.md |
-| 2026-06-12 | docs | readme, vision, agentes-departamento, tecnico, proposito | README reescrito en registro técnico; propósito corregido: agentes multimodales para toda la empresa, por departamento y a la carta | changelog_2026-06-12.md |
-| 2026-06-12 | tsamaps, docker, claude | eol, archivado, antiguos, git-mv, demo, scripts, fuente-conocimiento | tsamaps EOL: movido a .webapps/antiguos/ (versionado por excepción al gitignore), scripts demo reubicados a ops/, proxy.yml/skill/CLAUDE.md/plan Azure actualizados; arrancable solo para demos | changelog_2026-06-12.md |
-| 2026-06-12 | docs, claude | status-md, readme, contexto, claude-ai, movil, fin-sesion, skill | Nuevo STATUS.md en raíz como puente de contexto con claude.ai móvil; skill fin-sesion con paso 5 para sincronizarlo; README raíz actualizado (Azure, v0.9.6, estructura) | changelog_2026-06-12.md |
-| 2026-06-12 | openweb, docker | open-webui, v0.9.6, upgrade, dev, backup, chat_id, fix | Open WebUI Dev actualizado a v0.9.6 (fix bug chat_id API); parche rebrand env.py pasa a sed por patrón; prod parado pendiente de validación | changelog_2026-06-12.md |
-| 2026-06-12 | docs, claude | workflow, update, parche, redundancia, claude-md | update_workflow.md como fuente única: paso 7 parche rebrand + cabecera prod/dev; CLAUDE.md solo hecho + puntero | changelog_2026-06-12.md |
-| 2026-06-11 | openweb, tools | read_g3, fault-codes, manual-mercury, agregados, agentes | Nueva dev_read_g3 v2.1: análisis por agregados (overview/stats/trend/rows) + tabla FAULT_CODES del manual Mercury (134 fallos) y g3_fault_info | changelog_2026-06-11.md |
-| 2026-06-11 | openweb, tools | query_knowledge, valves, rag, citas, multi-kb, bilingue | Nueva dev_query_knowledge v2.0: Valves configurables, búsqueda bilingüe en una llamada, multi-KB con autodescubrimiento, citas y status nativos | changelog_2026-06-11.md |
-| 2026-06-11 | openweb, tools | read_file, calculadora, generate_doc, search, agentes | dev_read_file/calculadora/generate_doc v1.1: búsqueda en adjuntos, list_attachments, ecuaciones y amortización, code blocks PDF, notas PPTX, Excel numérico | changelog_2026-06-11.md |
-| 2026-06-10 | openweb, tools | reorganizacion, stable, experimental, dev, limpieza | Tools reorganizadas en stable/ (prod) y experimental/ (dev con prefijo dev_); eliminado __pycache__ | changelog_2026-06-10.md |
-| 2026-06-10 | openweb, tools | read_any_file, lector-universal, pptx, paginacion, agentes | Nueva read_any_file.py: lector universal de adjuntos (pptx, json, html, código, fallback texto), multi-adjunto y paginación | changelog_2026-06-10.md |
-| 2026-06-10 | openweb, tools | calculadora, ast-seguro, conversor, finanzas, fechas, agentes | Nueva calculadora_avanzada.py: evaluador AST seguro, estadística, conversor por dimensiones, préstamos, interés compuesto y fechas | changelog_2026-06-10.md |
-| 2026-06-10 | openweb, tools | generate_doc, pdf, pptx, excel-multihoja, fpdf2, agentes | Nueva generate_any_doc.py: genera PDF, PPTX, HTML y texto/código; Excel multi-hoja JSON; docx con bloques de código | changelog_2026-06-10.md |
-| 2026-05-17 | shimmercloud, planificación | azure, migracion, cloud, aprobado, claude-code | Proyecto migración Azure aprobado; creada carpeta .shimmercloud/ con CLAUDE.md, plan de migración (5 fases) y registro de ADRs | changelog_2026-05-17.md |
-| 2026-05-17 | backlog | backlog, mayo2026, consolidado | Nuevo shimmer_backlog_mayo2026.md con estado completo del backlog; taller_servicio y docx_open_terminal añadidos | changelog_2026-05-17.md |
-| 2026-05-17 | openweb, tools | query_knowledge, footer, citas | query_knowledge: footer de citas suavizado (imperativo → instrucción suave) | changelog_2026-05-17.md |
-| 2026-05-15 | tsamaps | fix, puerto, api-key, prod | tsamaps reconectado a prod (3000); API key sk-... restaurada, eliminado JWT de sesión | changelog_2026-05-15.md |
-| 2026-05-13 | bot, docker, openweb | telegram, prod, rag, tool-calls, branding, system-prompt, fix | Bot migrado a prod (3000); fix bucle tool_calls + footer duplicado; branding prod.yml; system prompt al Workspace Model | changelog_2026-05-13.md |
-| 2026-05-13 | tsamaps, claude | limpieza, dev, referencias, skill, obsoleta | Referencias a dev/tsamaps purgadas: Runtime.md, scripts, CLAUDE.md y skill tsamaps-dev eliminada | changelog_2026-05-13.md |
-| 2026-05-13 | tsamaps | limpieza, dev, eliminado, prod-unico | dev/tsamaps eliminado; solo existe prod/tsamaps montado en proxy.yml | changelog_2026-05-13.md |
-| 2026-05-13 | tsamaps, bot, docker | bug, chat_id, openweb-dev, puerto-3002, workaround | tsamaps y bot reconectados a Open WebUI dev (3002); workaround bug chat_id None en v0.9.4 | changelog_2026-05-13.md |
-| 2026-05-13 | openweb, tools | query_knowledge, file_filter, rag, chromadb | query_knowledge v1.2: file_filter opcional para buscar en archivo concreto de la KB | changelog_2026-05-13.md |
-| 2026-05-13 | backlog, docs | rag, semantica, vectores, coseno, embeddings | Explicación completa búsqueda semántica RAG con ejemplo Verado V12 | changelog_2026-05-13.md |
-| 2026-05-12 | docker, claude | CLAUDE.md, stack, puertos, branding, compose-grupos | CLAUDE.md actualizado: v0.9.4, puertos corregidos, branding/, grupos Compose, LibreChat descartado | changelog_2026-05-12.md |
-| 2026-05-12 | docker | librechat, evaluacion, descarte, limpieza | LibreChat desplegado, evaluado y eliminado completamente; Open WebUI decisión firme | changelog_2026-05-12.md |
-| 2026-05-12 | docker | compose, grupos, prefijos, orden, docker-desktop | Compose renombrados con prefijos 1-/2-/3-/4- para orden en Docker Desktop | changelog_2026-05-12.md |
-| 2026-05-12 | docker, tsamaps | tsamaps_server, limpieza, proxy, renombrado | tsamaps_server_prod eliminado; tsamaps_server_dev→tsamaps_server; proxy.yml limpio | changelog_2026-05-12.md |
-| 2026-05-12 | docker, openweb | rebrand, touron-llm, css, favicon, branding | Rebrand open-webui-dev como Touron LLM: paleta azul marino, favicon logo Touron, env.py patch | changelog_2026-05-12.md |
-| 2026-05-12 | docker, openweb | open-webui-dev, clon, dev, puerto-3002, volumen-compartido | Clon Open WebUI en puerto 3002 para dev; comparte volumen prod; comando /openweb-dev | changelog_2026-05-12.md |
-| 2026-05-12 | backlog, openweb, tools | demo, erp, csv, margenes, stock, pronostico, backlog | Demo ERP-IA archivada en backlog: tool analisis_negocio.py + 3 CSVs ficticios Touron (50 refs, 2020-2025) | changelog_2026-05-12.md |
-| 2026-05-12 | docker | wsl, docker-desktop, arranque, incidencia | Docker Desktop no arrancaba por WSL en estado Stopped; resuelto con wsl --shutdown | changelog_2026-05-12.md |
-| 2026-05-12 | openweb | prompts, skills, demo, direccion, github-mcp | Skill analista-nautico-touron y prompts /nautica-electrica-informe y /nautica-github para demo dirección | changelog_2026-05-12.md |
-| 2026-05-12 | docker | https, openweb, revertido | Intento HTTPS en Open WebUI (puerto 3000) revertido — uvicorn no recoge SSL_CERTFILE/SSL_KEYFILE | changelog_2026-05-12.md |
-| 2026-05-12 | tsamaps | service-tags, chips, css, distribuidores | description de distribuidores renderizado como chips/pills en popup y panel lateral; .dealer-desc eliminada | changelog_2026-05-12.md |
-| 2026-05-12 | openweb, tools | generate_doc, txt, eliminado | generate_doc: TXT eliminado; nota en generate_md para no usarla con HTML | changelog_2026-05-12.md |
-| 2026-05-12 | docker | prod, ddgs, limpieza | DDGS_BACKEND=google eliminado de prod.yml (redundante con web_search.py) | changelog_2026-05-12.md |
-| 2026-05-11 | bot, telegram | system-prompt, equipo, roles, separador, touron | Revisión completa del equipo en SYSTEM_PROMPT: roles explícitos, apellidos completos, separador ·, altas/bajas personal | changelog_2026-05-11.md |
-| 2026-05-10 | tsamaps, infraestructura | https, tailscale, gps, tls, certificados | HTTPS con Tailscale en tsamaps: certificados TLS en .docker/certs/, uvicorn con ssl, GPS móvil operativo | changelog_2026-05-10.md |
-| 2026-05-09 | bot, telegram | system-prompt, rag, identidad, touron | System prompt completo con identidad corporativa, equipo y productos; bot autónomo sin depender del agente Open WebUI | changelog_2026-05-09.md |
-| 2026-05-09 | openweb, tools | read_g3, read_file, generate_doc, renombrado | Nueva tool read_g3.py (CSV Mercury G3); doc_reader→read_file, doc_gen→generate_doc; calculadora v1.1 con temperatura y área | changelog_2026-05-09.md |
-| 2026-05-09 | openweb, docker | open-webui, v0.9.4, upgrade, backup | Open WebUI actualizado a v0.9.4; backup volumen 2,3 GB; query_knowledge v1.2 con file_filter por archivo | changelog_2026-05-09.md |
-| 2026-05-08 | infraestructura | tailscale, ngrok, migracion, scripts | ngrok jubilado y eliminado de todos los scripts y docs; Tailscale gestiona el túnel | changelog_2026-05-08.md |
-| 2026-05-08 | openweb, tools | query_knowledge, scores, web_search, citas | query_knowledge v0.9 con scores ChromaDB en footer; nueva tool web_search.py custom con DDGS google backend | changelog_2026-05-08.md |
-| 2026-05-08 | docs, onedrive | presentacion, memoria, html | presentación.html: fases sin fechas, eliminada Fase 5, nuevo layout análisis económico; 00_memoria.html: sección compromisos | changelog_2026-05-08.md |
-| 2026-05-07 | openweb, tools | query_knowledge, rag-custom, built-in, chroma | Nueva tool query_knowledge.py: reemplaza Built-in Knowledge, queries secuenciales, footer citas embebido | changelog_2026-05-07.md |
-| 2026-05-07 | openweb, tools | doc_reader, doc_gen, renombrado, ddgs | Nueva tool doc_reader.py; generacion_documentos→doc_gen; DDGS_BACKEND=google en prod.yml | changelog_2026-05-07.md |
-| 2026-05-05 | bot, telegram | race-condition, session-chunks, markdown-fallback | _session_chunks convertida a variable local; fallback Markdown→texto plano en send_message | changelog_2026-05-05.md |
-| 2026-05-05 | openweb, tools | generacion_documentos, docx, tablas, xss | Negrita/cursiva inline en DOCX; tablas Markdown en Word; 5 bug fixes (XSS, Excel delimiter, JSON inválido) | changelog_2026-05-05.md |
-| 2026-05-05 | tsamaps | declinacion, noaa, regla-nautica, app.js | Rumbo magnético en regla náutica via API NOAA; fetchDeclination cacheada por sesión | changelog_2026-05-05.md |
-| 2026-05-05 | openweb, tools | calculadora, nueva-tool | Nueva tool calculadora.py: calculate, convert (10 unidades), vat IVA, margin margen | changelog_2026-05-05.md |
-| 2026-05-04 | claude, ops | commands, ps1, toggle, scripts | 5 nuevos commands Claude (.claude/commands/); carpeta .claude/ops/ con 9 scripts PowerShell de toggle start/stop | changelog_2026-05-04.md |
-| 2026-05-04 | bot, telegram | rag, cache-colecciones, top-k, view_file | Eliminado caché KB collections; top-k 6→15; view_file alias; citas inline; parse_mode Markdown | changelog_2026-05-04.md |
-| 2026-05-04 | openweb | nfc, gpt, rag-pipeline, query-generation | NFC=Default correcto para GPT; qwen3:1.7b problemático como query model; RAG template bilingüe propuesto | changelog_2026-05-04.md |
-| 2026-05-03 | tsamaps | responsive, tablet, breakpoints, orientacion | 4 nuevos breakpoints (tablet portrait/landscape, móvil landscape); pointer:fine fix táctil Samsung; invalidateSize orientación | changelog_2026-05-03.md |
-| 2026-05-03 | tsamaps | refactor, debounce, closePanel, limpieza | closePanel() genérica; debounce() helper; clearDealerMarkers(); tooltips eliminados; variables globales→módulo | changelog_2026-05-03.md |
-| 2026-05-01 | openweb | rag, bge-m3, reranker, chunking | Tuning RAG: chunk 512→384, reranker bge-reranker-v2-m3, threshold 0.3→0.45; PDF Loader Page vs Single documentado | changelog_2026-05-01.md |
-| 2026-05-01 | openweb | uploads, chromadb, limpieza, backlog | Regla operativa: no borrar manualmente /data/; backlog limpieza uploads con scripts comunidad | changelog_2026-05-01.md |
-| 2026-04-30 | tsamaps, backlog | planificación, auditoría, ideas | Auditoría backlog vs app.js; 4 nuevos archivos backlog: calculadora ruta, alertas meteo, declinación magnética, tracking tiempo real | changelog_2026-04-30.md |
-| 2026-04-30 | tsamaps, docker | runtime, start.ps1, stop.ps1, multi-compose | start/stop runtime tsamaps dev amplíados: ahora gestionan open-webui (prod.yml) + asistente_nautico (bots.yml) + tsamaps_server_dev | changelog_2026-04-30.md |
-| 2026-04-30 | claude, config | CLAUDE.md, open-webui, versión | Open WebUI actualizado de v0.8.12 a v0.9.2 en CLAUDE.md | changelog_2026-04-30.md |
-| 2026-04-30 | docs, onedrive | memoria.html, tabla, separador | Eliminada tabla "Componentes principales" y hr duplicado de 00_memoria.html (OneDrive, fuera de git) | changelog_2026-04-30.md |
-| 2026-04-29 | bot, telegram | rag, native, tool-calls, open-webui | Ciclo tool calls RAG client-side: get_model_kb_collections, run_knowledge_search, execute_tool_calls, call_openwebui loop 8 iter | changelog_2026-04-29.md |
-| 2026-04-29 | bot, telegram | citas, chunks, regex, session | Sistema de citas: _session_chunks con índice global, regex [N] en respuesta final para mostrar fuentes reales | changelog_2026-04-29.md |
-| 2026-04-29 | bot, telegram | foto, pendiente, qwen3.5, vision | PENDIENTE: handle_photo roto — modelo test (qwen3.5) no soporta visión; cambiar MODEL_ID a asistente-touron | changelog_2026-04-29.md |
-| 2026-04-29 | bot, telegram | logging, timeout, limpieza, comentarios | timeout 120→300s, logging INFO, comentarios en español, import re movido al top | changelog_2026-04-29.md |
-| 2026-04-26 | tsamaps, docker | logo, cabecera, ibb | Logo cabecera reemplazado por imagen propia en ibb.co | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | modal, info, copyright, comercial | Modal Información reescrito: lenguaje comercial, copyright propio, sin referencias Touron | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | chat, bienvenida, flag, duplicado | chatWelcomeShown flag: mensaje bienvenida solo en primera apertura de sesión | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | css, tap-highlight, mobile, reset | -webkit-tap-highlight-color: transparent en reset global; elimina efecto cuadrado en móvil | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | buscador, mobile, led, active | mobileSearchBtn led azul: add/remove active en apertura/cierre | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | chat, led, active, eliminado | Led azul chatBtn eliminado de CSS y JS | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | radio, led, active, bug, toggle | Led azul radio eliminado; listener reescrito con closeRadioPanel(); swipe-to-close corregido | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | gps, led, syncGpsShortcutBtn, isTrackingActive | syncGpsShortcutBtn(): led GPS vinculado a isTrackingActive como única fuente de verdad | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | weather, mobile, closed, init | Panel condiciones marítimas cerrado por defecto en móvil; desktop lo abre en init | changelog_2026-04-26.md |
-| 2026-04-26 | docker, claude | filebrowser, inyectable, CLAUDE.md | CLAUDE.md actualizado: Filebrowser sin imagen Docker, inject_internal.ps1 | changelog_2026-04-26.md |
-| 2026-04-26 | skills, log | índice, changelog, grep, contexto | CHANGELOG_INDEX.md creado con 63 entradas; skill fin-sesion actualizada con Paso 4 | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | gitignore, viento, json, runtime | wind-global.json y wind-timestamp.json excluidos de git con .gitignore + git rm --cached | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | radar, rainviewer, zoom, bug, tiles | RADAR_MAX_ZOOM 7→6, maxNativeZoom:6 maxZoom:18, tiles escalados en zoom alto | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | radar, animación, bug, parpadeo, load-event | Nueva capa con opacity:0, visible solo tras evento load, elimina capa anterior 200ms | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | radar, zoom, refactor, limpieza | Eliminado bloqueo de zoom, warnRadarZoomLocked, setMinZoom/setMaxZoom y zoomend listener | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | distribuidores, weather, bug, invalidateSize | Al seleccionar distribuidor: restaura weatherPanel y llama invalidateSize | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | vesselFinder, mob, desktop, layout | Botón Cerrar VesselFinder subido a bottom:120px para no solapar alerta MOB | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | responsive, tablet, mob, layout | Breakpoint tablet (769–1024px): MOB a right:60px bottom:20px alineado con botones | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | responsive, mobile, iphone, layout | Breakpoint ≤430px: botones 34px, gap 5px para iPhone 12 y similares | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | viento, open-meteo, feature, wind | Capa viento tiempo real Open-Meteo, rejilla España+Portugal, Leaflet-Velocity | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | viento, clip-path, bug, mobile | clip-path polygon sobre canvas velocity-overlay para recorte geográfico | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | mob, isSosActive, refactor, bloqueo | isSosLocked() eliminado, reemplazado por guard isSosActive en todos los listeners | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | mob, ui, coordenadas, emergencia | Panel MOB: distancia en NM, coordenadas al portapapeles, botones emergencia ES/PT | changelog_2026-04-26.md |
-| 2026-04-26 | tsamaps | limpieza, html, css, huerfano | Código huérfano eliminado: comentarios, tooltips, IDs sin uso | changelog_2026-04-26.md |
-| 2026-04-25 | tsamaps | runtime, powershell, docker, ngrok | start.ps1/stop.ps1 con rutas absolutas Windows, reemplaza .sh | changelog_2026-04-25.md |
-| 2026-04-25 | tsamaps | server, cache, no-store | Cache-Control: no-store en estáticos, eliminados ?v=N de index.html | changelog_2026-04-25.md |
-| 2026-04-25 | tsamaps | mobile, responsive, search-panel, bug | Panel Red de Clientes: fondo invisible en móvil, teclado móvil | changelog_2026-04-25.md |
-| 2026-04-25 | tsamaps | weather, distribuidores, desktop, conflicto | closeWeatherPanel() al abrir Red de Clientes; restaura si weatherWasOpen | changelog_2026-04-25.md |
-| 2026-04-25 | tsamaps | mob, emergencia, telefono, aguas | isInPortugueseWaters(), botones tel: 112/900202202/1520 según aguas | changelog_2026-04-25.md |
-| 2026-04-25 | tsamaps | mob, vesselFinder, bloqueo | MOB desactiva VesselFinder directamente sin pasar por isSosLocked() | changelog_2026-04-25.md |
-| 2026-04-25 | bot, telegram | bot, telegram, teclado, refactor | Teclado persistente, botón búsqueda web, borrar memoria con confirmación | changelog_2026-04-25.md |
-| 2026-04-25 | bot, telegram | bot, telegram, pdf, pymupdf | Análisis de PDFs: extracción con pymupdf, flujo dos pasos, pdf_pending dict | changelog_2026-04-25.md |
-| 2026-04-25 | skills | skills, fin-sesion, slash-command | Skill fin-sesion registrada como slash command en .claude/commands/ | changelog_2026-04-25.md |
-| 2026-04-24 | tsamaps | chat, widget, mobile, desktop | Widget chat: botón flotante, panel glass, drawer móvil, toggle, exclusión mutua | changelog_2026-04-24.md |
-| 2026-04-24 | tsamaps | chat, historial, timeout, sesion | Historial 10 mensajes, timeout 10min, indicador "Escribiendo...", enter para enviar | changelog_2026-04-24.md |
-| 2026-04-24 | tsamaps | server, fastapi, proxy, chat | server.py FastAPI consolida estáticos + proxy /chat en puerto 5050 | changelog_2026-04-24.md |
-| 2026-04-24 | tsamaps | docker, proxy-yml, runtime | proxy.yml: tsamaps_server en python:3.11-slim, host.docker.internal | changelog_2026-04-24.md |
-| 2026-04-24 | tsamaps | mob, gps, ui | Botón MOB renombrado de SOS; GPS toggle correcto con clase active | changelog_2026-04-24.md |
-| 2026-04-24 | skills | skills, log, changelog, fin-sesion | Nueva skill fin-sesion, carpeta .log/, changelogs centralizados | changelog_2026-04-24.md |
-| 2026-04-23 | tsamaps | paneles, refactor, close-functions | closeWeatherPanel/Radio/Search/SunMoon/Chat: funciones centralizadas de cierre | changelog_2026-04-23.md |
-| 2026-04-23 | tsamaps | paneles, swipe, mobile | addSwipeToClose: sunMoonPanel y chatPanel añadidos | changelog_2026-04-23.md |
-| 2026-04-23 | tsamaps | mob, isSosLocked, bloqueo, radio, search | isSosLocked() en radioBtn y openSearchBtn, bloqueo MOB completo | changelog_2026-04-23.md |
-| 2026-04-23 | tsamaps | gps, setInterval, fuga, bug | clearInterval(gpsMarineRefreshId) antes de nuevo setInterval | changelog_2026-04-23.md |
-| 2026-04-23 | tsamaps | radar, setTimeout, fuga, bug | clearTimeout(radarLayerPrevTimeout) antes de cada setTimeout en radarShowFrame | changelog_2026-04-23.md |
-| 2026-04-23 | tsamaps | mapa, click, consolidacion | Doble map.on('click') consolidado en handler único con dispatch por isRulerActive | changelog_2026-04-23.md |
-| 2026-04-23 | tsamaps | html, css, limpieza, huerfano | Título TSA Maps, clases CSS muertas eliminadas, IDs huérfanos quitados | changelog_2026-04-23.md |
-| 2026-04-21 | tsamaps | radar, zoom, bloqueo, bug | Zoom fijado a RADAR_MAX_ZOOM al activar radar, restaurado al desactivar | changelog_2026-04-21.md |
-| 2026-04-21 | tsamaps | radar, race-condition, guard | Guard if(!isRadarActive) return tras await getRainViewerFrames() | changelog_2026-04-21.md |
-| 2026-04-21 | tsamaps | radar, setInterval, fuga, anti-stacking | clearInterval antes de radarAnimInterval y radarRefreshInterval en radarStartAnim | changelog_2026-04-21.md |
-| 2026-04-21 | tsamaps | radar, refresco, frames | radarRefreshFrames() cada 5 min (RADAR_REFRESH_MS), sin interrumpir animación | changelog_2026-04-21.md |
-| 2026-04-08 | tsamaps | distribuidores, push, animacion | search-panel efecto push: width 0→400px con overflow:hidden, search-panel-inner | changelog_2026-04-08.md |
-| 2026-04-08 | tsamaps | mareas, open-meteo, sea-level | Nueva tarjeta Nivel Mar con sea_level_height_msl de Open-Meteo Marine API | changelog_2026-04-08.md |
-| 2026-04-08 | tsamaps | sol, luna, suncalc, feature | Panel Sol/Luna con SunCalc: amanecer, atardecer, fase lunar, coordenadas GPS/clic/centro | changelog_2026-04-08.md |
-| 2026-04-08 | tsamaps | radio, panel, feature, mobile | Radio como panel independiente: radioBtn flotante, radioPanel, swipe-to-close | changelog_2026-04-08.md |
-| 2026-04-08 | tsamaps | radio, feedback, animacion | Botón radio pulsa entre blanco/azul con radioIconPulse mientras reproduce | changelog_2026-04-08.md |
-| 2026-04-08 | tsamaps | mapa, nowrap, minzoom, duplicacion | maxBounds, maxBoundsViscosity:1, noWrap:true, minZoom:4 en todas las capas | changelog_2026-04-08.md |
-| 2026-04-08 | tsamaps | manual, ui, rediseno | Manual de Uso reescrito por categorías con iconos SVG inline | changelog_2026-04-08.md |
-| 2026-04-08 | docker, claude | claude, produccion, proteccion | CLAUDE.md centralizado en proyectos/, doble autorización para prod/ | changelog_2026-04-08.md |
-| 2026-04-01 | tsamaps | weather, animacion, in-place | renderWeatherGrid actualiza valores en-place con cardValueUpdate, sin parpadeo | changelog_2026-04-01.md |
-| 2026-04-01 | tsamaps | responsive, mobile, tablet, feature | Nuevo responsive.css: drawers weather/search, buscador móvil, swipe-to-close | changelog_2026-04-01.md |
-| 2026-04-01 | tsamaps | mobile, herramientas, exclusividad | Sistema exclusivo: abrir herramienta cierra mobileSearch y radio panel | changelog_2026-04-01.md |
-| 2026-04-01 | tsamaps | gps, refresco, setInterval | GPS_MARINE_REFRESH_MS 5min: refresco periódico condiciones con última posición GPS | changelog_2026-04-01.md |
-| 2026-04-01 | tsamaps | gps, shortcut, header, feature | gpsShortcutBtn en header: estados off/searching/active, syncGpsShortcut() | changelog_2026-04-01.md |
-| 2026-04-01 | tsamaps | tooltips, mobile, touch | showToolLabel() + .tooltip-active + @media(hover:none) para touch | changelog_2026-04-01.md |
-| 2026-03-31 | tsamaps | radar, animacion, multi-frame, feature | Animación multi-frame past+nowcast, HUD con progreso y controles ←/→/⏸ | changelog_2026-03-31.md |
-| 2026-03-31 | tsamaps | gps, bloqueo, click, feedback | GPS activo: botón ámbar con gpsGlow, mensaje #gpsLockMsg bajo botón | changelog_2026-03-31.md |
-| 2026-03-31 | tsamaps | permisos, banner, primera-visita | Banner permisos GPS+notificaciones en primera visita, localStorage flag | changelog_2026-03-31.md |
-| 2026-03-31 | tsamaps | distribuidores, datos, enriquecimiento | 32 distribuidores con phone, email, web, address, description verificados | changelog_2026-03-31.md |
-| 2026-03-31 | tsamaps | gps, fondeo, refactor, polling | onAnchorGpsUpdate(), gpsAutoStartedBy, isSosLocked(), elimina polling redundante | changelog_2026-03-31.md |
-| 2026-03-30 | tsamaps | ux, toasts, fondeo, vessel | Toasts al desactivar modos, cuenta atrás fondeo, VesselFinder oculta controles | changelog_2026-03-30.md |
-| 2026-03-30 | tsamaps | buscador, nominatim, ux | Spinner, botón limpiar, debounce 600ms, resultados ES, Escape cierra dropdown | changelog_2026-03-30.md |
-| 2026-03-30 | tsamaps | radar, tiles, zoom, bug | URL tiles desde host+path API, zoom máximo 7 con radar activo | changelog_2026-03-30.md |
+| 2026-06-15 | plan, docs | spikes, embudo, triage, agentes, templates, taller-servicio | plan/ con 3 niveles: ideas/→spikes/→backlog/; docs/ reorganizado en templates/ y agentes/; agente taller servicio documentado (en prod) | 2026/06/changelog_2026-06-15.md |
+| 2026-06-14 | estructura, claude | reestructuracion, carpetas, puntos, plan, backlog, ideas, shimmercloud | Carpetas de proyectos/ sin punto (solo .claude/); plan/ agrupa backlog/, ideas/ y shimmercloud/; 152 entradas git mv + 11 ps1 + 3 compose actualizados | 2026/06/changelog_2026-06-14.md |
+| 2026-06-12 | docs | readme, vision, agentes-departamento, tecnico, proposito | README reescrito en registro técnico; propósito corregido: agentes multimodales para toda la empresa, por departamento y a la carta | 2026/06/changelog_2026-06-12.md |
+| 2026-06-12 | tsamaps, docker, claude | eol, archivado, antiguos, git-mv, demo, scripts, fuente-conocimiento | tsamaps EOL: movido a .webapps/antiguos/ (versionado por excepción al gitignore), scripts demo reubicados a ops/, proxy.yml/skill/CLAUDE.md/plan Azure actualizados; arrancable solo para demos | 2026/06/changelog_2026-06-12.md |
+| 2026-06-12 | docs, claude | status-md, readme, contexto, claude-ai, movil, fin-sesion, skill | Nuevo STATUS.md en raíz como puente de contexto con claude.ai móvil; skill fin-sesion con paso 5 para sincronizarlo; README raíz actualizado (Azure, v0.9.6, estructura) | 2026/06/changelog_2026-06-12.md |
+| 2026-06-12 | openweb, docker | open-webui, v0.9.6, upgrade, dev, backup, chat_id, fix | Open WebUI Dev actualizado a v0.9.6 (fix bug chat_id API); parche rebrand env.py pasa a sed por patrón; prod parado pendiente de validación | 2026/06/changelog_2026-06-12.md |
+| 2026-06-12 | docs, claude | workflow, update, parche, redundancia, claude-md | update_workflow.md como fuente única: paso 7 parche rebrand + cabecera prod/dev; CLAUDE.md solo hecho + puntero | 2026/06/changelog_2026-06-12.md |
+| 2026-06-11 | openweb, tools | read_g3, fault-codes, manual-mercury, agregados, agentes | Nueva dev_read_g3 v2.1: análisis por agregados (overview/stats/trend/rows) + tabla FAULT_CODES del manual Mercury (134 fallos) y g3_fault_info | 2026/06/changelog_2026-06-11.md |
+| 2026-06-11 | openweb, tools | query_knowledge, valves, rag, citas, multi-kb, bilingue | Nueva dev_query_knowledge v2.0: Valves configurables, búsqueda bilingüe en una llamada, multi-KB con autodescubrimiento, citas y status nativos | 2026/06/changelog_2026-06-11.md |
+| 2026-06-11 | openweb, tools | read_file, calculadora, generate_doc, search, agentes | dev_read_file/calculadora/generate_doc v1.1: búsqueda en adjuntos, list_attachments, ecuaciones y amortización, code blocks PDF, notas PPTX, Excel numérico | 2026/06/changelog_2026-06-11.md |
+| 2026-06-10 | openweb, tools | reorganizacion, stable, experimental, dev, limpieza | Tools reorganizadas en stable/ (prod) y experimental/ (dev con prefijo dev_); eliminado __pycache__ | 2026/06/changelog_2026-06-10.md |
+| 2026-06-10 | openweb, tools | read_any_file, lector-universal, pptx, paginacion, agentes | Nueva read_any_file.py: lector universal de adjuntos (pptx, json, html, código, fallback texto), multi-adjunto y paginación | 2026/06/changelog_2026-06-10.md |
+| 2026-06-10 | openweb, tools | calculadora, ast-seguro, conversor, finanzas, fechas, agentes | Nueva calculadora_avanzada.py: evaluador AST seguro, estadística, conversor por dimensiones, préstamos, interés compuesto y fechas | 2026/06/changelog_2026-06-10.md |
+| 2026-06-10 | openweb, tools | generate_doc, pdf, pptx, excel-multihoja, fpdf2, agentes | Nueva generate_any_doc.py: genera PDF, PPTX, HTML y texto/código; Excel multi-hoja JSON; docx con bloques de código | 2026/06/changelog_2026-06-10.md |
+| 2026-05-17 | shimmercloud, planificación | azure, migracion, cloud, aprobado, claude-code | Proyecto migración Azure aprobado; creada carpeta .shimmercloud/ con CLAUDE.md, plan de migración (5 fases) y registro de ADRs | 2026/05/changelog_2026-05-17.md |
+| 2026-05-17 | backlog | backlog, mayo2026, consolidado | Nuevo shimmer_backlog_mayo2026.md con estado completo del backlog; taller_servicio y docx_open_terminal añadidos | 2026/05/changelog_2026-05-17.md |
+| 2026-05-17 | openweb, tools | query_knowledge, footer, citas | query_knowledge: footer de citas suavizado (imperativo → instrucción suave) | 2026/05/changelog_2026-05-17.md |
+| 2026-05-15 | tsamaps | fix, puerto, api-key, prod | tsamaps reconectado a prod (3000); API key sk-... restaurada, eliminado JWT de sesión | 2026/05/changelog_2026-05-15.md |
+| 2026-05-13 | bot, docker, openweb | telegram, prod, rag, tool-calls, branding, system-prompt, fix | Bot migrado a prod (3000); fix bucle tool_calls + footer duplicado; branding prod.yml; system prompt al Workspace Model | 2026/05/changelog_2026-05-13.md |
+| 2026-05-13 | tsamaps, claude | limpieza, dev, referencias, skill, obsoleta | Referencias a dev/tsamaps purgadas: Runtime.md, scripts, CLAUDE.md y skill tsamaps-dev eliminada | 2026/05/changelog_2026-05-13.md |
+| 2026-05-13 | tsamaps | limpieza, dev, eliminado, prod-unico | dev/tsamaps eliminado; solo existe prod/tsamaps montado en proxy.yml | 2026/05/changelog_2026-05-13.md |
+| 2026-05-13 | tsamaps, bot, docker | bug, chat_id, openweb-dev, puerto-3002, workaround | tsamaps y bot reconectados a Open WebUI dev (3002); workaround bug chat_id None en v0.9.4 | 2026/05/changelog_2026-05-13.md |
+| 2026-05-13 | openweb, tools | query_knowledge, file_filter, rag, chromadb | query_knowledge v1.2: file_filter opcional para buscar en archivo concreto de la KB | 2026/05/changelog_2026-05-13.md |
+| 2026-05-13 | backlog, docs | rag, semantica, vectores, coseno, embeddings | Explicación completa búsqueda semántica RAG con ejemplo Verado V12 | 2026/05/changelog_2026-05-13.md |
+| 2026-05-12 | docker, claude | CLAUDE.md, stack, puertos, branding, compose-grupos | CLAUDE.md actualizado: v0.9.4, puertos corregidos, branding/, grupos Compose, LibreChat descartado | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | docker | librechat, evaluacion, descarte, limpieza | LibreChat desplegado, evaluado y eliminado completamente; Open WebUI decisión firme | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | docker | compose, grupos, prefijos, orden, docker-desktop | Compose renombrados con prefijos 1-/2-/3-/4- para orden en Docker Desktop | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | docker, tsamaps | tsamaps_server, limpieza, proxy, renombrado | tsamaps_server_prod eliminado; tsamaps_server_dev→tsamaps_server; proxy.yml limpio | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | docker, openweb | rebrand, touron-llm, css, favicon, branding | Rebrand open-webui-dev como Touron LLM: paleta azul marino, favicon logo Touron, env.py patch | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | docker, openweb | open-webui-dev, clon, dev, puerto-3002, volumen-compartido | Clon Open WebUI en puerto 3002 para dev; comparte volumen prod; comando /openweb-dev | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | backlog, openweb, tools | demo, erp, csv, margenes, stock, pronostico, backlog | Demo ERP-IA archivada en backlog: tool analisis_negocio.py + 3 CSVs ficticios Touron (50 refs, 2020-2025) | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | docker | wsl, docker-desktop, arranque, incidencia | Docker Desktop no arrancaba por WSL en estado Stopped; resuelto con wsl --shutdown | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | openweb | prompts, skills, demo, direccion, github-mcp | Skill analista-nautico-touron y prompts /nautica-electrica-informe y /nautica-github para demo dirección | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | docker | https, openweb, revertido | Intento HTTPS en Open WebUI (puerto 3000) revertido — uvicorn no recoge SSL_CERTFILE/SSL_KEYFILE | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | tsamaps | service-tags, chips, css, distribuidores | description de distribuidores renderizado como chips/pills en popup y panel lateral; .dealer-desc eliminada | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | openweb, tools | generate_doc, txt, eliminado | generate_doc: TXT eliminado; nota en generate_md para no usarla con HTML | 2026/05/changelog_2026-05-12.md |
+| 2026-05-12 | docker | prod, ddgs, limpieza | DDGS_BACKEND=google eliminado de prod.yml (redundante con web_search.py) | 2026/05/changelog_2026-05-12.md |
+| 2026-05-11 | bot, telegram | system-prompt, equipo, roles, separador, touron | Revisión completa del equipo en SYSTEM_PROMPT: roles explícitos, apellidos completos, separador ·, altas/bajas personal | 2026/05/changelog_2026-05-11.md |
+| 2026-05-10 | tsamaps, infraestructura | https, tailscale, gps, tls, certificados | HTTPS con Tailscale en tsamaps: certificados TLS en .docker/certs/, uvicorn con ssl, GPS móvil operativo | 2026/05/changelog_2026-05-10.md |
+| 2026-05-09 | bot, telegram | system-prompt, rag, identidad, touron | System prompt completo con identidad corporativa, equipo y productos; bot autónomo sin depender del agente Open WebUI | 2026/05/changelog_2026-05-09.md |
+| 2026-05-09 | openweb, tools | read_g3, read_file, generate_doc, renombrado | Nueva tool read_g3.py (CSV Mercury G3); doc_reader→read_file, doc_gen→generate_doc; calculadora v1.1 con temperatura y área | 2026/05/changelog_2026-05-09.md |
+| 2026-05-09 | openweb, docker | open-webui, v0.9.4, upgrade, backup | Open WebUI actualizado a v0.9.4; backup volumen 2,3 GB; query_knowledge v1.2 con file_filter por archivo | 2026/05/changelog_2026-05-09.md |
+| 2026-05-08 | infraestructura | tailscale, ngrok, migracion, scripts | ngrok jubilado y eliminado de todos los scripts y docs; Tailscale gestiona el túnel | 2026/05/changelog_2026-05-08.md |
+| 2026-05-08 | openweb, tools | query_knowledge, scores, web_search, citas | query_knowledge v0.9 con scores ChromaDB en footer; nueva tool web_search.py custom con DDGS google backend | 2026/05/changelog_2026-05-08.md |
+| 2026-05-08 | docs, onedrive | presentacion, memoria, html | presentación.html: fases sin fechas, eliminada Fase 5, nuevo layout análisis económico; 00_memoria.html: sección compromisos | 2026/05/changelog_2026-05-08.md |
+| 2026-05-07 | openweb, tools | query_knowledge, rag-custom, built-in, chroma | Nueva tool query_knowledge.py: reemplaza Built-in Knowledge, queries secuenciales, footer citas embebido | 2026/05/changelog_2026-05-07.md |
+| 2026-05-07 | openweb, tools | doc_reader, doc_gen, renombrado, ddgs | Nueva tool doc_reader.py; generacion_documentos→doc_gen; DDGS_BACKEND=google en prod.yml | 2026/05/changelog_2026-05-07.md |
+| 2026-05-05 | bot, telegram | race-condition, session-chunks, markdown-fallback | _session_chunks convertida a variable local; fallback Markdown→texto plano en send_message | 2026/05/changelog_2026-05-05.md |
+| 2026-05-05 | openweb, tools | generacion_documentos, docx, tablas, xss | Negrita/cursiva inline en DOCX; tablas Markdown en Word; 5 bug fixes (XSS, Excel delimiter, JSON inválido) | 2026/05/changelog_2026-05-05.md |
+| 2026-05-05 | tsamaps | declinacion, noaa, regla-nautica, app.js | Rumbo magnético en regla náutica via API NOAA; fetchDeclination cacheada por sesión | 2026/05/changelog_2026-05-05.md |
+| 2026-05-05 | openweb, tools | calculadora, nueva-tool | Nueva tool calculadora.py: calculate, convert (10 unidades), vat IVA, margin margen | 2026/05/changelog_2026-05-05.md |
+| 2026-05-04 | claude, ops | commands, ps1, toggle, scripts | 5 nuevos commands Claude (.claude/commands/); carpeta .claude/ops/ con 9 scripts PowerShell de toggle start/stop | 2026/05/changelog_2026-05-04.md |
+| 2026-05-04 | bot, telegram | rag, cache-colecciones, top-k, view_file | Eliminado caché KB collections; top-k 6→15; view_file alias; citas inline; parse_mode Markdown | 2026/05/changelog_2026-05-04.md |
+| 2026-05-04 | openweb | nfc, gpt, rag-pipeline, query-generation | NFC=Default correcto para GPT; qwen3:1.7b problemático como query model; RAG template bilingüe propuesto | 2026/05/changelog_2026-05-04.md |
+| 2026-05-03 | tsamaps | responsive, tablet, breakpoints, orientacion | 4 nuevos breakpoints (tablet portrait/landscape, móvil landscape); pointer:fine fix táctil Samsung; invalidateSize orientación | 2026/05/changelog_2026-05-03.md |
+| 2026-05-03 | tsamaps | refactor, debounce, closePanel, limpieza | closePanel() genérica; debounce() helper; clearDealerMarkers(); tooltips eliminados; variables globales→módulo | 2026/05/changelog_2026-05-03.md |
+| 2026-05-01 | openweb | rag, bge-m3, reranker, chunking | Tuning RAG: chunk 512→384, reranker bge-reranker-v2-m3, threshold 0.3→0.45; PDF Loader Page vs Single documentado | 2026/05/changelog_2026-05-01.md |
+| 2026-05-01 | openweb | uploads, chromadb, limpieza, backlog | Regla operativa: no borrar manualmente /data/; backlog limpieza uploads con scripts comunidad | 2026/05/changelog_2026-05-01.md |
+| 2026-04-30 | tsamaps, backlog | planificación, auditoría, ideas | Auditoría backlog vs app.js; 4 nuevos archivos backlog: calculadora ruta, alertas meteo, declinación magnética, tracking tiempo real | 2026/04/changelog_2026-04-30.md |
+| 2026-04-30 | tsamaps, docker | runtime, start.ps1, stop.ps1, multi-compose | start/stop runtime tsamaps dev amplíados: ahora gestionan open-webui (prod.yml) + asistente_nautico (bots.yml) + tsamaps_server_dev | 2026/04/changelog_2026-04-30.md |
+| 2026-04-30 | claude, config | CLAUDE.md, open-webui, versión | Open WebUI actualizado de v0.8.12 a v0.9.2 en CLAUDE.md | 2026/04/changelog_2026-04-30.md |
+| 2026-04-30 | docs, onedrive | memoria.html, tabla, separador | Eliminada tabla "Componentes principales" y hr duplicado de 00_memoria.html (OneDrive, fuera de git) | 2026/04/changelog_2026-04-30.md |
+| 2026-04-29 | bot, telegram | rag, native, tool-calls, open-webui | Ciclo tool calls RAG client-side: get_model_kb_collections, run_knowledge_search, execute_tool_calls, call_openwebui loop 8 iter | 2026/04/changelog_2026-04-29.md |
+| 2026-04-29 | bot, telegram | citas, chunks, regex, session | Sistema de citas: _session_chunks con índice global, regex [N] en respuesta final para mostrar fuentes reales | 2026/04/changelog_2026-04-29.md |
+| 2026-04-29 | bot, telegram | foto, pendiente, qwen3.5, vision | PENDIENTE: handle_photo roto — modelo test (qwen3.5) no soporta visión; cambiar MODEL_ID a asistente-touron | 2026/04/changelog_2026-04-29.md |
+| 2026-04-29 | bot, telegram | logging, timeout, limpieza, comentarios | timeout 120→300s, logging INFO, comentarios en español, import re movido al top | 2026/04/changelog_2026-04-29.md |
+| 2026-04-26 | tsamaps, docker | logo, cabecera, ibb | Logo cabecera reemplazado por imagen propia en ibb.co | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | modal, info, copyright, comercial | Modal Información reescrito: lenguaje comercial, copyright propio, sin referencias Touron | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | chat, bienvenida, flag, duplicado | chatWelcomeShown flag: mensaje bienvenida solo en primera apertura de sesión | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | css, tap-highlight, mobile, reset | -webkit-tap-highlight-color: transparent en reset global; elimina efecto cuadrado en móvil | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | buscador, mobile, led, active | mobileSearchBtn led azul: add/remove active en apertura/cierre | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | chat, led, active, eliminado | Led azul chatBtn eliminado de CSS y JS | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | radio, led, active, bug, toggle | Led azul radio eliminado; listener reescrito con closeRadioPanel(); swipe-to-close corregido | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | gps, led, syncGpsShortcutBtn, isTrackingActive | syncGpsShortcutBtn(): led GPS vinculado a isTrackingActive como única fuente de verdad | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | weather, mobile, closed, init | Panel condiciones marítimas cerrado por defecto en móvil; desktop lo abre en init | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | docker, claude | filebrowser, inyectable, CLAUDE.md | CLAUDE.md actualizado: Filebrowser sin imagen Docker, inject_internal.ps1 | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | skills, log | índice, changelog, grep, contexto | CHANGELOG_INDEX.md creado con 63 entradas; skill fin-sesion actualizada con Paso 4 | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | gitignore, viento, json, runtime | wind-global.json y wind-timestamp.json excluidos de git con .gitignore + git rm --cached | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | radar, rainviewer, zoom, bug, tiles | RADAR_MAX_ZOOM 7→6, maxNativeZoom:6 maxZoom:18, tiles escalados en zoom alto | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | radar, animación, bug, parpadeo, load-event | Nueva capa con opacity:0, visible solo tras evento load, elimina capa anterior 200ms | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | radar, zoom, refactor, limpieza | Eliminado bloqueo de zoom, warnRadarZoomLocked, setMinZoom/setMaxZoom y zoomend listener | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | distribuidores, weather, bug, invalidateSize | Al seleccionar distribuidor: restaura weatherPanel y llama invalidateSize | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | vesselFinder, mob, desktop, layout | Botón Cerrar VesselFinder subido a bottom:120px para no solapar alerta MOB | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | responsive, tablet, mob, layout | Breakpoint tablet (769–1024px): MOB a right:60px bottom:20px alineado con botones | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | responsive, mobile, iphone, layout | Breakpoint ≤430px: botones 34px, gap 5px para iPhone 12 y similares | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | viento, open-meteo, feature, wind | Capa viento tiempo real Open-Meteo, rejilla España+Portugal, Leaflet-Velocity | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | viento, clip-path, bug, mobile | clip-path polygon sobre canvas velocity-overlay para recorte geográfico | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | mob, isSosActive, refactor, bloqueo | isSosLocked() eliminado, reemplazado por guard isSosActive en todos los listeners | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | mob, ui, coordenadas, emergencia | Panel MOB: distancia en NM, coordenadas al portapapeles, botones emergencia ES/PT | 2026/04/changelog_2026-04-26.md |
+| 2026-04-26 | tsamaps | limpieza, html, css, huerfano | Código huérfano eliminado: comentarios, tooltips, IDs sin uso | 2026/04/changelog_2026-04-26.md |
+| 2026-04-25 | tsamaps | runtime, powershell, docker, ngrok | start.ps1/stop.ps1 con rutas absolutas Windows, reemplaza .sh | 2026/04/changelog_2026-04-25.md |
+| 2026-04-25 | tsamaps | server, cache, no-store | Cache-Control: no-store en estáticos, eliminados ?v=N de index.html | 2026/04/changelog_2026-04-25.md |
+| 2026-04-25 | tsamaps | mobile, responsive, search-panel, bug | Panel Red de Clientes: fondo invisible en móvil, teclado móvil | 2026/04/changelog_2026-04-25.md |
+| 2026-04-25 | tsamaps | weather, distribuidores, desktop, conflicto | closeWeatherPanel() al abrir Red de Clientes; restaura si weatherWasOpen | 2026/04/changelog_2026-04-25.md |
+| 2026-04-25 | tsamaps | mob, emergencia, telefono, aguas | isInPortugueseWaters(), botones tel: 112/900202202/1520 según aguas | 2026/04/changelog_2026-04-25.md |
+| 2026-04-25 | tsamaps | mob, vesselFinder, bloqueo | MOB desactiva VesselFinder directamente sin pasar por isSosLocked() | 2026/04/changelog_2026-04-25.md |
+| 2026-04-25 | bot, telegram | bot, telegram, teclado, refactor | Teclado persistente, botón búsqueda web, borrar memoria con confirmación | 2026/04/changelog_2026-04-25.md |
+| 2026-04-25 | bot, telegram | bot, telegram, pdf, pymupdf | Análisis de PDFs: extracción con pymupdf, flujo dos pasos, pdf_pending dict | 2026/04/changelog_2026-04-25.md |
+| 2026-04-25 | skills | skills, fin-sesion, slash-command | Skill fin-sesion registrada como slash command en .claude/commands/ | 2026/04/changelog_2026-04-25.md |
+| 2026-04-24 | tsamaps | chat, widget, mobile, desktop | Widget chat: botón flotante, panel glass, drawer móvil, toggle, exclusión mutua | 2026/04/changelog_2026-04-24.md |
+| 2026-04-24 | tsamaps | chat, historial, timeout, sesion | Historial 10 mensajes, timeout 10min, indicador "Escribiendo...", enter para enviar | 2026/04/changelog_2026-04-24.md |
+| 2026-04-24 | tsamaps | server, fastapi, proxy, chat | server.py FastAPI consolida estáticos + proxy /chat en puerto 5050 | 2026/04/changelog_2026-04-24.md |
+| 2026-04-24 | tsamaps | docker, proxy-yml, runtime | proxy.yml: tsamaps_server en python:3.11-slim, host.docker.internal | 2026/04/changelog_2026-04-24.md |
+| 2026-04-24 | tsamaps | mob, gps, ui | Botón MOB renombrado de SOS; GPS toggle correcto con clase active | 2026/04/changelog_2026-04-24.md |
+| 2026-04-24 | skills | skills, log, changelog, fin-sesion | Nueva skill fin-sesion, carpeta .log/, changelogs centralizados | 2026/04/changelog_2026-04-24.md |
+| 2026-04-23 | tsamaps | paneles, refactor, close-functions | closeWeatherPanel/Radio/Search/SunMoon/Chat: funciones centralizadas de cierre | 2026/04/changelog_2026-04-23.md |
+| 2026-04-23 | tsamaps | paneles, swipe, mobile | addSwipeToClose: sunMoonPanel y chatPanel añadidos | 2026/04/changelog_2026-04-23.md |
+| 2026-04-23 | tsamaps | mob, isSosLocked, bloqueo, radio, search | isSosLocked() en radioBtn y openSearchBtn, bloqueo MOB completo | 2026/04/changelog_2026-04-23.md |
+| 2026-04-23 | tsamaps | gps, setInterval, fuga, bug | clearInterval(gpsMarineRefreshId) antes de nuevo setInterval | 2026/04/changelog_2026-04-23.md |
+| 2026-04-23 | tsamaps | radar, setTimeout, fuga, bug | clearTimeout(radarLayerPrevTimeout) antes de cada setTimeout en radarShowFrame | 2026/04/changelog_2026-04-23.md |
+| 2026-04-23 | tsamaps | mapa, click, consolidacion | Doble map.on('click') consolidado en handler único con dispatch por isRulerActive | 2026/04/changelog_2026-04-23.md |
+| 2026-04-23 | tsamaps | html, css, limpieza, huerfano | Título TSA Maps, clases CSS muertas eliminadas, IDs huérfanos quitados | 2026/04/changelog_2026-04-23.md |
+| 2026-04-21 | tsamaps | radar, zoom, bloqueo, bug | Zoom fijado a RADAR_MAX_ZOOM al activar radar, restaurado al desactivar | 2026/04/changelog_2026-04-21.md |
+| 2026-04-21 | tsamaps | radar, race-condition, guard | Guard if(!isRadarActive) return tras await getRainViewerFrames() | 2026/04/changelog_2026-04-21.md |
+| 2026-04-21 | tsamaps | radar, setInterval, fuga, anti-stacking | clearInterval antes de radarAnimInterval y radarRefreshInterval en radarStartAnim | 2026/04/changelog_2026-04-21.md |
+| 2026-04-21 | tsamaps | radar, refresco, frames | radarRefreshFrames() cada 5 min (RADAR_REFRESH_MS), sin interrumpir animación | 2026/04/changelog_2026-04-21.md |
+| 2026-04-08 | tsamaps | distribuidores, push, animacion | search-panel efecto push: width 0→400px con overflow:hidden, search-panel-inner | 2026/04/changelog_2026-04-08.md |
+| 2026-04-08 | tsamaps | mareas, open-meteo, sea-level | Nueva tarjeta Nivel Mar con sea_level_height_msl de Open-Meteo Marine API | 2026/04/changelog_2026-04-08.md |
+| 2026-04-08 | tsamaps | sol, luna, suncalc, feature | Panel Sol/Luna con SunCalc: amanecer, atardecer, fase lunar, coordenadas GPS/clic/centro | 2026/04/changelog_2026-04-08.md |
+| 2026-04-08 | tsamaps | radio, panel, feature, mobile | Radio como panel independiente: radioBtn flotante, radioPanel, swipe-to-close | 2026/04/changelog_2026-04-08.md |
+| 2026-04-08 | tsamaps | radio, feedback, animacion | Botón radio pulsa entre blanco/azul con radioIconPulse mientras reproduce | 2026/04/changelog_2026-04-08.md |
+| 2026-04-08 | tsamaps | mapa, nowrap, minzoom, duplicacion | maxBounds, maxBoundsViscosity:1, noWrap:true, minZoom:4 en todas las capas | 2026/04/changelog_2026-04-08.md |
+| 2026-04-08 | tsamaps | manual, ui, rediseno | Manual de Uso reescrito por categorías con iconos SVG inline | 2026/04/changelog_2026-04-08.md |
+| 2026-04-08 | docker, claude | claude, produccion, proteccion | CLAUDE.md centralizado en proyectos/, doble autorización para prod/ | 2026/04/changelog_2026-04-08.md |
+| 2026-04-01 | tsamaps | weather, animacion, in-place | renderWeatherGrid actualiza valores en-place con cardValueUpdate, sin parpadeo | 2026/04/changelog_2026-04-01.md |
+| 2026-04-01 | tsamaps | responsive, mobile, tablet, feature | Nuevo responsive.css: drawers weather/search, buscador móvil, swipe-to-close | 2026/04/changelog_2026-04-01.md |
+| 2026-04-01 | tsamaps | mobile, herramientas, exclusividad | Sistema exclusivo: abrir herramienta cierra mobileSearch y radio panel | 2026/04/changelog_2026-04-01.md |
+| 2026-04-01 | tsamaps | gps, refresco, setInterval | GPS_MARINE_REFRESH_MS 5min: refresco periódico condiciones con última posición GPS | 2026/04/changelog_2026-04-01.md |
+| 2026-04-01 | tsamaps | gps, shortcut, header, feature | gpsShortcutBtn en header: estados off/searching/active, syncGpsShortcut() | 2026/04/changelog_2026-04-01.md |
+| 2026-04-01 | tsamaps | tooltips, mobile, touch | showToolLabel() + .tooltip-active + @media(hover:none) para touch | 2026/04/changelog_2026-04-01.md |
+| 2026-03-31 | tsamaps | radar, animacion, multi-frame, feature | Animación multi-frame past+nowcast, HUD con progreso y controles ←/→/⏸ | 2026/03/changelog_2026-03-31.md |
+| 2026-03-31 | tsamaps | gps, bloqueo, click, feedback | GPS activo: botón ámbar con gpsGlow, mensaje #gpsLockMsg bajo botón | 2026/03/changelog_2026-03-31.md |
+| 2026-03-31 | tsamaps | permisos, banner, primera-visita | Banner permisos GPS+notificaciones en primera visita, localStorage flag | 2026/03/changelog_2026-03-31.md |
+| 2026-03-31 | tsamaps | distribuidores, datos, enriquecimiento | 32 distribuidores con phone, email, web, address, description verificados | 2026/03/changelog_2026-03-31.md |
+| 2026-03-31 | tsamaps | gps, fondeo, refactor, polling | onAnchorGpsUpdate(), gpsAutoStartedBy, isSosLocked(), elimina polling redundante | 2026/03/changelog_2026-03-31.md |
+| 2026-03-30 | tsamaps | ux, toasts, fondeo, vessel | Toasts al desactivar modos, cuenta atrás fondeo, VesselFinder oculta controles | 2026/03/changelog_2026-03-30.md |
+| 2026-03-30 | tsamaps | buscador, nominatim, ux | Spinner, botón limpiar, debounce 600ms, resultados ES, Escape cierra dropdown | 2026/03/changelog_2026-03-30.md |
+| 2026-03-30 | tsamaps | radar, tiles, zoom, bug | URL tiles desde host+path API, zoom máximo 7 con radar activo | 2026/03/changelog_2026-03-30.md |
 | 2026-03-11 | tsamaps | mob, gps, emergency, feature | MOB/SOS: bypass GPS activo, zIndex barco/MOB, zoom 17 durante emergencia | changelog_2026_03_11.md |
 | 2026-03-11 | tsamaps | gps, weather, bloqueo | isTrackingActive bloquea clicks en mapa para no cambiar radar meteorológico | changelog_2026_03_11.md |
 | 2026-03-11 | tsamaps | mob, feedback, ux | Botón SOS reacciona <50ms, texto "GPS...", latido tras fix satelital | changelog_2026_03_11.md |

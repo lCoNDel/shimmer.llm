@@ -81,7 +81,7 @@ cierre de cada sesión con la skill `fin-sesion`). El resto vive bajo `proyectos
 | `agents/` | Skills de agentes (`skills/<nombre>/SKILL.md`): ai-engineer, asesor-nautico, asistente-nautico-touron, diagnostico-motores, docker-backup, docker-expert, openweb-rebrand, etc. |
 | `docker/` | Infraestructura: `compose/` (los 5 YML), `bots/telegram/` (los .py de bots), `branding/` (CSS + favicon Touron), `openweb/tools/` (tools Python para Open WebUI, en `stable/` y `experimental/`), `openweb/workflows/` (procedimientos, p.ej. `update_workflow.md`), `backup/` (backups de volúmenes, fuera de git), `certs/` (TLS Tailscale), `filebrowser/` |
 | `docs/` | Documentación de servicios: `templates/` (templates reutilizables, ej. system prompt RAG por defecto), `agentes/` (fichas de agentes desplegados en Open WebUI) |
-| `log/` | Changelogs de sesión (`changelog_YYYY-MM-DD.md`) + `CHANGELOG_INDEX.md`. Fuente de verdad del histórico técnico |
+| `log/` | Changelogs de sesión organizados por año/mes (`YYYY/MM/changelog_YYYY-MM-DD.md`) + `CHANGELOG_INDEX.md`. Fuente de verdad del histórico técnico |
 | `tunnel/` | Scripts legacy de exposición de servicios (Tailscale gestiona el túnel actual) |
 | `webapps/` | `antiguos/` — proyectos EOL (excluidos de git salvo tsamaps, que sigue versionado). `antiguos/tsamaps/` — carta náutica archivada como fuente de conocimiento, arrancable para demos. `prod/` queda vacía para futuros proyectos web |
 

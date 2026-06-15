@@ -20,11 +20,13 @@ Identifica qué archivos cambiaron y en qué área del proyecto (tsamaps, bots, 
 
 ### 3. Localizar o crear el changelog
 
-Todos los logs van en `log/` en la raíz de `proyectos/`, un archivo por día:
+Todos los logs van en `log/` en la raíz de `proyectos/`, organizados por año y mes:
 
 ```
 proyectos/log/
-└── changelog_YYYY-MM-DD.md
+└── YYYY/
+    └── MM/
+        └── changelog_YYYY-MM-DD.md
 ```
 
 - Un único archivo por día. Si se trabajó en varios proyectos, agrupar en secciones dentro del mismo archivo.
