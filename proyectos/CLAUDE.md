@@ -76,7 +76,8 @@ proyectos/
 ├── .claude/        # Configuración Claude Code (no editar)
 ├── plan/           # Todo lo que está por hacer
 │   ├── ideas/      # Bloc de notas libre — ideas sin compromiso
-│   ├── backlog/    # Ideas en proceso de revisión o implementación
+│   ├── spikes/     # En investigación — reduce incertidumbre antes de comprometerse
+│   ├── backlog/    # Comprometido — diseñado, en cola de implementación
 │   └── shimmercloud/  # Migración a Azure: plan y registro de ADRs
 ├── agents/         # Skills y agentes
 ├── docker/         # Infraestructura Docker, bots y workflows
@@ -91,9 +92,10 @@ proyectos/
 ## Detalle de Carpetas
 
 ### `plan/`
-Agrupa todo lo que está por hacer, en tres niveles de madurez:
+Embudo de madurez en tres niveles:
 - `plan/ideas/` — bloc de notas libre. Ideas sueltas, sin estructura ni compromiso.
-- `plan/backlog/` — ideas en proceso de revisión o implementación activa. Consultar antes de planificar trabajo nuevo.
+- `plan/spikes/` — en investigación activa. La idea pasó el filtro pero aún no hay compromiso de implementación.
+- `plan/backlog/` — comprometido y en cola. Tiene diseño, se implementará. Consultar antes de planificar trabajo nuevo.
 - `plan/shimmercloud/` — plan de migración a Azure (aprobado, noviembre 2026). Ver su propio `CLAUDE.md`.
 
 ### `docker/`
@@ -200,7 +202,7 @@ Excepción operativa: tsamaps puede arrancarse puntualmente para demos (skill `t
 - **Punto en nombres de carpeta**: reservado exclusivamente para `.claude/` (tooling externo que impone la ruta). El resto de carpetas no llevan punto.
 - **Skills**: respetar formato de `agents/god/SKILL.md`.
 - **Docker prod**: `docker/compose/prod.yml` — no modificar sin confirmar.
-- **Backlog**: consultar `plan/backlog/` al planificar. `plan/ideas/` es libre — solo ideas sueltas.
+- **Plan**: `ideas/` → libre; `spikes/` → en investigación; `backlog/` → comprometido. Consultar `backlog/` al planificar trabajo nuevo.
 - **Puertos**: respetar esquema en la sección "Stack Técnico" de este CLAUDE.md.
 - **Logs**: los changelogs van en `log/changelog_YYYY-MM-DD.md`, un archivo por día con secciones por proyecto. Leer antes de empezar. Generar con la skill `fin-sesion` al cerrar sesión.
 

@@ -1,3 +1,0 @@
-Agente para soporte al taller de servicio técnico de Touron.
-
-Sin detalle adicional definido.

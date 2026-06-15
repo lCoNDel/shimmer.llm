@@ -1,6 +1,6 @@
 # STATUS — Shimmer LLM
 
-> **Última actualización: 2026-06-14**
+> **Última actualización: 2026-06-15**
 > Documento autocontenido de estado del proyecto. Es la única fuente de contexto
 > para consultas sin acceso al repositorio. Se actualiza al cierre de cada sesión.
 
@@ -77,10 +77,10 @@ cierre de cada sesión con la skill `fin-sesion`). El resto vive bajo `proyectos
 | Carpeta | Propósito |
 |---|---|
 | `.claude/` | Config Claude Code: `ops/` (scripts PowerShell start/stop por servicio) y `commands/` (slash commands) |
-| `plan/` | Todo lo que está por hacer: `ideas/` (bloc de notas libre), `backlog/` (proyectos en revisión/implementación — incluye diseños completos rag_sharepoint, demo_erp_ia), `shimmercloud/` (migración Azure: CLAUDE.md propio, ADRs, plan 5 fases) |
+| `plan/` | Embudo de planificación en 3 niveles: `ideas/` (bloc de notas libre), `spikes/` (en investigación — spike Agile: reduce incertidumbre antes de comprometerse), `backlog/` (comprometido y en cola — incluye diseños completos rag_sharepoint, demo_erp_ia), `shimmercloud/` (migración Azure: CLAUDE.md propio, ADRs, plan 5 fases) |
 | `agents/` | Skills de agentes (`skills/<nombre>/SKILL.md`): ai-engineer, asesor-nautico, asistente-nautico-touron, diagnostico-motores, docker-backup, docker-expert, openweb-rebrand, etc. |
 | `docker/` | Infraestructura: `compose/` (los 5 YML), `bots/telegram/` (los .py de bots), `branding/` (CSS + favicon Touron), `openweb/tools/` (tools Python para Open WebUI, en `stable/` y `experimental/`), `openweb/workflows/` (procedimientos, p.ej. `update_workflow.md`), `backup/` (backups de volúmenes, fuera de git), `certs/` (TLS Tailscale), `filebrowser/` |
-| `docs/` | Documentación de servicios (p.ej. template RAG por defecto de Open WebUI) |
+| `docs/` | Documentación de servicios: `templates/` (templates reutilizables, ej. system prompt RAG por defecto), `agentes/` (fichas de agentes desplegados en Open WebUI) |
 | `log/` | Changelogs de sesión (`changelog_YYYY-MM-DD.md`) + `CHANGELOG_INDEX.md`. Fuente de verdad del histórico técnico |
 | `tunnel/` | Scripts legacy de exposición de servicios (Tailscale gestiona el túnel actual) |
 | `webapps/` | `antiguos/` — proyectos EOL (excluidos de git salvo tsamaps, que sigue versionado). `antiguos/tsamaps/` — carta náutica archivada como fuente de conocimiento, arrancable para demos. `prod/` queda vacía para futuros proyectos web |
@@ -96,6 +96,7 @@ cierre de cada sesión con la skill `fin-sesion`). El resto vive bajo `proyectos
 | tsamaps | **EOL — archivado** (12-jun-2026) | Carta náutica OpenSeaMap/CartoDB completa (meteo, radar, viento, MOB, GPS, chat IA vía proxy a Open WebUI). Movida a `.webapps/antiguos/tsamaps/`; sin desarrollo, conservada como fuente de conocimiento. Sigue siendo arrancable para enseñar la demo (scripts `tsamaps-demo-start/stop.ps1`: open-webui + bot + tsamaps en 5050) |
 | Tools Open WebUI estables | **Producción** | `query_knowledge` (RAG custom), `calculadora`, `read_file`, `read_g3` (CSV diagnóstico Mercury G3), `generate_doc` |
 | Tools experimentales (`dev_*`) | **En desarrollo** | Versiones avanzadas en dev: query_knowledge v2.0 (Valves, multi-KB, bilingüe en una llamada), read_g3 v2.1 (agregados + tabla 134 códigos de fallo Mercury), calculadora/read_file/generate_doc v1.1 |
+| Agente taller servicio técnico | **Producción** | RAG multilingüe (manuales Mercury/Brunswick), reconversión de query, búsqueda bilingüe ES+EN en paralelo. Documentado en `docs/agentes/taller_servicio.md`. Roadmap: añadir portugués (Cascais) |
 | Bot asistente_servicio | **Pendiente** | Solo esqueleto: sin token, sin modelo, handlers vacíos |
 | RAG SharePoint | **Pendiente** (diseñado) | Código sync.py + compose listos en backlog; falta App Registration en Azure AD. Será piloto prioritario tras el despliegue cloud |
 | Shimmer Cloud (Azure) | **Planificación** | Aprobado por gerencia mayo 2026; objetivo producción noviembre 2026. Plan de 5 fases escrito; sin VM aprovisionada aún |
@@ -132,7 +133,7 @@ cierre de cada sesión con la skill `fin-sesion`). El resto vive bajo `proyectos
 - `add_in_office` — complemento Outlook/Excel: task pane HTML/JS → API Open WebUI, branding Touron, distribución vía M365 Centralized Deployment. MVP estimado 1-2 semanas.
 - `docx_open_terminal` — migrar generación de Word a Open Terminal (el modelo genera python-docx y Open WebUI lo ejecuta); pendiente verificar python-docx en Pyodide.
 - `diagnosis_motores` — agente de diagnóstico de motores (base ya implementada con read_g3).
-- `taller_servicio` — agente para el taller SAT (ligado al bot asistente_servicio).
+- ~~`taller_servicio`~~ — **implementado** (ver §5).
 - `base_datos` — integración con ERP Libra (Oracle). Sin detalle definido.
 - `rag_obsidian` — RAG sobre vault Obsidian. Sin detalle definido.
 - `openweb_limpieza_uploads` — limpieza de uploads/ChromaDB con scripts de comunidad (regla: no borrar /data/ a mano).
