@@ -1,6 +1,6 @@
 ---
 name: creador-habilidades
-description: Asiste al usuario en la creación de nuevas habilidades para Antigravity. Utiliza esta habilidad cuando necesites estructurar, documentar o definir una nueva capacidad para el agente en este espacio de trabajo.
+description: Asiste al usuario en la creación de nuevas habilidades para Claude. Utiliza esta habilidad cuando necesites estructurar, documentar o definir una nueva capacidad para el agente en este espacio de trabajo.
 ---
 
 # Creador de Habilidades
