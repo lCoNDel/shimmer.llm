@@ -10,7 +10,11 @@
       "WebFetch(domain:gist.github.com)",
       "WebFetch(domain:www.librechat.ai)",
       "WebFetch(domain:portkey.ai)",
-      "WebFetch(domain:tokenmix.ai)"
+      "WebFetch(domain:tokenmix.ai)",
+      "Bash(mkdir -p C:/Users/luisc/.claude/projects/c--Users-luisc-Documents-GitHub-tsa-shimmer/memory)",
+      "Bash(cp -rp C:/Users/luisc/.claude/projects/c--Users-luisc-Documents-GitHub-shimmer-llm/memory/. C:/Users/luisc/.claude/projects/c--Users-luisc-Documents-GitHub-tsa-shimmer/memory/)",
+      "Bash(cp -p C:/Users/luisc/.claude/projects/c--Users-luisc-Documents-GitHub-tsa-shimmer/memory/project_repo_dual.md C:/Users/luisc/.claude/projects/c--Users-luisc-Documents-GitHub-shimmer-llm/memory/project_repo_dual.md)",
+      "Bash(cp -p C:/Users/luisc/.claude/projects/c--Users-luisc-Documents-GitHub-tsa-shimmer/memory/feedback_runtime_tsamaps.md C:/Users/luisc/.claude/projects/c--Users-luisc-Documents-GitHub-shimmer-llm/memory/feedback_runtime_tsamaps.md)"
     ]
   }
 }
