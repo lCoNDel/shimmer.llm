@@ -137,6 +137,68 @@ y se corrigieron de paso al tocar esos archivos:
 
 ---
 
+## Continuación — ajustes en tsa.shimmer (LICENSE, .gitignore)
+
+Todo lo de este bloque ocurrió también en `tsa.shimmer` (sin `.git`), no en
+este repo. Sesión continuada tras el primer cierre del día.
+
+### LICENSE eliminado
+
+El usuario pidió borrar `LICENSE` de `tsa.shimmer`: era la licencia de
+`shimmer.llm` que él mismo redactó para GitHub, y en el repo nuevo no va a usar
+ninguna. Borrado, y actualizada la mención en `docs/STATUS.md` (§4) para dejar
+constancia de que es una decisión, no un olvido.
+
+### Bug real encontrado en el `.gitignore`
+
+A petición del usuario de revisar el `.gitignore` con calma, se encontró un
+problema real (no cosmético): la regla `filebrowser` (sin ruta ni barra) no
+ignoraba solo el binario de 15,5 MB — al no estar anclada, Git la interpretaba
+también como nombre de **carpeta**, así que `operativa/docker/filebrowser/`
+entera (incluyendo `inject_internal.ps1` y la config de `fb-data/`, que sí
+deben versionarse) habría quedado excluida en el primer `git add -A` que se
+hiciera en la máquina nueva. Verificado el problema y el fix con un repo git
+temporal (creado y borrado sin dejar rastro): la regla se corrigió a
+`/operativa/docker/filebrowser/filebrowser` (ruta completa, ancla al archivo
+exacto).
+
+Aprovechando la revisión, se añadieron reglas de basura de sistema
+operativo/editor (`Thumbs.db`, `desktop.ini`, `.DS_Store`) de cara a que la
+máquina nueva pueda tener un entorno distinto.
+
+### Decisión: subir tsa.shimmer completo, sin exclusiones de contenido real
+
+El usuario aclaró que su intención es subir `tsa.shimmer` **tal cual está
+hoy**, sin que nada del contenido actual se quede fuera. Esto entraba en
+conflicto con dos reglas que sí excluían archivos reales presentes en disco:
+`wind-global.json` y `wind-timestamp.json` (datos de viento en vivo de
+tsamaps, en `operativa/legacy/tsamaps/`). Se quitaron ambas reglas del
+`.gitignore` raíz y se borró por completo el `.gitignore` anidado de
+`operativa/legacy/tsamaps/` (repetía las mismas dos reglas). Verificado con el
+mismo método del repo git temporal: tras el cambio, cero archivos quedan
+ignorados en el snapshot actual.
+
+El resto de reglas del `.gitignore` (settings.local.json, `*.tar.gz`,
+`__pycache__`, `.bak`, el binario de filebrowser, basura de SO) se dejaron —
+no excluyen nada que exista hoy, son solo preventivas para archivos que Claude
+Code o el propio uso normal puedan generar en la máquina nueva (no chocan con
+"subir tal cual está hoy", que es sobre el contenido actual, no sobre higiene
+futura).
+
+### Aclaración sobre `.claude/settings.local.json` (sin cambio de código)
+
+El usuario preguntó si, siendo "ruido", no sería mejor borrarlo directamente en
+vez de solo ignorarlo. Se explicó la diferencia entre limpiar el **repo** (lo
+consigue el `.gitignore`, sin tocar el archivo) y limpiar el **disco**
+(borrarlo activamente, que rompería su función): ese archivo es donde Claude
+Code recuerda permisos concedidos sesión a sesión en esa máquina — útil en
+local, nunca debe viajar al repo compartido. Ahora mismo ni siquiera existe en
+`tsa.shimmer/.claude/` (se descartó en la reestructura); la regla del
+`.gitignore` es preventiva para cuando se regenere con el uso normal en la
+máquina nueva.
+
+---
+
 ## Contexto técnico para agentes
 
 **Este repo (`shimmer.llm/proyectos`) sigue siendo la fuente operativa activa**
