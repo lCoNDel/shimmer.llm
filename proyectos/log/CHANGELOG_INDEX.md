@@ -4,6 +4,8 @@
 
 | Fecha | Área | Tags | Resumen | Archivo |
 |---|---|---|---|---|
+| 2026-09-11 | migracion, claude, docker | tsa-shimmer, reestructura, tres-zonas, empresa, congelada, skills, backup | Reestructura completa del proyecto en tsa.shimmer (repo de empresa, separado): tres zonas .claude/docs/operativa; peso muerto documentado y eliminado; sin git aún, a petición del usuario | 2026/09/changelog_2026-09-11.md |
+| 2026-09-11 | docker, backup | espacio-disco, limpieza, backups, gitignore | docker/backup/ liberado de 4,75 GB (dos backups open-webui acumulados); nuevo README.md con propósito, criterio solo-prod y procedimiento | 2026/09/changelog_2026-09-11.md |
 | 2026-06-15 | plan, docs | spikes, embudo, triage, agentes, templates, taller-servicio | plan/ con 3 niveles: ideas/→spikes/→backlog/; docs/ reorganizado en templates/ y agentes/; agente taller servicio documentado (en prod) | 2026/06/changelog_2026-06-15.md |
 | 2026-06-14 | estructura, claude | reestructuracion, carpetas, puntos, plan, backlog, ideas, shimmercloud | Carpetas de proyectos/ sin punto (solo .claude/); plan/ agrupa backlog/, ideas/ y shimmercloud/; 152 entradas git mv + 11 ps1 + 3 compose actualizados | 2026/06/changelog_2026-06-14.md |
 | 2026-06-12 | docs | readme, vision, agentes-departamento, tecnico, proposito | README reescrito en registro técnico; propósito corregido: agentes multimodales para toda la empresa, por departamento y a la carta | 2026/06/changelog_2026-06-12.md |

@@ -1,6 +1,6 @@
 # STATUS — Shimmer LLM
 
-> **Última actualización: 2026-06-15**
+> **Última actualización: 2026-09-11**
 > Documento autocontenido de estado del proyecto. Es la única fuente de contexto
 > para consultas sin acceso al repositorio. Se actualiza al cierre de cada sesión.
 
@@ -19,9 +19,17 @@ producción real.
 
 ---
 
-## 2. Estado operativo (snapshot 2026-06-12)
+## 2. Estado operativo (snapshot 2026-09-11)
 
-⚠️ **Situación temporal importante:**
+⚠️ **Este repositorio (`shimmer.llm`) queda congelado como backup local.**
+El proyecto se traslada a una cuenta de empresa: el trabajo activo continúa en
+un repo nuevo, `tsa.shimmer` (reestructurado en tres zonas — documentación,
+operativa congelada, Claude Code — ver `log/2026/09/changelog_2026-09-11.md`
+para el detalle completo). Este repo no vuelve a tocarse salvo consulta.
+`docker/backup/` se limpió de 4,75 GB de backups acumulados del volumen
+`open-webui` (ver mismo changelog).
+
+⚠️ **Situación temporal importante (heredada, sin cambios esta sesión — [VERIFICAR] si sigue vigente):**
 - `open-webui` (prod, puerto 3000) está **PARADO** desde el 12-jun.
 - Motivo: se actualizó Open WebUI **dev** a v0.9.6 para validar el fix del bug
   `chat_id` en `/api/chat/completions` (el que rompía clientes API externos).
